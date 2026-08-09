@@ -4,30 +4,36 @@
 // daemon -> panel proxy -> browser WebSocket -> xterm.js. Do not convert Buffer
 // to string in the proxy path — TUI escape sequences are binary data.
 
-import { Router, Request } from 'express';
-import { Module } from '../../handlers/moduleInit';
-import prisma from '../../db';
-import { WebSocket } from 'ws';
-import { isAuthenticatedForServerWS, subUserHasPermission } from '../../handlers/utils/auth/serverAuthUtil';
-import { verifyWsToken } from '../../handlers/utils/security/wsToken';
-import logger from '../../handlers/logger';
-import { getParamAsString } from '../../utils/typeHelpers';
-import { daemonRequest, daemonScheme } from '../../handlers/utils/core/daemonRequest';
+import { Router, Request } from "express";
+import { Module } from "../../handlers/moduleInit";
+import prisma from "../../db";
+import { WebSocket } from "ws";
+import {
+  isAuthenticatedForServerWS,
+  subUserHasPermission,
+} from "../../handlers/utils/auth/serverAuthUtil";
+import { verifyWsToken } from "../../handlers/utils/security/wsToken";
+import logger from "../../handlers/logger";
+import { getParamAsString } from "../../utils/typeHelpers";
+import {
+  daemonRequest,
+  daemonScheme,
+} from "../../handlers/utils/core/daemonRequest";
 
-async function wsScheme(): Promise<'ws' | 'wss'> {
-  return (await daemonScheme()) === 'https' ? 'wss' : 'ws';
+async function wsScheme(): Promise<"ws" | "wss"> {
+  return (await daemonScheme()) === "https" ? "wss" : "ws";
 }
 
 type ProxiedMessage = string | Buffer;
 type WsMessage = string | Buffer | ArrayBuffer | Buffer[];
-type ConsoleProxyMode = 'interactive' | 'readonly';
+type ConsoleProxyMode = "interactive" | "readonly";
 
 const CONSOLE_COMMAND_EVENTS = new Set([
-  'cmd',
-  'command',
-  'input',
-  'stdin',
-  'sendcommand',
+  "cmd",
+  "command",
+  "input",
+  "stdin",
+  "sendcommand",
 ]);
 const MAX_PENDING_CLIENT_MESSAGES = 50;
 
@@ -47,14 +53,14 @@ function sendSocketError(socket: WebSocket, message: string): void {
 }
 
 function normalizeWsMessage(data: WsMessage): ProxiedMessage {
-  if (typeof data === 'string') return data;
+  if (typeof data === "string") return data;
   if (Buffer.isBuffer(data)) return data;
   if (Array.isArray(data)) return Buffer.concat(data);
   return Buffer.from(data);
 }
 
 function extractConsoleCommand(data: WsMessage): string | null {
-  const raw = normalizeWsMessage(data).toString('utf8').trim();
+  const raw = normalizeWsMessage(data).toString("utf8").trim();
   if (!raw) return null;
 
   try {
@@ -68,7 +74,7 @@ function extractConsoleCommand(data: WsMessage): string | null {
     };
 
     const event =
-      typeof payload.event === 'string' ? payload.event.toLowerCase() : 'cmd';
+      typeof payload.event === "string" ? payload.event.toLowerCase() : "cmd";
     if (!CONSOLE_COMMAND_EVENTS.has(event)) {
       return null;
     }
@@ -81,8 +87,8 @@ function extractConsoleCommand(data: WsMessage): string | null {
       payload.args?.[0],
     ];
     for (const candidate of candidates) {
-      if (typeof candidate === 'string') {
-        const command = candidate.replace(/\r\n?/g, '\n').trim();
+      if (typeof candidate === "string") {
+        const command = candidate.replace(/\r\n?/g, "\n").trim();
         if (command) return command;
       }
     }
@@ -105,27 +111,32 @@ async function proxyConsole(
   mode: ConsoleProxyMode,
 ) {
   try {
-    const token = new URL(req.url ?? '', 'ws://local').searchParams.get('token');
+    const token = new URL(req.url ?? "", "ws://local").searchParams.get(
+      "token",
+    );
     const tokenData = verifyWsToken(token);
     if (!tokenData) {
-      sendSocketError(ws, 'Invalid or expired connect token. Refresh the page and try again.');
+      sendSocketError(
+        ws,
+        "Invalid or expired connect token. Refresh the page and try again.",
+      );
       return;
     }
 
     const user = await prisma.users.findUnique({ where: { id: userId } });
     if (!user?.username) {
-      sendSocketError(ws, 'User not found or username missing');
+      sendSocketError(ws, "User not found or username missing");
       return;
     }
 
     const serverId = getParamAsString(req.params.id);
     if (!serverId) {
-      sendSocketError(ws, 'Server ID is required');
+      sendSocketError(ws, "Server ID is required");
       return;
     }
 
     if (tokenData.serverId !== serverId || tokenData.userId !== userId) {
-      sendSocketError(ws, 'Connect token does not match this session');
+      sendSocketError(ws, "Connect token does not match this session");
       return;
     }
 
@@ -134,12 +145,14 @@ async function proxyConsole(
       include: { node: true },
     });
     if (!server) {
-      sendSocketError(ws, 'Server not found');
+      sendSocketError(ws, "Server not found");
       return;
     }
 
     const { node } = server;
-    const socket = new WebSocket(await daemonPath(node.address, node.port, serverId));
+    const socket = new WebSocket(
+      await daemonPath(node.address, node.port, serverId),
+    );
     const pendingClientMessages: ProxiedMessage[] = [];
     let clientClosed = false;
 
@@ -151,7 +164,7 @@ async function proxyConsole(
     }
 
     async function forwardToDaemon(data: WsMessage): Promise<void> {
-      if (mode === 'readonly') return;
+      if (mode === "readonly") return;
 
       const command = extractConsoleCommand(data);
       if (command) {
@@ -160,8 +173,8 @@ async function proxyConsole(
             nodeAddress: node.address,
             nodePort: node.port,
             nodeKey: node.key,
-            method: 'POST',
-            path: '/container/command',
+            method: "POST",
+            path: "/container/command",
             body: { id: serverId, command },
             timeout: 10_000,
           });
@@ -169,7 +182,7 @@ async function proxyConsole(
           logger.error(`Failed to send console command to ${serverId}:`, error);
           sendIfOpen(
             ws,
-            '\x1b[31;1mCommand failed to reach the daemon. Check panel logs for details.\x1b[0m\r\n',
+            "\x1b[31;1mCommand failed to reach the daemon. Check panel logs for details.\x1b[0m\r\n",
           );
         }
         return;
@@ -190,14 +203,14 @@ async function proxyConsole(
     }
 
     socket.onopen = () => {
-      socket.send(JSON.stringify({ event: 'auth', args: [node.key] }));
+      socket.send(JSON.stringify({ event: "auth", args: [node.key] }));
       flushPendingClientMessages();
     };
 
     socket.onmessage = (msg) => sendIfOpen(ws, normalizeWsMessage(msg.data));
 
     socket.onerror = () => {
-      sendIfOpen(ws, '\x1b[31;1mThis instance is unavailable!\x1b[0m');
+      sendIfOpen(ws, "\x1b[31;1mThis instance is unavailable!\x1b[0m");
     };
 
     socket.onclose = () => {
@@ -205,8 +218,8 @@ async function proxyConsole(
       if (!clientClosed && isOpen(ws)) ws.close();
     };
 
-    ws.on('message', forwardToDaemon);
-    ws.on('close', () => {
+    ws.on("message", forwardToDaemon);
+    ws.on("close", () => {
       clientClosed = true;
       pendingClientMessages.length = 0;
       if (socket.readyState === WebSocket.CONNECTING || isOpen(socket)) {
@@ -214,19 +227,19 @@ async function proxyConsole(
       }
     });
   } catch (error) {
-    logger.error('Error in console proxy:', error);
-    sendSocketError(ws, 'Internal server error');
+    logger.error("Error in console proxy:", error);
+    sendSocketError(ws, "Internal server error");
   }
 }
 
 const wsServerConsoleModule: Module = {
   info: {
-    name: 'Server Console Module',
-    description: 'This file is for the server console functionality.',
-    version: '2.0.0',
-    moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
-    license: 'MIT',
+    name: "Server Console Module",
+    description: "This file is for the server console functionality.",
+    version: "2.0.0",
+    moduleVersion: "1.0.0",
+    author: "AirLinkLab",
+    license: "MIT",
   },
 
   router: (applyWs?: (router: Router) => void) => {
@@ -234,20 +247,22 @@ const wsServerConsoleModule: Module = {
     if (applyWs) applyWs(router);
 
     router.ws(
-      '/console/:id',
-      isAuthenticatedForServerWS('id'),
+      "/console/:id",
+      isAuthenticatedForServerWS("id"),
       async (ws: WebSocket, req: Request) => {
         const userId = req.session?.user?.id;
-        const subUser = (req as any).subUser as
-          | { permissions: string | null | undefined }
-          | undefined;
-        if (subUser && !subUserHasPermission(subUser, 'console')) {
-          ws.send(JSON.stringify({ error: 'You do not have permission to access the console.' }));
+        const subUser = req.subUser;
+        if (subUser && !subUserHasPermission(subUser, "console")) {
+          ws.send(
+            JSON.stringify({
+              error: "You do not have permission to access the console.",
+            }),
+          );
           ws.close();
           return;
         }
         if (!userId) {
-          ws.send(JSON.stringify({ error: 'User not authenticated' }));
+          ws.send(JSON.stringify({ error: "User not authenticated" }));
           ws.close();
           return;
         }
@@ -255,19 +270,20 @@ const wsServerConsoleModule: Module = {
           ws,
           req,
           userId,
-          async (addr, port, id) => `${await wsScheme()}://${addr}:${port}/container/${id}`,
-          'interactive',
+          async (addr, port, id) =>
+            `${await wsScheme()}://${addr}:${port}/container/${id}`,
+          "interactive",
         );
       },
     );
 
     router.ws(
-      '/status/:id',
-      isAuthenticatedForServerWS('id'),
+      "/status/:id",
+      isAuthenticatedForServerWS("id"),
       async (ws: WebSocket, req: Request) => {
         const userId = req.session?.user?.id;
         if (!userId) {
-          ws.send(JSON.stringify({ error: 'User not authenticated' }));
+          ws.send(JSON.stringify({ error: "User not authenticated" }));
           ws.close();
           return;
         }
@@ -277,18 +293,18 @@ const wsServerConsoleModule: Module = {
           userId,
           async (addr, port, id) =>
             `${await wsScheme()}://${addr}:${port}/containerstatus/${id}`,
-          'readonly',
+          "readonly",
         );
       },
     );
 
     router.ws(
-      '/events/:id',
-      isAuthenticatedForServerWS('id'),
+      "/events/:id",
+      isAuthenticatedForServerWS("id"),
       async (ws: WebSocket, req: Request) => {
         const userId = req.session?.user?.id;
         if (!userId) {
-          ws.send(JSON.stringify({ error: 'User not authenticated' }));
+          ws.send(JSON.stringify({ error: "User not authenticated" }));
           ws.close();
           return;
         }
@@ -298,7 +314,7 @@ const wsServerConsoleModule: Module = {
           userId,
           async (addr, port, id) =>
             `${await wsScheme()}://${addr}:${port}/containerevents/${id}`,
-          'readonly',
+          "readonly",
         );
       },
     );
