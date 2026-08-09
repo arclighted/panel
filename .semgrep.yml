@@ -1,24 +1,32 @@
+# Semgrep configuration for the Airlink panel.
+#
+# CI runs semgrep scoped to the application source (src/ and tests/) with a set
+# of registry packs passed on the command line, since packs (p/...) cannot be
+# referenced from inside a config file's rules: array. See the `semgrep` job in
+# .github/workflows/ci.yml for the full invocation:
+#
+#   semgrep scan --config .semgrep.yml \
+#     --config p/owasp-top-ten \
+#     --config p/security-audit \
+#     --config p/secrets \
+#     --error --verbose src tests
+
 rules:
-  # OWASP Top 10
-  - p/owasp-top-ten
+  - id: no-eval
+    languages:
+      - javascript
+      - typescript
+    severity: ERROR
+    message: Avoid using eval() as it can lead to code injection.
+    pattern: eval(...)
 
-  # TypeScript best practices
-  - p/typescript
-
-  # Node.js security
-  - p/node
-
-  # Express.js security
-  - p/express
-
-  # Security audit (r2c)
-  - p/security-audit
-
-  # Secrets detection
-  - p/secrets
-
-  # React (for EJS/view templates)
-  - p/react
-
-  # Default recommended
-  - p/default
+  - id: no-child-process-shell-true
+    languages:
+      - javascript
+      - typescript
+    severity: ERROR
+    message: Running child processes with shell:true can lead to command injection. Prefer shell:false with an arguments array.
+    patterns:
+      - pattern-either:
+          - pattern: "$FN($ARGS, { ..., shell: true, ... })"
+          - pattern: "$FN($ARGS, $OPTS, { ..., shell: true, ... })"

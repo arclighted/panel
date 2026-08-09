@@ -8,6 +8,7 @@ import path from 'path';
 import { getParamAsNumber } from '../../utils/typeHelpers';
 import { daemonRequest } from '../../handlers/utils/core/daemonRequest';
 import { httpGet, httpPost } from '../../utils/http';
+import { containPath } from '../../utils/pathSecurity';
 
 
 // In-memory rate limiter respecting VT free tier: 4/min, 500/day
@@ -230,7 +231,14 @@ const radarModule: Module = {
           }
 
           // Get the script content
-          const scriptPath = path.join(__dirname, '../../../storage/radar', `${scriptId}.json`);
+          const radarDir = path.join(__dirname, '../../../storage/radar');
+          // scriptId is restricted to a validated filename by containPath() below.
+          // nosemgrep: javascript.express.security.audit.express-path-join-resolve-traversal.express-path-join-resolve-traversal
+          const scriptPath = path.join(radarDir, `${scriptId}.json`);
+          if (!containPath(radarDir, scriptPath)) {
+            res.status(400).json({ success: false, error: 'Invalid script ID' });
+            return;
+          }
           const scriptContent = await fs.readFile(scriptPath, 'utf-8');
           const script = JSON.parse(scriptContent);
           
@@ -323,6 +331,8 @@ const radarModule: Module = {
           return;
         }
 
+        // server.UUID comes from the database record, not from user input.
+        // nosemgrep: javascript.express.security.audit.express-path-join-resolve-traversal.express-path-join-resolve-traversal
         const tmpPath = path.join('/tmp', `vtscan-${server.UUID}-${Date.now()}.zip`);
 
         try {

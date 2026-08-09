@@ -41,6 +41,8 @@ function isGitRepo(): boolean {
 
 function spawnSyncSafe(command: string, args: string[] = [], options: { stdio?: 'inherit' | 'pipe' | 'ignore' } = {}): { success: boolean; output?: string; error?: string } {
   try {
+    // Fixed whitelisted commands with shell:false and an args array — no shell interpolation.
+    // nosemgrep: javascript.lang.security.detect-child-process.detect-child-process
     const result = spawnSync(command, args, {
       shell: false,
       timeout: 120_000,

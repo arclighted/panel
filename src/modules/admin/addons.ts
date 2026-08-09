@@ -131,10 +131,14 @@ const addonsModule: Module = {
           if (!addon) return res.status(404).json({ success: false, message: 'Addon not found' });
 
           const addonsDir = path.join(__dirname, '../../../storage/addons');
+          // slug is restricted to a validated addon directory by containPath() below.
+          // nosemgrep: javascript.express.security.audit.express-path-join-resolve-traversal.express-path-join-resolve-traversal
           const addonDir = path.join(addonsDir, slug);
           if (!containPath(addonsDir, addonDir)) {
             return res.status(400).json({ success: false, message: 'Invalid addon slug' });
           }
+          // addonDir already passed the containPath() check above.
+          // nosemgrep: javascript.express.security.audit.express-path-join-resolve-traversal.express-path-join-resolve-traversal
           const packageJsonPath = path.join(addonDir, 'package.json');
           const result = parseAddonManifest(packageJsonPath, slug);
 
@@ -204,10 +208,14 @@ const addonsModule: Module = {
           if (!addon) return res.status(404).json({ success: false, message: 'Addon not found' });
 
           const addonsDir = path.join(__dirname, '../../../storage/addons');
+          // slug is restricted to a validated addon directory by containPath() below.
+          // nosemgrep: javascript.express.security.audit.express-path-join-resolve-traversal.express-path-join-resolve-traversal
           const addonDir = path.join(addonsDir, slug);
           if (!containPath(addonsDir, addonDir)) {
             return res.status(400).json({ success: false, message: 'Invalid addon slug' });
           }
+          // addonDir already passed the containPath() check above.
+          // nosemgrep: javascript.express.security.audit.express-path-join-resolve-traversal.express-path-join-resolve-traversal
           const packageJsonPath = path.join(addonDir, 'package.json');
           const result = parseAddonManifest(packageJsonPath, slug);
           if (!result.success || !result.manifest.settingsSchema) {
@@ -306,6 +314,8 @@ const addonsModule: Module = {
           }
 
           const addonsDir = path.join(__dirname, '../../../storage/addons');
+          // slug is restricted to a validated addon directory by containPath() below.
+          // nosemgrep: javascript.express.security.audit.express-path-join-resolve-traversal.express-path-join-resolve-traversal
           const targetDir = path.join(addonsDir, slug);
 
           if (!containPath(addonsDir, targetDir) || !fs.existsSync(targetDir)) {
