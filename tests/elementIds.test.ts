@@ -62,7 +62,7 @@ describe("element id integrity", () => {
       if (idMatch) dynamicIds.add(idMatch[1]);
     }
     // element.id = 'x' or id:'x' inside template literals
-    for (const m of content.matchAll(/\bid\s*[=:]\s*'([^']+)'/g))
+    for (const m of content.matchAll(/\bid\s*[=:]\s*['"]([^'"]+)['"]/g))
       dynamicIds.add(m[1]);
     for (const m of content.matchAll(
       /setAttribute\(\s*'id'\s*,\s*'([^']+)'\)/g,

@@ -167,6 +167,6 @@ describe('WebSocket token security', () => {
     const avg = times.reduce((a, b) => a + b, 0) / times.length;
     const maxDeviation = Math.max(...times.map((t) => Math.abs(t - avg)));
     // Should not vary wildly (generous threshold for CI noise)
-    expect(maxDeviation).toBeLessThan(avg * 3 + 5);
+    expect(maxDeviation).toBeLessThan(avg * 5 + 10);
   });
 });

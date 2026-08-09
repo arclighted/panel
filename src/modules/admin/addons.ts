@@ -189,13 +189,13 @@ const addonsModule: Module = {
               .json({ success: false, message: "Addon not found" });
 
           const addonsDir = path.join(__dirname, "../../../storage/addons");
-          const addonDir = path.join(addonsDir, slug);
+          const addonDir = path.join(addonsDir, slug); // nosemgrep: express-path-join-resolve-traversal -- guarded by containPath below
           if (!containPath(addonsDir, addonDir)) {
             return res
               .status(400)
               .json({ success: false, message: "Invalid addon slug" });
           }
-          const packageJsonPath = path.join(addonDir, "package.json");
+          const packageJsonPath = path.join(addonDir, "package.json"); // nosemgrep: express-path-join-resolve-traversal -- addonDir validated above
           const result = parseAddonManifest(packageJsonPath, slug);
 
           const commands = commandRegistry
@@ -289,13 +289,13 @@ const addonsModule: Module = {
               .json({ success: false, message: "Addon not found" });
 
           const addonsDir = path.join(__dirname, "../../../storage/addons");
-          const addonDir = path.join(addonsDir, slug);
+          const addonDir = path.join(addonsDir, slug); // nosemgrep: express-path-join-resolve-traversal -- guarded by containPath below
           if (!containPath(addonsDir, addonDir)) {
             return res
               .status(400)
               .json({ success: false, message: "Invalid addon slug" });
           }
-          const packageJsonPath = path.join(addonDir, "package.json");
+          const packageJsonPath = path.join(addonDir, "package.json"); // nosemgrep: express-path-join-resolve-traversal -- addonDir validated above
           const result = parseAddonManifest(packageJsonPath, slug);
           if (!result.success || !result.manifest.settingsSchema) {
             return res
@@ -441,7 +441,7 @@ const addonsModule: Module = {
           }
 
           const addonsDir = path.join(__dirname, "../../../storage/addons");
-          const targetDir = path.join(addonsDir, slug);
+          const targetDir = path.join(addonsDir, slug); // nosemgrep: express-path-join-resolve-traversal -- guarded by containPath below
 
           if (!containPath(addonsDir, targetDir) || !fs.existsSync(targetDir)) {
             return res
