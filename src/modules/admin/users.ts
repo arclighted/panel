@@ -28,10 +28,10 @@ import { emitRealtime, userEvent } from '../../handlers/realtime/events';
 
 const BCRYPT_SALT_ROUNDS = 12;
 
-registerPermission('airlink.admin.users.view' as Permission);
-registerPermission('airlink.admin.users.create' as Permission);
-registerPermission('airlink.admin.users.edit' as Permission);
-registerPermission('airlink.admin.users.delete' as Permission);
+registerPermission('arclight.admin.users.view' as Permission);
+registerPermission('arclight.admin.users.create' as Permission);
+registerPermission('arclight.admin.users.edit' as Permission);
+registerPermission('arclight.admin.users.delete' as Permission);
 
 function isRoleValue(value: unknown): value is UserRole {
   return isRole(value);
@@ -69,7 +69,7 @@ const adminModule: Module = {
     description: 'This file is for admin functionality of the Users.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 
@@ -78,7 +78,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/users',
-      isAuthenticated(true, 'airlink.admin.users.view'),
+      isAuthenticated(true, 'arclight.admin.users.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -108,7 +108,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/users/create',
-      isAuthenticated(true, 'airlink.admin.users.view'),
+      isAuthenticated(true, 'arclight.admin.users.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -130,7 +130,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/users/create-user',
-      isAuthenticated(true, 'airlink.admin.users.create'),
+      isAuthenticated(true, 'arclight.admin.users.create'),
       parseBody(createUserSchema),
       async (req: Request, res: Response) => {
         const {
@@ -203,7 +203,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/users/edit/:id/',
-      isAuthenticated(true, 'airlink.admin.users.edit'),
+      isAuthenticated(true, 'arclight.admin.users.edit'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -242,7 +242,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/users/view/:id/',
-      isAuthenticated(true, 'airlink.admin.users.view'),
+      isAuthenticated(true, 'arclight.admin.users.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -280,7 +280,7 @@ const adminModule: Module = {
 
     router.delete(
       '/admin/users/delete/:id/',
-      isAuthenticated(true, 'airlink.admin.users.delete'),
+      isAuthenticated(true, 'arclight.admin.users.delete'),
       async (req: Request, res: Response): Promise<void> => {
         try {
           const userId = req.session?.user?.id;
@@ -351,7 +351,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/users/update/:id/',
-      isAuthenticated(true, 'airlink.admin.users.edit'),
+      isAuthenticated(true, 'arclight.admin.users.edit'),
       parseBody(updateUserSchema),
       async (req: Request, res: Response): Promise<void> => {
         try {
@@ -551,7 +551,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/users/transfer-owner/:id/',
-      isAuthenticated(true, 'airlink.admin.users.edit'),
+      isAuthenticated(true, 'arclight.admin.users.edit'),
       async (req: Request, res: Response): Promise<void> => {
         try {
           const actorId = req.session?.user?.id;

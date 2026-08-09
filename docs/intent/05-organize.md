@@ -1,6 +1,6 @@
 # Intent · 05 · Organize
 
-> Information architecture audit and redesign of Airlink Panel's navigation, taxonomy, labeling, and search.
+> Information architecture audit and redesign of Arclight Panel's navigation, taxonomy, labeling, and search.
 > Visual: `05-organize-ia.html`.
 
 ---
@@ -39,7 +39,7 @@
 ## 2. Proposed site map
 
 ```
-Airlink Panel
+Arclight Panel
 ├── HOME (role-aware)
 │   ├── Admin: Overview — fleet health, stat cards, update check
 │   └── Owner: Dashboard — server grid/folders, status + usage

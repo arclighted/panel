@@ -826,15 +826,15 @@ connectWebSocket();
     }
 
     // Replace any shell prompt variants that show the internal container
-    // hostname with the display name "airlinkd". This covers every form the
+    // hostname with the display name "arclightd". This covers every form the
     // prompt can take depending on shell, distro, and yolks image version:
     //
-    //   container@<anything>:~$      -> airlinkd~
-    //   container@<anything>:~#      -> airlinkd~
-    //   container@<anything>:~       -> airlinkd~
-    //   [container@<anything> ~]$    -> airlinkd~
-    //   (container@<anything>)~$     -> airlinkd~
-    //   root@<anything>:~#           -> airlinkd~
+    //   container@<anything>:~$      -> arclightd~
+    //   container@<anything>:~#      -> arclightd~
+    //   container@<anything>:~       -> arclightd~
+    //   [container@<anything> ~]$    -> arclightd~
+    //   (container@<anything>)~$     -> arclightd~
+    //   root@<anything>:~#           -> arclightd~
     //
     // The regex matches:
     //   (?:container|root)    - the username yolks creates or root
@@ -850,7 +850,7 @@ connectWebSocket();
     //
     // Solution: strip all ANSI escape codes from a copy of the chunk, run the
     // plain-text regex against that, and if it hits, replace the *entire raw
-    // chunk* with "airlinkd~ " — because the chunk is the prompt line itself.
+    // chunk* with "arclightd~ " — because the chunk is the prompt line itself.
     // If the chunk contains more than just the prompt (i.e. it includes server
     // log output), fall back to replacing in the plain version and writing that.
     //
@@ -875,12 +875,12 @@ connectWebSocket();
         PROMPT_RE.lastIndex = 0;
 
         if (isOnlyPrompt) {
-            return '\r\nairlinkd~ ';
+            return '\r\narclightd~ ';
         }
 
         // Mixed chunk — replace in plain text and write that (loses colour on
         // the prompt line, but preserves all other output correctly).
-        return plain.replace(PROMPT_RE, 'airlinkd~ ');
+        return plain.replace(PROMPT_RE, 'arclightd~ ');
     }
 
     function handleWebSocketMessage(msg) {
@@ -888,7 +888,7 @@ connectWebSocket();
             msg.data.arrayBuffer().then(buf => {
                 const text = new TextDecoder().decode(buf);
                 if (isDaemonInfraError(text)) return;
-                if (text.includes('airlinkd server appears to be down')) {
+                if (text.includes('arclightd server appears to be down')) {
                     socket.close();
                     wsErrorCount = 3;
                     setDaemonOfflineBanner(true);
@@ -915,7 +915,7 @@ connectWebSocket();
 
         const text = typeof msg.data === 'string' ? msg.data : String(msg.data);
         if (isDaemonInfraError(text)) return;
-        if (text.includes('airlinkd server appears to be down')) {
+        if (text.includes('arclightd server appears to be down')) {
             socket.close();
             wsErrorCount = 3;
             setDaemonOfflineBanner(true);

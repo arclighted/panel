@@ -1,4 +1,4 @@
-# Semgrep configuration for the Airlink panel.
+# Semgrep configuration for the Arclight panel.
 #
 # CI runs semgrep scoped to the application source (src/ and tests/) with a set
 # of registry packs passed on the command line, since packs (p/...) cannot be

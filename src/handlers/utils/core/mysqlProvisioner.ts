@@ -51,7 +51,7 @@ async function connect(host: DatabaseHost): Promise<mysql.Connection> {
 
 export async function provisionDatabase(host: DatabaseHost, serverId: string): Promise<DatabaseCredentials> {
   const hex = serverId.replace(/-/g, '');
-  const dbName = `airlink_${hex.slice(0, DB_NAME_SLICE_LEN)}`;
+  const dbName = `arclight_${hex.slice(0, DB_NAME_SLICE_LEN)}`;
   const dbUser = `al_${hex.slice(0, DB_USER_SLICE_LEN)}`;
   const dbPass = crypto.randomBytes(DB_PASS_RANDOM_BYTES).toString('hex');
 

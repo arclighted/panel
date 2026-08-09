@@ -44,7 +44,7 @@ export class DaemonClient {
     return {
       method,
       url: `http://${server.node.address}:${server.node.port}${endpoint}`,
-      auth: { username: 'Airlink', password: server.node.key },
+      auth: { username: 'Arclight', password: server.node.key },
       headers: { 'Content-Type': 'application/json' },
       data,
       timeout: this.config.requestTimeout,
@@ -56,7 +56,7 @@ export class DaemonClient {
       await axios.get(
         `http://${serverInfo.nodeAddress}:${serverInfo.nodePort}/`,
         {
-          auth: { username: 'Airlink', password: serverInfo.nodeKey },
+          auth: { username: 'Arclight', password: serverInfo.nodeKey },
           timeout: 5000,
         },
       );
@@ -178,7 +178,7 @@ export class DaemonClient {
         const response = await axios.get(url, {
           responseType: 'arraybuffer',
           headers: {
-            'User-Agent': 'AirLink-ModrinthAddon/2.0',
+            'User-Agent': 'Arclight-ModrinthAddon/2.0',
             'Accept': '*/*',
           },
           timeout: this.config.downloadTimeout,
@@ -215,7 +215,7 @@ export class DaemonClient {
       const response = await axios({
         method: 'GET',
         url: `http://${server.node.address}:${server.node.port}/fs/list`,
-        auth: { username: 'Airlink', password: server.node.key },
+        auth: { username: 'Arclight', password: server.node.key },
         params: { id: server.UUID, path: sanitizedPath },
         timeout: 15000,
       });
@@ -310,7 +310,7 @@ export class DaemonClient {
     if (!serverJarInfo?.url) throw new Error('Invalid server jar info');
     const response = await axios.get(serverJarInfo.url, {
       responseType: 'arraybuffer',
-      headers: { 'User-Agent': 'AirLink-ModrinthAddon/2.0' },
+      headers: { 'User-Agent': 'Arclight-ModrinthAddon/2.0' },
       timeout: this.config.downloadTimeout,
       maxContentLength: this.config.maxFileSize,
       maxBodyLength: this.config.maxFileSize,

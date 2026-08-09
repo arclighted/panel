@@ -66,8 +66,8 @@ process.env.SESSION_SECRET = panelConfig.sessionSecret;
 
 const port = panelConfig.port;
 const name = panelConfig.name;
-const airlinkVersion = config.meta.version;
-const airlinkCodename = config.meta.codename;
+const arclightVersion = config.meta.version;
+const arclightCodename = config.meta.codename;
 
 // Trust proxy when the panel is behind a reverse proxy (Nginx, Caddy, etc).
 // Reads from DB at startup — affects req.ip used by rate limiting and IP banning.
@@ -398,13 +398,13 @@ app.use(handleCsrfError);
 
 app.use((_req, res, next) => {
   res.locals.name = name;
-  res.locals.airlinkVersion = airlinkVersion;
-  res.locals.airlinkCodename = airlinkCodename;
+  res.locals.arclightVersion = arclightVersion;
+  res.locals.arclightCodename = arclightCodename;
   res.locals.icon = icon;
   global.uiComponentStore = uiComponentStore;
   global.appName = name;
-  global.airlinkVersion = airlinkVersion;
-  global.airlinkCodename = airlinkCodename;
+  global.arclightVersion = arclightVersion;
+  global.arclightCodename = arclightCodename;
 
   res.locals.adminMenuItems = uiComponentStore.getSidebarItems(undefined, true);
   res.locals.regularMenuItems = uiComponentStore.getSidebarItems(
@@ -437,7 +437,7 @@ app.use(errorPageHandler);
     await settingsLoader();
     // Initialize default UI components
     initializeDefaultUIComponents();
-    await loadModules(app, airlinkVersion, Number(port), expressWsInstance);
+    await loadModules(app, arclightVersion, Number(port), expressWsInstance);
     setAppInstance(app);
     await loadAddons(app);
 

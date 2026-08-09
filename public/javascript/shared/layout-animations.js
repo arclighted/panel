@@ -136,7 +136,7 @@
     setTimeout(init, SPA_REATTACH_MS);
   });
 
-  window.airlinkAnimate = function (el, options) {
+  window.arclightAnimate = function (el, options) {
     if (!el || el.nodeType !== 1) return;
     const duration = (options && options.duration) || DEFAULT_DURATION;
     const delay = (options && options.delay) || 0;
@@ -154,12 +154,12 @@
     );
   };
 
-  window.airlinkAnimateChildren = function (container, options) {
+  window.arclightAnimateChildren = function (container, options) {
     if (!container || container.nodeType !== 1) return;
     const baseDelay = (options && options.baseDelay) || 0;
     const stagger = (options && options.stagger) || DEFAULT_STAGGER;
     Array.from(container.children).forEach(function (child, i) {
-      window.airlinkAnimate(child, {
+      window.arclightAnimate(child, {
         duration: (options && options.duration) || DEFAULT_DURATION,
         delay: baseDelay + i * stagger,
       });

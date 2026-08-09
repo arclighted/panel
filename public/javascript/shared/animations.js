@@ -1,5 +1,5 @@
 /* ============================================
-   AIRLINK ANIMATION HELPERS
+   ARCLIGHT ANIMATION HELPERS
    Physics-free, class-driven motion.
    All durations/easing live in /styles/motion.css.
 

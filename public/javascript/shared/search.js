@@ -131,7 +131,7 @@
       nodes: "nodes machines daemons daemon hosts",
       images: "images docker eggs templates boxes",
       addons: "addons plugins extensions mods",
-      "airlink cloud": "cloud backup updates airlinkcloud",
+      "arclight cloud": "cloud backup updates arclightcloud",
       "api keys": "apikeys api keys tokens access auth",
       account: "account profile me my",
       logout: "logout signout sign out exit",
@@ -194,9 +194,9 @@
             kw: "plugins extensions mods installed",
           },
           {
-            label: "Airlink Cloud",
-            url: "/airlink-cloud/settings",
-            kw: "cloud backup updates airlink",
+            label: "Arclight Cloud",
+            url: "/arclight-cloud/settings",
+            kw: "cloud backup updates arclight",
           },
           {
             label: "API Keys",

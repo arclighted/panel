@@ -26,11 +26,11 @@ async function shouldHashKeys(): Promise<boolean> {
   }
 }
 
-registerPermission('airlink.admin.apikeys.view');
-registerPermission('airlink.admin.apikeys.create');
-registerPermission('airlink.admin.apikeys.delete');
-registerPermission('airlink.admin.apikeys.edit');
-registerPermission('airlink.admin.api.docs.view');
+registerPermission('arclight.admin.apikeys.view');
+registerPermission('arclight.admin.apikeys.create');
+registerPermission('arclight.admin.apikeys.delete');
+registerPermission('arclight.admin.apikeys.edit');
+registerPermission('arclight.admin.api.docs.view');
 
 const coreModule: Module = {
   info: {
@@ -38,7 +38,7 @@ const coreModule: Module = {
     description: 'This module handles API key management.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 
@@ -47,7 +47,7 @@ const coreModule: Module = {
 
     router.get(
       '/admin/api/docs',
-      isAuthenticated(true, 'airlink.admin.api.docs.view'),
+      isAuthenticated(true, 'arclight.admin.api.docs.view'),
       async (req: Request, res: Response) => {
         try {
           const settings = await prisma.settings.findFirst();
@@ -83,7 +83,7 @@ const coreModule: Module = {
 
     router.get(
       '/admin/apikeys',
-      isAuthenticated(true, 'airlink.admin.apikeys.view'),
+      isAuthenticated(true, 'arclight.admin.apikeys.view'),
       async (req: Request, res: Response) => {
         try {
           const apiKeys = await prisma.apiKey.findMany({
@@ -101,26 +101,26 @@ const coreModule: Module = {
           const settings = await prisma.settings.findFirst();
 
           const allPermissions = [
-            { name: 'Servers - Read', value: 'airlink.api.servers.read' },
-            { name: 'Servers - Create', value: 'airlink.api.servers.create' },
-            { name: 'Servers - Update', value: 'airlink.api.servers.update' },
-            { name: 'Servers - Delete', value: 'airlink.api.servers.delete' },
-            { name: 'Users - Read', value: 'airlink.api.users.read' },
-            { name: 'Users - Create', value: 'airlink.api.users.create' },
-            { name: 'Users - Update', value: 'airlink.api.users.update' },
-            { name: 'Users - Delete', value: 'airlink.api.users.delete' },
-            { name: 'Nodes - Read', value: 'airlink.api.nodes.read' },
-            { name: 'Nodes - Create', value: 'airlink.api.nodes.create' },
-            { name: 'Nodes - Update', value: 'airlink.api.nodes.update' },
-            { name: 'Nodes - Delete', value: 'airlink.api.nodes.delete' },
-            { name: 'Settings - Read', value: 'airlink.api.settings.read' },
-            { name: 'Settings - Update', value: 'airlink.api.settings.update' },
-            { name: 'Images - Read', value: 'airlink.api.images.read' },
-            { name: 'Images - Create', value: 'airlink.api.images.create' },
-            { name: 'Images - Update', value: 'airlink.api.images.update' },
-            { name: 'Images - Delete', value: 'airlink.api.images.delete' },
-            { name: 'Locations - Read', value: 'airlink.api.locations.read' },
-            { name: 'Locations - Create', value: 'airlink.api.locations.create' },
+            { name: 'Servers - Read', value: 'arclight.api.servers.read' },
+            { name: 'Servers - Create', value: 'arclight.api.servers.create' },
+            { name: 'Servers - Update', value: 'arclight.api.servers.update' },
+            { name: 'Servers - Delete', value: 'arclight.api.servers.delete' },
+            { name: 'Users - Read', value: 'arclight.api.users.read' },
+            { name: 'Users - Create', value: 'arclight.api.users.create' },
+            { name: 'Users - Update', value: 'arclight.api.users.update' },
+            { name: 'Users - Delete', value: 'arclight.api.users.delete' },
+            { name: 'Nodes - Read', value: 'arclight.api.nodes.read' },
+            { name: 'Nodes - Create', value: 'arclight.api.nodes.create' },
+            { name: 'Nodes - Update', value: 'arclight.api.nodes.update' },
+            { name: 'Nodes - Delete', value: 'arclight.api.nodes.delete' },
+            { name: 'Settings - Read', value: 'arclight.api.settings.read' },
+            { name: 'Settings - Update', value: 'arclight.api.settings.update' },
+            { name: 'Images - Read', value: 'arclight.api.images.read' },
+            { name: 'Images - Create', value: 'arclight.api.images.create' },
+            { name: 'Images - Update', value: 'arclight.api.images.update' },
+            { name: 'Images - Delete', value: 'arclight.api.images.delete' },
+            { name: 'Locations - Read', value: 'arclight.api.locations.read' },
+            { name: 'Locations - Create', value: 'arclight.api.locations.create' },
           ];
 
           res.render('admin/apikeys/apikeys', {
@@ -143,7 +143,7 @@ const coreModule: Module = {
 
     router.post(
       '/admin/apikeys/create',
-      isAuthenticated(true, 'airlink.admin.apikeys.create'),
+      isAuthenticated(true, 'arclight.admin.apikeys.create'),
       async (req: Request, res: Response) => {
         try {
           const { name, description, permissions } = req.body ?? {};
@@ -196,7 +196,7 @@ const coreModule: Module = {
 
     router.post(
       '/admin/apikeys/delete/:id',
-      isAuthenticated(true, 'airlink.admin.apikeys.delete'),
+      isAuthenticated(true, 'arclight.admin.apikeys.delete'),
       async (req: Request, res: Response) => {
         try {
           const id = getParamAsNumber(req.params.id);
@@ -226,7 +226,7 @@ const coreModule: Module = {
 
     router.post(
       '/admin/apikeys/toggle/:id',
-      isAuthenticated(true, 'airlink.admin.apikeys.edit'),
+      isAuthenticated(true, 'arclight.admin.apikeys.edit'),
       async (req: Request, res: Response) => {
         try {
           const id = getParamAsNumber(req.params.id);
@@ -258,7 +258,7 @@ const coreModule: Module = {
 
     router.post(
       '/admin/apikeys/edit/:id',
-      isAuthenticated(true, 'airlink.admin.apikeys.edit'),
+      isAuthenticated(true, 'arclight.admin.apikeys.edit'),
       async (req: Request, res: Response) => {
         try {
           const id = getParamAsNumber(req.params.id);

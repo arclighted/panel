@@ -11,7 +11,7 @@ declare global {
   var serverStoppingStates: Record<string, boolean>;
 }
 
-const DAEMON_AUTH_USERNAME = 'Airlink';
+const DAEMON_AUTH_USERNAME = 'Arclight';
 
 export interface ErrorMessage {
   message?: string;

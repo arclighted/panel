@@ -9,7 +9,7 @@ const adminModule: Module = {
     description: 'Security settings for the panel.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 

@@ -1,6 +1,6 @@
 # Intent · 11 · Transpose
 
-> Cross-context audit of Airlink Panel: desktop vs. mobile web. The panel is a single responsive web app, so this is web→web transposition — but the interaction models genuinely differ (mouse+keyboard console at a desk vs. thumb-driven micro-sessions on a phone). The framing rule: **what would this feel like if it were designed for mobile first?**
+> Cross-context audit of Arclight Panel: desktop vs. mobile web. The panel is a single responsive web app, so this is web→web transposition — but the interaction models genuinely differ (mouse+keyboard console at a desk vs. thumb-driven micro-sessions on a phone). The framing rule: **what would this feel like if it were designed for mobile first?**
 
 ---
 

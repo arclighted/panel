@@ -158,6 +158,6 @@ Phase 1 deliverable. One real owner per repeated UI concern. Decide: owner, cons
 
 ## Files to delete / merge targets (shortlist)
 - Delete: `views/components/pageTitle.ejs` — **DONE (P2)**.
-- Delete: `public/javascript/admin/admin-airlink-cloud-settings.js`, `public/javascript/admin/modrinth-admin.js` (unreferenced; confirmed no route loads them) — Phase 8.
+- Delete: `public/javascript/admin/admin-arclight-cloud-settings.js`, `public/javascript/admin/modrinth-admin.js` (unreferenced; confirmed no route loads them) — Phase 8.
 - Merge: toast re-includes (39 views) — **DONE (P2)**; `al-sheet-overlay` markup (~13 views), server shell (~11 copies), escaping chains (14+; partially done), getCsrf copies (3) — **DONE (P2)**.
-- Inert code to resolve: `motion.js` `data-animate` layer, `layout-animations.js` `airlinkAnimate` API, @formkit/auto-animate dep.
+- Inert code to resolve: `motion.js` `data-animate` layer, `layout-animations.js` `arclightAnimate` API, @formkit/auto-animate dep.

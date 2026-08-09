@@ -117,9 +117,9 @@ describe('admin activity module', () => {
       res.locals.adminMenuItems = [];
       res.locals.adminSidebarGroups = [];
       res.locals.regularMenuItems = [];
-      res.locals.name = 'Airlink';
-      res.locals.airlinkVersion = 'test';
-      res.locals.airlinkCodename = 'test';
+      res.locals.name = 'Arclight';
+      res.locals.arclightVersion = 'test';
+      res.locals.arclightCodename = 'test';
       res.locals.isMobileViewport = false;
       next();
     });
@@ -156,7 +156,7 @@ describe('admin activity module', () => {
       { UUID: 'abc-123', name: 'Test Node' },
     ]);
     prisma.settings.findUnique.mockResolvedValue({
-      title: 'Airlink',
+      title: 'Arclight',
       logo: '/assets/logo.png',
       favicon: '/favicon.ico',
       lightTheme: 'default',

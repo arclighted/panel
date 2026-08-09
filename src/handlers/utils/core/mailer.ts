@@ -3,7 +3,7 @@ import prisma from '../../../db';
 import logger from '../../logger';
 
 const DEFAULT_SMTP_PORT = 587;
-const DEFAULT_SMTP_FROM = 'noreply@airlink';
+const DEFAULT_SMTP_FROM = 'noreply@arclight';
 
 export async function getTransporter() {
   const s = await prisma.settings.findUnique({ where: { id: 1 } });

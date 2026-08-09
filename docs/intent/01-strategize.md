@@ -1,19 +1,19 @@
 # Intent · 01 · Strategize
 
-> Strategic framing for Airlink Panel (Katharos), produced by the Intent sequence.
+> Strategic framing for Arclight Panel (Katharos), produced by the Intent sequence.
 > Situation → complication → resolution. Evidence-grounded; open questions are named, not hidden.
 
 ---
 
 ## Situation
 
-Airlink Panel is a self-hosted, open-source game server management panel: Express + EJS + Tailwind, Prisma/SQLite, a daemon-based node architecture, HMAC-signed daemon communication, 138 REST routes, 4 WebSocket endpoints, a client API, and a first-class addon system. It is in beta but operationally complete — the admin and user surfaces, per-server management (console, files, backups, schedules, databases, subusers), analytics, API keys, and i18n (10 languages, 424+ keys) all exist and are maintained by an active team with real security discipline (SRI hashes, Semgrep SAST, CSP with nonces + strict-dynamic, DOM-purify pinning, IP bans, rate limiting).
+Arclight Panel is a self-hosted, open-source game server management panel: Express + EJS + Tailwind, Prisma/SQLite, a daemon-based node architecture, HMAC-signed daemon communication, 138 REST routes, 4 WebSocket endpoints, a client API, and a first-class addon system. It is in beta but operationally complete — the admin and user surfaces, per-server management (console, files, backups, schedules, databases, subusers), analytics, API keys, and i18n (10 languages, 424+ keys) all exist and are maintained by an active team with real security discipline (SRI hashes, Semgrep SAST, CSP with nonces + strict-dynamic, DOM-purify pinning, IP bans, rate limiting).
 
 The team already holds the right design commitments, codified in PRODUCT.md: lead with state, keep controls explicit, high density with legible hierarchy, one component vocabulary across screen sizes, accents reserved for meaning. WCAG 2.2 AA is the stated target for authenticated screens.
 
 ## Complication
 
-The dominant open-source game server panel — Pterodactyl and its fork Pelican — occupies the space Airlink wants. Pterodactyl's moat is *distribution and trust*: it's the default answer, has a decade of docs, and a huge community. Airlink's moat candidates are *architecture and safety*: a modern addon system, a client-facing REST API, daemon HMAC auth, and a genuinely strong accessibility posture. But three tensions are visible from the code alone:
+The dominant open-source game server panel — Pterodactyl and its fork Pelican — occupies the space Arclight wants. Pterodactyl's moat is *distribution and trust*: it's the default answer, has a decade of docs, and a huge community. Arclight's moat candidates are *architecture and safety*: a modern addon system, a client-facing REST API, daemon HMAC auth, and a genuinely strong accessibility posture. But three tensions are visible from the code alone:
 
 1. **The operator-under-pressure promise is not uniformly delivered.** The console (`manage.ejs`, 1650 lines), files (`files.ejs`, 1505 lines), and schedules (862 lines) are deep, dense tools. Dense is fine — but the density has to be *predictable*, and several pages carry their own bespoke patterns (two competing modal systems, per-page toast re-instantiation, hand-rolled pagination). Predictability under pressure is the product thesis; fragmentation undercuts it.
 
@@ -25,7 +25,7 @@ This is not a manufactured complication sized to fit a redesign. It is a real, e
 
 ## Resolution
 
-Do not re-platform, re-skin, or re-architect. Airlink's differentiator is that it is *operationally serious* — it does the security, the a11y, the i18n, the daemon model right. The strategy is to make that seriousness uniformly true, then make it legible to the market.
+Do not re-platform, re-skin, or re-architect. Arclight's differentiator is that it is *operationally serious* — it does the security, the a11y, the i18n, the daemon model right. The strategy is to make that seriousness uniformly true, then make it legible to the market.
 
 **Positioning:** "The game server panel that treats operators like professionals." Dense, predictable, accessible, honest. Compete on craft and trust, not neon.
 
@@ -34,7 +34,7 @@ Do not re-platform, re-skin, or re-architect. Airlink's differentiator is that i
 ## Goals
 
 - **User goals:** An operator under pressure (incident, provisioning, failure) can verify state and complete the fix without searching for controls or losing context. A non-English-speaking operator gets a fully translated deep-work surface, not a partial one. A keyboard/screen-reader user can operate every surface, including bulk file actions and console.
-- **Business goals:** Shorter time-to-first-server for new installs. Lower perceived complexity (fewer, more predictable patterns). Trust signals that make Airlink the *rational* alternative to Pterodactyl.
+- **Business goals:** Shorter time-to-first-server for new installs. Lower perceived complexity (fewer, more predictable patterns). Trust signals that make Arclight the *rational* alternative to Pterodactyl.
 - **Strategic intent:** Fix pattern fragmentation, finish i18n in deep surfaces, harden failure recovery, then surface this as marketable discipline.
 
 ## Constraints

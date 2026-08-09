@@ -110,8 +110,8 @@ export type SettingsMinAggregateOutputType = {
   require2faForAdmins: boolean | null
   behindReverseProxy: boolean | null
   hashApiKeys: boolean | null
-  airlinkCloudApiKey: string | null
-  airlinkCloudBackupEnabled: boolean | null
+  arclightCloudApiKey: string | null
+  arclightCloudBackupEnabled: boolean | null
   smtpHost: string | null
   smtpPort: number | null
   smtpUser: string | null
@@ -173,8 +173,8 @@ export type SettingsMaxAggregateOutputType = {
   require2faForAdmins: boolean | null
   behindReverseProxy: boolean | null
   hashApiKeys: boolean | null
-  airlinkCloudApiKey: string | null
-  airlinkCloudBackupEnabled: boolean | null
+  arclightCloudApiKey: string | null
+  arclightCloudBackupEnabled: boolean | null
   smtpHost: string | null
   smtpPort: number | null
   smtpUser: string | null
@@ -236,8 +236,8 @@ export type SettingsCountAggregateOutputType = {
   require2faForAdmins: number
   behindReverseProxy: number
   hashApiKeys: number
-  airlinkCloudApiKey: number
-  airlinkCloudBackupEnabled: number
+  arclightCloudApiKey: number
+  arclightCloudBackupEnabled: number
   smtpHost: number
   smtpPort: number
   smtpUser: number
@@ -347,8 +347,8 @@ export type SettingsMinAggregateInputType = {
   require2faForAdmins?: true
   behindReverseProxy?: true
   hashApiKeys?: true
-  airlinkCloudApiKey?: true
-  airlinkCloudBackupEnabled?: true
+  arclightCloudApiKey?: true
+  arclightCloudBackupEnabled?: true
   smtpHost?: true
   smtpPort?: true
   smtpUser?: true
@@ -410,8 +410,8 @@ export type SettingsMaxAggregateInputType = {
   require2faForAdmins?: true
   behindReverseProxy?: true
   hashApiKeys?: true
-  airlinkCloudApiKey?: true
-  airlinkCloudBackupEnabled?: true
+  arclightCloudApiKey?: true
+  arclightCloudBackupEnabled?: true
   smtpHost?: true
   smtpPort?: true
   smtpUser?: true
@@ -473,8 +473,8 @@ export type SettingsCountAggregateInputType = {
   require2faForAdmins?: true
   behindReverseProxy?: true
   hashApiKeys?: true
-  airlinkCloudApiKey?: true
-  airlinkCloudBackupEnabled?: true
+  arclightCloudApiKey?: true
+  arclightCloudBackupEnabled?: true
   smtpHost?: true
   smtpPort?: true
   smtpUser?: true
@@ -623,8 +623,8 @@ export type SettingsGroupByOutputType = {
   require2faForAdmins: boolean
   behindReverseProxy: boolean
   hashApiKeys: boolean
-  airlinkCloudApiKey: string | null
-  airlinkCloudBackupEnabled: boolean
+  arclightCloudApiKey: string | null
+  arclightCloudBackupEnabled: boolean
   smtpHost: string | null
   smtpPort: number | null
   smtpUser: string | null
@@ -709,8 +709,8 @@ export type settingsWhereInput = {
   require2faForAdmins?: Prisma.BoolFilter<"settings"> | boolean
   behindReverseProxy?: Prisma.BoolFilter<"settings"> | boolean
   hashApiKeys?: Prisma.BoolFilter<"settings"> | boolean
-  airlinkCloudApiKey?: Prisma.StringNullableFilter<"settings"> | string | null
-  airlinkCloudBackupEnabled?: Prisma.BoolFilter<"settings"> | boolean
+  arclightCloudApiKey?: Prisma.StringNullableFilter<"settings"> | string | null
+  arclightCloudBackupEnabled?: Prisma.BoolFilter<"settings"> | boolean
   smtpHost?: Prisma.StringNullableFilter<"settings"> | string | null
   smtpPort?: Prisma.IntNullableFilter<"settings"> | number | null
   smtpUser?: Prisma.StringNullableFilter<"settings"> | string | null
@@ -772,8 +772,8 @@ export type settingsOrderByWithRelationInput = {
   require2faForAdmins?: Prisma.SortOrder
   behindReverseProxy?: Prisma.SortOrder
   hashApiKeys?: Prisma.SortOrder
-  airlinkCloudApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
-  airlinkCloudBackupEnabled?: Prisma.SortOrder
+  arclightCloudApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  arclightCloudBackupEnabled?: Prisma.SortOrder
   smtpHost?: Prisma.SortOrderInput | Prisma.SortOrder
   smtpPort?: Prisma.SortOrderInput | Prisma.SortOrder
   smtpUser?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -838,8 +838,8 @@ export type settingsWhereUniqueInput = Prisma.AtLeast<{
   require2faForAdmins?: Prisma.BoolFilter<"settings"> | boolean
   behindReverseProxy?: Prisma.BoolFilter<"settings"> | boolean
   hashApiKeys?: Prisma.BoolFilter<"settings"> | boolean
-  airlinkCloudApiKey?: Prisma.StringNullableFilter<"settings"> | string | null
-  airlinkCloudBackupEnabled?: Prisma.BoolFilter<"settings"> | boolean
+  arclightCloudApiKey?: Prisma.StringNullableFilter<"settings"> | string | null
+  arclightCloudBackupEnabled?: Prisma.BoolFilter<"settings"> | boolean
   smtpHost?: Prisma.StringNullableFilter<"settings"> | string | null
   smtpPort?: Prisma.IntNullableFilter<"settings"> | number | null
   smtpUser?: Prisma.StringNullableFilter<"settings"> | string | null
@@ -901,8 +901,8 @@ export type settingsOrderByWithAggregationInput = {
   require2faForAdmins?: Prisma.SortOrder
   behindReverseProxy?: Prisma.SortOrder
   hashApiKeys?: Prisma.SortOrder
-  airlinkCloudApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
-  airlinkCloudBackupEnabled?: Prisma.SortOrder
+  arclightCloudApiKey?: Prisma.SortOrderInput | Prisma.SortOrder
+  arclightCloudBackupEnabled?: Prisma.SortOrder
   smtpHost?: Prisma.SortOrderInput | Prisma.SortOrder
   smtpPort?: Prisma.SortOrderInput | Prisma.SortOrder
   smtpUser?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -972,8 +972,8 @@ export type settingsScalarWhereWithAggregatesInput = {
   require2faForAdmins?: Prisma.BoolWithAggregatesFilter<"settings"> | boolean
   behindReverseProxy?: Prisma.BoolWithAggregatesFilter<"settings"> | boolean
   hashApiKeys?: Prisma.BoolWithAggregatesFilter<"settings"> | boolean
-  airlinkCloudApiKey?: Prisma.StringNullableWithAggregatesFilter<"settings"> | string | null
-  airlinkCloudBackupEnabled?: Prisma.BoolWithAggregatesFilter<"settings"> | boolean
+  arclightCloudApiKey?: Prisma.StringNullableWithAggregatesFilter<"settings"> | string | null
+  arclightCloudBackupEnabled?: Prisma.BoolWithAggregatesFilter<"settings"> | boolean
   smtpHost?: Prisma.StringNullableWithAggregatesFilter<"settings"> | string | null
   smtpPort?: Prisma.IntNullableWithAggregatesFilter<"settings"> | number | null
   smtpUser?: Prisma.StringNullableWithAggregatesFilter<"settings"> | string | null
@@ -1034,8 +1034,8 @@ export type settingsCreateInput = {
   require2faForAdmins?: boolean
   behindReverseProxy?: boolean
   hashApiKeys?: boolean
-  airlinkCloudApiKey?: string | null
-  airlinkCloudBackupEnabled?: boolean
+  arclightCloudApiKey?: string | null
+  arclightCloudBackupEnabled?: boolean
   smtpHost?: string | null
   smtpPort?: number | null
   smtpUser?: string | null
@@ -1097,8 +1097,8 @@ export type settingsUncheckedCreateInput = {
   require2faForAdmins?: boolean
   behindReverseProxy?: boolean
   hashApiKeys?: boolean
-  airlinkCloudApiKey?: string | null
-  airlinkCloudBackupEnabled?: boolean
+  arclightCloudApiKey?: string | null
+  arclightCloudBackupEnabled?: boolean
   smtpHost?: string | null
   smtpPort?: number | null
   smtpUser?: string | null
@@ -1159,8 +1159,8 @@ export type settingsUpdateInput = {
   require2faForAdmins?: Prisma.BoolFieldUpdateOperationsInput | boolean
   behindReverseProxy?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hashApiKeys?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  airlinkCloudApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  airlinkCloudBackupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  arclightCloudApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  arclightCloudBackupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smtpHost?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   smtpPort?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   smtpUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1222,8 +1222,8 @@ export type settingsUncheckedUpdateInput = {
   require2faForAdmins?: Prisma.BoolFieldUpdateOperationsInput | boolean
   behindReverseProxy?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hashApiKeys?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  airlinkCloudApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  airlinkCloudBackupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  arclightCloudApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  arclightCloudBackupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smtpHost?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   smtpPort?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   smtpUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1285,8 +1285,8 @@ export type settingsCreateManyInput = {
   require2faForAdmins?: boolean
   behindReverseProxy?: boolean
   hashApiKeys?: boolean
-  airlinkCloudApiKey?: string | null
-  airlinkCloudBackupEnabled?: boolean
+  arclightCloudApiKey?: string | null
+  arclightCloudBackupEnabled?: boolean
   smtpHost?: string | null
   smtpPort?: number | null
   smtpUser?: string | null
@@ -1347,8 +1347,8 @@ export type settingsUpdateManyMutationInput = {
   require2faForAdmins?: Prisma.BoolFieldUpdateOperationsInput | boolean
   behindReverseProxy?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hashApiKeys?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  airlinkCloudApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  airlinkCloudBackupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  arclightCloudApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  arclightCloudBackupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smtpHost?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   smtpPort?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   smtpUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1410,8 +1410,8 @@ export type settingsUncheckedUpdateManyInput = {
   require2faForAdmins?: Prisma.BoolFieldUpdateOperationsInput | boolean
   behindReverseProxy?: Prisma.BoolFieldUpdateOperationsInput | boolean
   hashApiKeys?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  airlinkCloudApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  airlinkCloudBackupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  arclightCloudApiKey?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  arclightCloudBackupEnabled?: Prisma.BoolFieldUpdateOperationsInput | boolean
   smtpHost?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   smtpPort?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   smtpUser?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1473,8 +1473,8 @@ export type settingsCountOrderByAggregateInput = {
   require2faForAdmins?: Prisma.SortOrder
   behindReverseProxy?: Prisma.SortOrder
   hashApiKeys?: Prisma.SortOrder
-  airlinkCloudApiKey?: Prisma.SortOrder
-  airlinkCloudBackupEnabled?: Prisma.SortOrder
+  arclightCloudApiKey?: Prisma.SortOrder
+  arclightCloudBackupEnabled?: Prisma.SortOrder
   smtpHost?: Prisma.SortOrder
   smtpPort?: Prisma.SortOrder
   smtpUser?: Prisma.SortOrder
@@ -1559,8 +1559,8 @@ export type settingsMaxOrderByAggregateInput = {
   require2faForAdmins?: Prisma.SortOrder
   behindReverseProxy?: Prisma.SortOrder
   hashApiKeys?: Prisma.SortOrder
-  airlinkCloudApiKey?: Prisma.SortOrder
-  airlinkCloudBackupEnabled?: Prisma.SortOrder
+  arclightCloudApiKey?: Prisma.SortOrder
+  arclightCloudBackupEnabled?: Prisma.SortOrder
   smtpHost?: Prisma.SortOrder
   smtpPort?: Prisma.SortOrder
   smtpUser?: Prisma.SortOrder
@@ -1622,8 +1622,8 @@ export type settingsMinOrderByAggregateInput = {
   require2faForAdmins?: Prisma.SortOrder
   behindReverseProxy?: Prisma.SortOrder
   hashApiKeys?: Prisma.SortOrder
-  airlinkCloudApiKey?: Prisma.SortOrder
-  airlinkCloudBackupEnabled?: Prisma.SortOrder
+  arclightCloudApiKey?: Prisma.SortOrder
+  arclightCloudBackupEnabled?: Prisma.SortOrder
   smtpHost?: Prisma.SortOrder
   smtpPort?: Prisma.SortOrder
   smtpUser?: Prisma.SortOrder
@@ -1710,8 +1710,8 @@ export type settingsSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   require2faForAdmins?: boolean
   behindReverseProxy?: boolean
   hashApiKeys?: boolean
-  airlinkCloudApiKey?: boolean
-  airlinkCloudBackupEnabled?: boolean
+  arclightCloudApiKey?: boolean
+  arclightCloudBackupEnabled?: boolean
   smtpHost?: boolean
   smtpPort?: boolean
   smtpUser?: boolean
@@ -1773,8 +1773,8 @@ export type settingsSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   require2faForAdmins?: boolean
   behindReverseProxy?: boolean
   hashApiKeys?: boolean
-  airlinkCloudApiKey?: boolean
-  airlinkCloudBackupEnabled?: boolean
+  arclightCloudApiKey?: boolean
+  arclightCloudBackupEnabled?: boolean
   smtpHost?: boolean
   smtpPort?: boolean
   smtpUser?: boolean
@@ -1836,8 +1836,8 @@ export type settingsSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   require2faForAdmins?: boolean
   behindReverseProxy?: boolean
   hashApiKeys?: boolean
-  airlinkCloudApiKey?: boolean
-  airlinkCloudBackupEnabled?: boolean
+  arclightCloudApiKey?: boolean
+  arclightCloudBackupEnabled?: boolean
   smtpHost?: boolean
   smtpPort?: boolean
   smtpUser?: boolean
@@ -1899,8 +1899,8 @@ export type settingsSelectScalar = {
   require2faForAdmins?: boolean
   behindReverseProxy?: boolean
   hashApiKeys?: boolean
-  airlinkCloudApiKey?: boolean
-  airlinkCloudBackupEnabled?: boolean
+  arclightCloudApiKey?: boolean
+  arclightCloudBackupEnabled?: boolean
   smtpHost?: boolean
   smtpPort?: boolean
   smtpUser?: boolean
@@ -1924,7 +1924,7 @@ export type settingsSelectScalar = {
   onboardingSteps?: boolean
 }
 
-export type settingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "logo" | "favicon" | "theme" | "lightTheme" | "darkTheme" | "language" | "allowRegistration" | "uploadLimit" | "createdAt" | "updatedAt" | "sftpPort" | "virusTotalApiKey" | "rateLimitEnabled" | "rateLimitRpm" | "bannedIps" | "allowUserCreateServer" | "allowUserDeleteServer" | "defaultServerLimit" | "defaultMaxMemory" | "defaultMaxCpu" | "defaultMaxStorage" | "defaultMaxDatabases" | "defaultOverallocateMemory" | "defaultOverallocateDisk" | "defaultOverallocateCpu" | "loginWallpaper" | "registerWallpaper" | "panelWallpaper" | "loginMaxAttempts" | "loginLockoutMinutes" | "enforceDaemonHttps" | "require2faForAdmins" | "behindReverseProxy" | "hashApiKeys" | "airlinkCloudApiKey" | "airlinkCloudBackupEnabled" | "smtpHost" | "smtpPort" | "smtpUser" | "smtpPassword" | "smtpFrom" | "smtpSecure" | "s3Enabled" | "s3Endpoint" | "s3Region" | "s3Bucket" | "s3AccessKey" | "s3SecretKey" | "s3PathStyle" | "allowPrivilegedServerLimit" | "allowPrivilegedMaxMemory" | "allowPrivilegedMaxCpu" | "allowPrivilegedMaxStorage" | "allowPrivilegedMaxDatabases" | "allowUserCreateImages" | "onboardingEnabled" | "onboardingSteps", ExtArgs["result"]["settings"]>
+export type settingsOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "description" | "logo" | "favicon" | "theme" | "lightTheme" | "darkTheme" | "language" | "allowRegistration" | "uploadLimit" | "createdAt" | "updatedAt" | "sftpPort" | "virusTotalApiKey" | "rateLimitEnabled" | "rateLimitRpm" | "bannedIps" | "allowUserCreateServer" | "allowUserDeleteServer" | "defaultServerLimit" | "defaultMaxMemory" | "defaultMaxCpu" | "defaultMaxStorage" | "defaultMaxDatabases" | "defaultOverallocateMemory" | "defaultOverallocateDisk" | "defaultOverallocateCpu" | "loginWallpaper" | "registerWallpaper" | "panelWallpaper" | "loginMaxAttempts" | "loginLockoutMinutes" | "enforceDaemonHttps" | "require2faForAdmins" | "behindReverseProxy" | "hashApiKeys" | "arclightCloudApiKey" | "arclightCloudBackupEnabled" | "smtpHost" | "smtpPort" | "smtpUser" | "smtpPassword" | "smtpFrom" | "smtpSecure" | "s3Enabled" | "s3Endpoint" | "s3Region" | "s3Bucket" | "s3AccessKey" | "s3SecretKey" | "s3PathStyle" | "allowPrivilegedServerLimit" | "allowPrivilegedMaxMemory" | "allowPrivilegedMaxCpu" | "allowPrivilegedMaxStorage" | "allowPrivilegedMaxDatabases" | "allowUserCreateImages" | "onboardingEnabled" | "onboardingSteps", ExtArgs["result"]["settings"]>
 
 export type $settingsPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "settings"
@@ -1967,8 +1967,8 @@ export type $settingsPayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     require2faForAdmins: boolean
     behindReverseProxy: boolean
     hashApiKeys: boolean
-    airlinkCloudApiKey: string | null
-    airlinkCloudBackupEnabled: boolean
+    arclightCloudApiKey: string | null
+    arclightCloudBackupEnabled: boolean
     smtpHost: string | null
     smtpPort: number | null
     smtpUser: string | null
@@ -2450,8 +2450,8 @@ export interface settingsFieldRefs {
   readonly require2faForAdmins: Prisma.FieldRef<"settings", 'Boolean'>
   readonly behindReverseProxy: Prisma.FieldRef<"settings", 'Boolean'>
   readonly hashApiKeys: Prisma.FieldRef<"settings", 'Boolean'>
-  readonly airlinkCloudApiKey: Prisma.FieldRef<"settings", 'String'>
-  readonly airlinkCloudBackupEnabled: Prisma.FieldRef<"settings", 'Boolean'>
+  readonly arclightCloudApiKey: Prisma.FieldRef<"settings", 'String'>
+  readonly arclightCloudBackupEnabled: Prisma.FieldRef<"settings", 'Boolean'>
   readonly smtpHost: Prisma.FieldRef<"settings", 'String'>
   readonly smtpPort: Prisma.FieldRef<"settings", 'Int'>
   readonly smtpUser: Prisma.FieldRef<"settings", 'String'>

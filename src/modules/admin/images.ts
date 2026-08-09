@@ -61,7 +61,7 @@ const adminModule: Module = {
     description: 'This file is for admin functionality.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 
@@ -461,7 +461,7 @@ const adminModule: Module = {
           }
 
           const exported = {
-            _comment: 'DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY AIRLINK',
+            _comment: 'DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY ARCLIGHT',
             meta: { version: 'PTDL_v2', ...meta },
             name: image.name,
             description: image.description,

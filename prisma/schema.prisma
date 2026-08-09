@@ -249,8 +249,8 @@ model Location {
 
 model settings {
   id                        Int      @id @default(autoincrement())
-  title                     String   @default("Airlink")
-  description               String   @default("AirLink is a free and open source project by AirlinkLabs")
+  title                     String   @default("Arclight")
+  description               String   @default("Arclight is a free and open source game server management panel.")
   logo                      String   @default("../assets/logo.png")
   favicon                   String   @default("../assets/favicon.ico")
   theme                     String   @default("default")
@@ -285,8 +285,8 @@ model settings {
   require2faForAdmins       Boolean  @default(false)
   behindReverseProxy        Boolean  @default(false)
   hashApiKeys               Boolean  @default(false)
-  airlinkCloudApiKey        String?
-  airlinkCloudBackupEnabled Boolean  @default(false)
+  arclightCloudApiKey        String?
+  arclightCloudBackupEnabled Boolean  @default(false)
   smtpHost                  String?
   smtpPort                  Int?     @default(587)
   smtpUser                  String?
@@ -396,7 +396,7 @@ model Backup {
   locked         Boolean  @default(false)
   createdAt      DateTime @default(now())
   server         Server   @relation(fields: [serverId], references: [UUID], onDelete: Cascade)
-  airlinkCloudId String?
+  arclightCloudId String?
 
   @@index([serverId])
   @@index([createdAt])

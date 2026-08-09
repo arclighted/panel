@@ -13,7 +13,7 @@ import {
 } from '../../platform/daemon/dtos';
 import { getPrimaryExternalPort } from '../../handlers/utils/server/ports';
 
-registerPermission('airlink.admin.playerstats.view');
+registerPermission('arclight.admin.playerstats.view');
 
 interface ErrorMessage { message?: string }
 
@@ -23,7 +23,7 @@ const adminModule: Module = {
     description: 'This file provides player statistics for the admin panel.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 
@@ -32,7 +32,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/playerstats',
-      isAuthenticated(true, 'airlink.admin.playerstats.view'),
+      isAuthenticated(true, 'arclight.admin.playerstats.view'),
       async (req: Request, res: Response) => {
         const errorMessage: ErrorMessage = {};
         const settings = await prisma.settings.findUnique({ where: { id: 1 } });
@@ -71,7 +71,7 @@ const adminModule: Module = {
 
     router.get(
       '/api/admin/playerstats',
-      isAuthenticated(true, 'airlink.admin.playerstats.view'),
+      isAuthenticated(true, 'arclight.admin.playerstats.view'),
       async (req: Request, res: Response) => {
         try {
           const servers = await prisma.server.findMany({
@@ -172,7 +172,7 @@ const adminModule: Module = {
 
     router.post(
       '/api/admin/playerstats/collect',
-      isAuthenticated(true, 'airlink.admin.playerstats.view'),
+      isAuthenticated(true, 'arclight.admin.playerstats.view'),
       async (req: Request, res: Response) => {
         try {
           await collectPlayerStats();

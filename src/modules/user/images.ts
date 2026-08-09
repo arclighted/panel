@@ -60,7 +60,7 @@ const userImagesModule: Module = {
     description: 'Lets users submit and manage custom images for admin approval.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 

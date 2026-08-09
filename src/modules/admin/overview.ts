@@ -12,9 +12,9 @@ import fs from 'fs';
 import path from 'path';
 
 
-registerPermission('airlink.admin.overview.main');
-registerPermission('airlink.admin.overview.checkForUpdates');
-registerPermission('airlink.admin.overview.performUpdate');
+registerPermission('arclight.admin.overview.main');
+registerPermission('arclight.admin.overview.checkForUpdates');
+registerPermission('arclight.admin.overview.performUpdate');
 
 interface ErrorMessage {
   message?: string;
@@ -38,7 +38,7 @@ const adminModule: Module = {
     description: 'This file is for admin functionality.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 
@@ -48,7 +48,7 @@ const adminModule: Module = {
     router.get(
       '/admin/overview',
       adminOverviewLimiter,
-      isAuthenticated(true, 'airlink.admin.overview.main'),
+      isAuthenticated(true, 'arclight.admin.overview.main'),
       async (req: Request, res: Response) => {
         const errorMessage: ErrorMessage = {};
 
@@ -67,7 +67,7 @@ const adminModule: Module = {
             where: { id: 1 },
           });
 
-          let airlinkCodename = String(res.locals.airlinkCodename || '');
+          let arclightCodename = String(res.locals.arclightCodename || '');
           let vcodeBg: string | null = null;
 
           try {
@@ -75,18 +75,18 @@ const adminModule: Module = {
             if (fs.existsSync(configPath)) {
               const cfg = JSON.parse(fs.readFileSync(configPath, 'utf8'));
               if (cfg && cfg.meta && cfg.meta.codename) {
-                airlinkCodename = String(cfg.meta.codename);
+                arclightCodename = String(cfg.meta.codename);
               }
             }
           } catch (error: unknown) {
             logger.error('Error reading storage/config.json for codename:', error);
           }
 
-          if (airlinkCodename) {
+          if (arclightCodename) {
             try {
               const vcodeDir = path.join(process.cwd(), 'public', 'assets', 'vcode');
               if (fs.existsSync(vcodeDir)) {
-                const target = `${airlinkCodename.toLowerCase()  }.svg`;
+                const target = `${arclightCodename.toLowerCase()  }.svg`;
                 const match = fs.readdirSync(vcodeDir).find((f) => f.toLowerCase() === target);
                 if (match) {
                   vcodeBg = `/assets/vcode/${  match}`;
@@ -106,8 +106,8 @@ const adminModule: Module = {
             imageCount,
             req,
             settings,
-            airlinkVersion: res.locals.airlinkVersion,
-            airlinkCodename,
+            arclightVersion: res.locals.arclightVersion,
+            arclightCodename,
             vcodeBg,
           });
         } catch (error: unknown) {
@@ -122,7 +122,7 @@ const adminModule: Module = {
     router.get(
       '/admin/check-update',
       adminOverviewLimiter,
-      isAuthenticated(true, 'airlink.admin.overview.checkForUpdates'),
+      isAuthenticated(true, 'arclight.admin.overview.checkForUpdates'),
       async (_req: Request, res: Response) => {
         try {
           const updateInfo = await checkForUpdates();
@@ -137,7 +137,7 @@ const adminModule: Module = {
     router.post(
       '/admin/perform-update',
       adminOverviewLimiter,
-      isAuthenticated(true, 'airlink.admin.overview.performUpdate'),
+      isAuthenticated(true, 'arclight.admin.overview.performUpdate'),
       async (_req: Request, res: Response) => {
         try {
           const success = await performUpdate();

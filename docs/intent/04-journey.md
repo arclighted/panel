@@ -1,6 +1,6 @@
 # Intent · 04 · Journey
 
-> End-to-end flows for the three highest-stakes operator jobs in Airlink Panel.
+> End-to-end flows for the three highest-stakes operator jobs in Arclight Panel.
 > Visual diagrams: `04-journey-provision.html`, `04-journey-incident.html`, `04-journey-files.html`.
 
 ---
@@ -76,7 +76,7 @@ Owner or admin, server down, possibly *their* community on Discord already askin
 If the daemon is unreachable, the console, files, and power controls all degrade. **Design decision:** Tier-1 degradation must be *explicit*: the page says "This server's node is offline — you can't use the console right now," with the node's status and a retry. Never a spinner, never a silent failure, never a dead console. This is the Difference between graceful degradation and a broken tool.
 
 ### Multi-channel note
-Incidents span channels: Discord (community) → panel → possibly the node's SSH. The panel can't control SSH, but the daemon-offline banner should state what the operator can do *in and out of the panel* ("Check the node's daemon service: `systemctl status airlink-daemon`"). Honest handoff out of the product is better than a dead end.
+Incidents span channels: Discord (community) → panel → possibly the node's SSH. The panel can't control SSH, but the daemon-offline banner should state what the operator can do *in and out of the panel* ("Check the node's daemon service: `systemctl status arclight-daemon`"). Honest handoff out of the product is better than a dead end.
 
 ### Flow metrics
 - Time from "noticed down" to "issued recovery action" (diagnosis speed).

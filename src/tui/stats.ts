@@ -3,9 +3,9 @@ import { existsSync, readFileSync, readdirSync, statfsSync, statSync, openSync, 
 import crypto from 'node:crypto';
 
 const TUI_DIR = __dirname;
-const DB_PATH = process.env.AIRLINK_DB_PATH ?? `${TUI_DIR}/../../../storage/dev.db`;
-const LOG_DIR = process.env.AIRLINK_LOG_DIR ?? `${TUI_DIR}/../../logs`;
-export const PANEL_URL = process.env.AIRLINK_PANEL_URL ?? 'http://127.0.0.1:3000';
+const DB_PATH = process.env.ARCLIGHT_DB_PATH ?? `${TUI_DIR}/../../../storage/dev.db`;
+const LOG_DIR = process.env.ARCLIGHT_LOG_DIR ?? `${TUI_DIR}/../../logs`;
+export const PANEL_URL = process.env.ARCLIGHT_PANEL_URL ?? 'http://127.0.0.1:3000';
 
 let db: Database | null | undefined;
 function openDb(): Database | null {
@@ -269,11 +269,11 @@ async function daemonStatus(): Promise<{
     const res = await fetch(`http://${node.address}:${node.port}${path}`, {
       signal: AbortSignal.timeout(2500),
       headers: {
-        'X-Airlink-Timestamp': String(timestamp),
-        'X-Airlink-Signature': signature,
-        'X-Airlink-Nonce': nonce,
-        'X-Airlink-Payload-Version': '1',
-        Authorization: `Basic ${  Buffer.from(`Airlink:${node.key}`).toString('base64')}`,
+        'X-Arclight-Timestamp': String(timestamp),
+        'X-Arclight-Signature': signature,
+        'X-Arclight-Nonce': nonce,
+        'X-Arclight-Payload-Version': '1',
+        Authorization: `Basic ${  Buffer.from(`Arclight:${node.key}`).toString('base64')}`,
       },
     });
     const daemonRttMs = await rttPromise;

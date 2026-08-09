@@ -242,7 +242,7 @@ const dashboardModule: Module = {
     description: 'This file is for dashboard functionality.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 

@@ -1,15 +1,15 @@
 # PLAN — "Predictability at the Edges"
 
-**Airlink Panel · Implementation plan for the tightening campaign**
+**Arclight Panel · Implementation plan for the tightening campaign**
 *Consolidates docs/intent/01–14 + the Pterodactyl/Wings parity audit into one executable, dependency-aware plan. Covers both codebases: `panel/` and `daemon/`.*
 
 ---
 
 ## 0. Executive summary
 
-Airlink Panel is a good product held back by uneven edges. The UX audit scores it **78/100**: the core (auth, dashboard, console, destructive-action discipline, Ctrl-K search, daemon-offline degradation, the WCAG floor) is genuinely strong — and the deep-work surfaces (files, backups, schedules, admin) drift below that bar. Three modal systems, native `alert()` fallbacks, an ungroupled 11-item sub-nav, i18n that stops exactly where work gets hardest, and a file editor that **can silently destroy work** (verified: no unsaved-changes guard in `file.ejs`).
+Arclight Panel is a good product held back by uneven edges. The UX audit scores it **78/100**: the core (auth, dashboard, console, destructive-action discipline, Ctrl-K search, daemon-offline degradation, the WCAG floor) is genuinely strong — and the deep-work surfaces (files, backups, schedules, admin) drift below that bar. Three modal systems, native `alert()` fallbacks, an ungroupled 11-item sub-nav, i18n that stops exactly where work gets hardest, and a file editor that **can silently destroy work** (verified: no unsaved-changes guard in `file.ejs`).
 
-The Pterodactyl/Wings parity audit (`airlink-vs-pterodactyl-gap-report.md`, workspace root) adds a second, harder pillar of evidence: **23 findings — 3 runtime bugs, 10 partials, 10 missing** (~97h of focused work across panel + daemon). Spot-verification in this plan pass confirmed the three most load-bearing claims against source and refined one scope error:
+The Pterodactyl/Wings parity audit (`arclight-vs-pterodactyl-gap-report.md`, workspace root) adds a second, harder pillar of evidence: **23 findings — 3 runtime bugs, 10 partials, 10 missing** (~97h of focused work across panel + daemon). Spot-verification in this plan pass confirmed the three most load-bearing claims against source and refined one scope error:
 
 | Audit claim | Plan-pass verdict |
 |---|---|
@@ -435,7 +435,7 @@ Open-source cadence: each phase ships as its own minor release; phases are indep
 | Doc | Role |
 |---|---|
 | `docs/intent/PLAN.md` | **This plan** — execution layer, registry, gates, version matrix owner. |
-| `airlink-vs-pterodactyl-gap-report.md` (workspace root) | **Parity audit source** — 23 findings, severity key, per-item evidence. Registry B/D/E items derive from it; intake re-verifies (A-13). |
+| `arclight-vs-pterodactyl-gap-report.md` (workspace root) | **Parity audit source** — 23 findings, severity key, per-item evidence. Registry B/D/E items derive from it; intake re-verifies (A-13). |
 | `daemon/` (workspace root) | **Second codebase** — all ⚙ items land here; daemon standards in §8. |
 | `docs/intent/01-strategize.md` | The "why" — do not re-litigate. |
 | `docs/intent/02-investigate.md` | Research program R-1..R-6 (instruments, ethics, timeline). |

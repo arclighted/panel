@@ -7,7 +7,7 @@
   const LATENCY_MAX_MS = 500;
 
   const pageData = document.getElementById('page-data').dataset;
-  const currentVersion = pageData.airlinkVersion;
+  const currentVersion = pageData.arclightVersion;
   const runningLatestVersion = pageData.runningLatestVersion;
 
   document.querySelectorAll('.current-version').forEach(el => el.textContent = currentVersion);

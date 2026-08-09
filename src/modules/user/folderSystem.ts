@@ -19,7 +19,7 @@ const folderModule: Module = {
     description: 'DB-backed folders for organizing servers on the dashboard.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirlinkLab',
+    author: 'ArclightLab',
     license: 'MIT',
   },
 

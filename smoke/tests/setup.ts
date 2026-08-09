@@ -8,7 +8,7 @@ setup('authenticate admin user', async ({ page }) => {
   await page.fill('input[name="password"]', process.env.SMOKE_PASS ?? 'SmokePass123');
   await page.locator('button[type="submit"]').click();
   await page.waitForURL('**/');
-  await expect(page.locator('body')).toContainText('AirLink');
+  await expect(page.locator('body')).toContainText('Arclight');
   fs.mkdirSync('./report', { recursive: true });
   await page.context().storageState({ path: './report/auth.json' });
   console.log('SETUP_OK');

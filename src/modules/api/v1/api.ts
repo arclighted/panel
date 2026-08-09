@@ -10,7 +10,7 @@ import bcrypt from 'bcryptjs';
 import validator from 'validator';
 import crypto from 'crypto';
 import { daemonRequest } from '../../../handlers/utils/core/daemonRequest';
-import { AirlinkCloudClient } from '../../../handlers/utils/core/airlinkCloud';
+import { ArclightCloudClient } from '../../../handlers/utils/core/arclightCloud';
 import {
   uploadStreamToS3,
   deleteFromS3,
@@ -83,7 +83,7 @@ const coreModule: Module = {
     description: 'This module provides the API endpoints for the panel.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 
@@ -106,54 +106,54 @@ const coreModule: Module = {
           endpoints: [
             { method: 'GET', path: '/api/v1', description: 'Introspection – list all routes' },
             { method: 'GET', path: '/api/v1/ping', description: 'Health check' },
-            { method: 'GET', path: '/api/v1/users', description: 'List users', permission: 'airlink.api.users.read' },
-            { method: 'POST', path: '/api/v1/users', description: 'Create a user', permission: 'airlink.api.users.create' },
-            { method: 'GET', path: '/api/v1/users/:id', description: 'Get a user', permission: 'airlink.api.users.read' },
-            { method: 'PATCH', path: '/api/v1/users/:id', description: 'Update a user', permission: 'airlink.api.users.update' },
-            { method: 'DELETE', path: '/api/v1/users/:id', description: 'Delete a user', permission: 'airlink.api.users.delete' },
-            { method: 'GET', path: '/api/v1/servers', description: 'List servers', permission: 'airlink.api.servers.read' },
-            { method: 'POST', path: '/api/v1/servers', description: 'Create a server', permission: 'airlink.api.servers.create' },
-            { method: 'GET', path: '/api/v1/servers/:id', description: 'Get a server', permission: 'airlink.api.servers.read' },
-            { method: 'PATCH', path: '/api/v1/servers/:id', description: 'Update a server', permission: 'airlink.api.servers.update' },
-            { method: 'POST', path: '/api/v1/servers/:id/suspend', description: 'Suspend a server', permission: 'airlink.api.servers.update' },
-            { method: 'POST', path: '/api/v1/servers/:id/unsuspend', description: 'Unsuspend a server', permission: 'airlink.api.servers.update' },
-            { method: 'DELETE', path: '/api/v1/servers/:id', description: 'Delete a server', permission: 'airlink.api.servers.delete' },
-            { method: 'GET', path: '/api/v1/nodes', description: 'List nodes', permission: 'airlink.api.nodes.read' },
-            { method: 'POST', path: '/api/v1/nodes', description: 'Create a node', permission: 'airlink.api.nodes.create' },
-            { method: 'GET', path: '/api/v1/nodes/:id', description: 'Get a node', permission: 'airlink.api.nodes.read' },
-            { method: 'PATCH', path: '/api/v1/nodes/:id', description: 'Update a node', permission: 'airlink.api.nodes.update' },
-            { method: 'DELETE', path: '/api/v1/nodes/:id', description: 'Delete a node', permission: 'airlink.api.nodes.delete' },
-            { method: 'GET', path: '/api/v1/settings', description: 'Get settings', permission: 'airlink.api.settings.read' },
-            { method: 'PATCH', path: '/api/v1/settings', description: 'Update settings', permission: 'airlink.api.settings.update' },
-            { method: 'GET', path: '/api/v1/servers/:id/backups', description: 'List backups', permission: 'airlink.api.servers.read' },
-            { method: 'POST', path: '/api/v1/servers/:id/backups', description: 'Create a backup', permission: 'airlink.api.servers.update' },
-            { method: 'POST', path: '/api/v1/servers/:id/backups/:backupId/restore', description: 'Restore a backup', permission: 'airlink.api.servers.update' },
-            { method: 'DELETE', path: '/api/v1/servers/:id/backups/:backupId', description: 'Delete a backup', permission: 'airlink.api.servers.update' },
-            { method: 'GET', path: '/api/v1/servers/:id/databases', description: 'List databases', permission: 'airlink.api.servers.read' },
-            { method: 'POST', path: '/api/v1/servers/:id/databases', description: 'Create a database', permission: 'airlink.api.servers.update' },
-            { method: 'DELETE', path: '/api/v1/servers/:id/databases/:dbId', description: 'Delete a database', permission: 'airlink.api.servers.update' },
-            { method: 'GET', path: '/api/v1/servers/:id/subusers', description: 'List subusers', permission: 'airlink.api.servers.read' },
-            { method: 'POST', path: '/api/v1/servers/:id/subusers', description: 'Add a subuser', permission: 'airlink.api.servers.update' },
-            { method: 'PATCH', path: '/api/v1/servers/:id/subusers/:subUserId', description: 'Update subuser permissions', permission: 'airlink.api.servers.update' },
-            { method: 'DELETE', path: '/api/v1/servers/:id/subusers/:subUserId', description: 'Remove a subuser', permission: 'airlink.api.servers.update' },
-            { method: 'GET', path: '/api/v1/servers/:id/startup', description: 'Get server startup', permission: 'airlink.api.servers.read' },
-            { method: 'PATCH', path: '/api/v1/servers/:id/startup', description: 'Update server startup', permission: 'airlink.api.servers.update' },
-            { method: 'GET', path: '/api/v1/servers/:id/schedules', description: 'List schedules', permission: 'airlink.api.servers.read' },
-            { method: 'POST', path: '/api/v1/servers/:id/schedules', description: 'Create a schedule', permission: 'airlink.api.servers.update' },
-            { method: 'PATCH', path: '/api/v1/servers/:id/schedules/:scheduleId', description: 'Update a schedule', permission: 'airlink.api.servers.update' },
-            { method: 'DELETE', path: '/api/v1/servers/:id/schedules/:scheduleId', description: 'Delete a schedule', permission: 'airlink.api.servers.update' },
-            { method: 'POST', path: '/api/v1/servers/:id/schedules/:scheduleId/tasks', description: 'Add a schedule task', permission: 'airlink.api.servers.update' },
-            { method: 'DELETE', path: '/api/v1/servers/:id/schedules/:scheduleId/tasks/:taskId', description: 'Delete a schedule task', permission: 'airlink.api.servers.update' },
-            { method: 'GET', path: '/api/v1/nodes/:id/allocations', description: 'List node allocations', permission: 'airlink.api.nodes.read' },
-            { method: 'POST', path: '/api/v1/nodes/:id/allocations', description: 'Add a node allocation', permission: 'airlink.api.nodes.update' },
-            { method: 'DELETE', path: '/api/v1/nodes/:id/allocations/:allocationId', description: 'Delete a node allocation', permission: 'airlink.api.nodes.update' },
-            { method: 'GET', path: '/api/v1/images', description: 'List images', permission: 'airlink.api.images.read' },
-            { method: 'POST', path: '/api/v1/images', description: 'Create an image', permission: 'airlink.api.images.create' },
-            { method: 'GET', path: '/api/v1/images/:id', description: 'Get an image', permission: 'airlink.api.images.read' },
-            { method: 'PATCH', path: '/api/v1/images/:id', description: 'Update an image', permission: 'airlink.api.images.update' },
-            { method: 'DELETE', path: '/api/v1/images/:id', description: 'Delete an image', permission: 'airlink.api.images.delete' },
-            { method: 'GET', path: '/api/v1/locations', description: 'List locations', permission: 'airlink.api.locations.read' },
-            { method: 'POST', path: '/api/v1/locations', description: 'Create a location', permission: 'airlink.api.locations.create' },
+            { method: 'GET', path: '/api/v1/users', description: 'List users', permission: 'arclight.api.users.read' },
+            { method: 'POST', path: '/api/v1/users', description: 'Create a user', permission: 'arclight.api.users.create' },
+            { method: 'GET', path: '/api/v1/users/:id', description: 'Get a user', permission: 'arclight.api.users.read' },
+            { method: 'PATCH', path: '/api/v1/users/:id', description: 'Update a user', permission: 'arclight.api.users.update' },
+            { method: 'DELETE', path: '/api/v1/users/:id', description: 'Delete a user', permission: 'arclight.api.users.delete' },
+            { method: 'GET', path: '/api/v1/servers', description: 'List servers', permission: 'arclight.api.servers.read' },
+            { method: 'POST', path: '/api/v1/servers', description: 'Create a server', permission: 'arclight.api.servers.create' },
+            { method: 'GET', path: '/api/v1/servers/:id', description: 'Get a server', permission: 'arclight.api.servers.read' },
+            { method: 'PATCH', path: '/api/v1/servers/:id', description: 'Update a server', permission: 'arclight.api.servers.update' },
+            { method: 'POST', path: '/api/v1/servers/:id/suspend', description: 'Suspend a server', permission: 'arclight.api.servers.update' },
+            { method: 'POST', path: '/api/v1/servers/:id/unsuspend', description: 'Unsuspend a server', permission: 'arclight.api.servers.update' },
+            { method: 'DELETE', path: '/api/v1/servers/:id', description: 'Delete a server', permission: 'arclight.api.servers.delete' },
+            { method: 'GET', path: '/api/v1/nodes', description: 'List nodes', permission: 'arclight.api.nodes.read' },
+            { method: 'POST', path: '/api/v1/nodes', description: 'Create a node', permission: 'arclight.api.nodes.create' },
+            { method: 'GET', path: '/api/v1/nodes/:id', description: 'Get a node', permission: 'arclight.api.nodes.read' },
+            { method: 'PATCH', path: '/api/v1/nodes/:id', description: 'Update a node', permission: 'arclight.api.nodes.update' },
+            { method: 'DELETE', path: '/api/v1/nodes/:id', description: 'Delete a node', permission: 'arclight.api.nodes.delete' },
+            { method: 'GET', path: '/api/v1/settings', description: 'Get settings', permission: 'arclight.api.settings.read' },
+            { method: 'PATCH', path: '/api/v1/settings', description: 'Update settings', permission: 'arclight.api.settings.update' },
+            { method: 'GET', path: '/api/v1/servers/:id/backups', description: 'List backups', permission: 'arclight.api.servers.read' },
+            { method: 'POST', path: '/api/v1/servers/:id/backups', description: 'Create a backup', permission: 'arclight.api.servers.update' },
+            { method: 'POST', path: '/api/v1/servers/:id/backups/:backupId/restore', description: 'Restore a backup', permission: 'arclight.api.servers.update' },
+            { method: 'DELETE', path: '/api/v1/servers/:id/backups/:backupId', description: 'Delete a backup', permission: 'arclight.api.servers.update' },
+            { method: 'GET', path: '/api/v1/servers/:id/databases', description: 'List databases', permission: 'arclight.api.servers.read' },
+            { method: 'POST', path: '/api/v1/servers/:id/databases', description: 'Create a database', permission: 'arclight.api.servers.update' },
+            { method: 'DELETE', path: '/api/v1/servers/:id/databases/:dbId', description: 'Delete a database', permission: 'arclight.api.servers.update' },
+            { method: 'GET', path: '/api/v1/servers/:id/subusers', description: 'List subusers', permission: 'arclight.api.servers.read' },
+            { method: 'POST', path: '/api/v1/servers/:id/subusers', description: 'Add a subuser', permission: 'arclight.api.servers.update' },
+            { method: 'PATCH', path: '/api/v1/servers/:id/subusers/:subUserId', description: 'Update subuser permissions', permission: 'arclight.api.servers.update' },
+            { method: 'DELETE', path: '/api/v1/servers/:id/subusers/:subUserId', description: 'Remove a subuser', permission: 'arclight.api.servers.update' },
+            { method: 'GET', path: '/api/v1/servers/:id/startup', description: 'Get server startup', permission: 'arclight.api.servers.read' },
+            { method: 'PATCH', path: '/api/v1/servers/:id/startup', description: 'Update server startup', permission: 'arclight.api.servers.update' },
+            { method: 'GET', path: '/api/v1/servers/:id/schedules', description: 'List schedules', permission: 'arclight.api.servers.read' },
+            { method: 'POST', path: '/api/v1/servers/:id/schedules', description: 'Create a schedule', permission: 'arclight.api.servers.update' },
+            { method: 'PATCH', path: '/api/v1/servers/:id/schedules/:scheduleId', description: 'Update a schedule', permission: 'arclight.api.servers.update' },
+            { method: 'DELETE', path: '/api/v1/servers/:id/schedules/:scheduleId', description: 'Delete a schedule', permission: 'arclight.api.servers.update' },
+            { method: 'POST', path: '/api/v1/servers/:id/schedules/:scheduleId/tasks', description: 'Add a schedule task', permission: 'arclight.api.servers.update' },
+            { method: 'DELETE', path: '/api/v1/servers/:id/schedules/:scheduleId/tasks/:taskId', description: 'Delete a schedule task', permission: 'arclight.api.servers.update' },
+            { method: 'GET', path: '/api/v1/nodes/:id/allocations', description: 'List node allocations', permission: 'arclight.api.nodes.read' },
+            { method: 'POST', path: '/api/v1/nodes/:id/allocations', description: 'Add a node allocation', permission: 'arclight.api.nodes.update' },
+            { method: 'DELETE', path: '/api/v1/nodes/:id/allocations/:allocationId', description: 'Delete a node allocation', permission: 'arclight.api.nodes.update' },
+            { method: 'GET', path: '/api/v1/images', description: 'List images', permission: 'arclight.api.images.read' },
+            { method: 'POST', path: '/api/v1/images', description: 'Create an image', permission: 'arclight.api.images.create' },
+            { method: 'GET', path: '/api/v1/images/:id', description: 'Get an image', permission: 'arclight.api.images.read' },
+            { method: 'PATCH', path: '/api/v1/images/:id', description: 'Update an image', permission: 'arclight.api.images.update' },
+            { method: 'DELETE', path: '/api/v1/images/:id', description: 'Delete an image', permission: 'arclight.api.images.delete' },
+            { method: 'GET', path: '/api/v1/locations', description: 'List locations', permission: 'arclight.api.locations.read' },
+            { method: 'POST', path: '/api/v1/locations', description: 'Create a location', permission: 'arclight.api.locations.create' },
           ],
         },
       });
@@ -179,7 +179,7 @@ const coreModule: Module = {
 
     router.get(
       '/api/v1/users',
-      apiValidator('airlink.api.users.read'),
+      apiValidator('arclight.api.users.read'),
       async (req: Request, res: Response) => {
         try {
           const page = Number(req.query.page) || 1;
@@ -206,7 +206,7 @@ const coreModule: Module = {
 
     router.get(
       '/api/v1/users/:id',
-      apiValidator('airlink.api.users.read'),
+      apiValidator('arclight.api.users.read'),
       async (req: Request, res: Response) => {
         try {
           const userId = getParamAsNumber(req.params.id);
@@ -238,7 +238,7 @@ const coreModule: Module = {
 
     router.post(
       '/api/v1/users',
-      apiValidator('airlink.api.users.create'),
+      apiValidator('arclight.api.users.create'),
       async (req: Request, res: Response) => {
         try {
           const { email, username, password, isAdmin, description } = req.body;
@@ -306,7 +306,7 @@ const coreModule: Module = {
 
     router.patch(
       '/api/v1/users/:id',
-      apiValidator('airlink.api.users.update'),
+      apiValidator('arclight.api.users.update'),
       async (req: Request, res: Response) => {
         try {
           const userId = getParamAsNumber(req.params.id);
@@ -384,7 +384,7 @@ const coreModule: Module = {
 
     router.delete(
       '/api/v1/users/:id',
-      apiValidator('airlink.api.users.delete'),
+      apiValidator('arclight.api.users.delete'),
       async (req: Request, res: Response) => {
         try {
           const userId = getParamAsNumber(req.params.id);
@@ -409,7 +409,7 @@ const coreModule: Module = {
 
     router.get(
       '/api/v1/servers',
-      apiValidator('airlink.api.servers.read'),
+      apiValidator('arclight.api.servers.read'),
       async (req: Request, res: Response) => {
         try {
           const page = Number(req.query.page) || 1;
@@ -445,7 +445,7 @@ const coreModule: Module = {
 
     router.get(
       '/api/v1/servers/:id',
-      apiValidator('airlink.api.servers.read'),
+      apiValidator('arclight.api.servers.read'),
       async (req: Request, res: Response) => {
         try {
           const serverId = req.params.id;
@@ -486,7 +486,7 @@ const coreModule: Module = {
 
     router.post(
       '/api/v1/servers',
-      apiValidator('airlink.api.servers.create'),
+      apiValidator('arclight.api.servers.create'),
       async (req: Request, res: Response) => {
         try {
           const { name, description, ownerId, nodeId, imageId, Ports, Memory, Swap, Cpu, Storage, Variables, StartCommand, dockerImage } = req.body;
@@ -553,7 +553,7 @@ const coreModule: Module = {
 
     router.patch(
       '/api/v1/servers/:id',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         try {
           const serverId = getParamAsString(req.params.id);
@@ -598,7 +598,7 @@ const coreModule: Module = {
 
     router.post(
       '/api/v1/servers/:id/suspend',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         try {
           const serverId = getParamAsString(req.params.id);
@@ -631,7 +631,7 @@ const coreModule: Module = {
 
     router.post(
       '/api/v1/servers/:id/unsuspend',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         try {
           const serverId = getParamAsString(req.params.id);
@@ -664,7 +664,7 @@ const coreModule: Module = {
 
     router.delete(
       '/api/v1/servers/:id',
-      apiValidator('airlink.api.servers.delete'),
+      apiValidator('arclight.api.servers.delete'),
       async (req: Request, res: Response) => {
         try {
           const serverId = getParamAsString(req.params.id);
@@ -713,7 +713,7 @@ const coreModule: Module = {
 
     router.get(
       '/api/v1/nodes',
-      apiValidator('airlink.api.nodes.read'),
+      apiValidator('arclight.api.nodes.read'),
       async (req: Request, res: Response) => {
         try {
           const page = Number(req.query.page) || 1;
@@ -748,7 +748,7 @@ const coreModule: Module = {
 
     router.get(
       '/api/v1/nodes/:id',
-      apiValidator('airlink.api.nodes.read'),
+      apiValidator('arclight.api.nodes.read'),
       async (req: Request, res: Response) => {
         try {
           const nodeId = getParamAsNumber(req.params.id);
@@ -793,7 +793,7 @@ const coreModule: Module = {
 
     router.post(
       '/api/v1/nodes',
-      apiValidator('airlink.api.nodes.create'),
+      apiValidator('arclight.api.nodes.create'),
       async (req: Request, res: Response) => {
         try {
           const { name, address, port, ram, cpu, disk, key, sftpPort } = req.body;
@@ -838,7 +838,7 @@ const coreModule: Module = {
 
     router.patch(
       '/api/v1/nodes/:id',
-      apiValidator('airlink.api.nodes.update'),
+      apiValidator('arclight.api.nodes.update'),
       async (req: Request, res: Response) => {
         try {
           const nodeId = getParamAsNumber(req.params.id);
@@ -887,7 +887,7 @@ const coreModule: Module = {
 
     router.delete(
       '/api/v1/nodes/:id',
-      apiValidator('airlink.api.nodes.delete'),
+      apiValidator('arclight.api.nodes.delete'),
       async (req: Request, res: Response) => {
         try {
           const nodeId = getParamAsNumber(req.params.id);
@@ -920,7 +920,7 @@ const coreModule: Module = {
 
     router.get(
       '/api/v1/settings',
-      apiValidator('airlink.api.settings.read'),
+      apiValidator('arclight.api.settings.read'),
       async (_req: Request, res: Response) => {
         try {
           const settings = await prisma.settings.findFirst();
@@ -941,7 +941,7 @@ const coreModule: Module = {
 
     router.patch(
       '/api/v1/settings',
-      apiValidator('airlink.api.settings.update'),
+      apiValidator('arclight.api.settings.update'),
       async (req: Request, res: Response) => {
         try {
           const { title, description, logo, favicon, theme, language } = req.body;
@@ -978,7 +978,7 @@ const coreModule: Module = {
     // ── GET /api/v1/servers/:id/backups ─────────────────────────────────────
     router.get(
       '/api/v1/servers/:id/backups',
-      apiValidator('airlink.api.servers.read'),
+      apiValidator('arclight.api.servers.read'),
       async (req: Request, res: Response) => {
         try {
           const server = await prisma.server.findUnique({
@@ -1019,7 +1019,7 @@ const coreModule: Module = {
     // ── POST /api/v1/servers/:id/backups ────────────────────────────────────
     router.post(
       '/api/v1/servers/:id/backups',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const { name } = req.body as { name?: string };
@@ -1040,7 +1040,7 @@ const coreModule: Module = {
           }
 
           const settings = await prisma.settings.findUnique({ where: { id: 1 } });
-          const isCloudBackupEnabled = settings?.airlinkCloudBackupEnabled && settings?.airlinkCloudApiKey;
+          const isCloudBackupEnabled = settings?.arclightCloudBackupEnabled && settings?.arclightCloudApiKey;
 
           const backupCount = await prisma.backup.count({ where: { serverId } });
           if (server.backupLimit > 0 && backupCount >= server.backupLimit) {
@@ -1069,12 +1069,12 @@ const coreModule: Module = {
             return;
           }
 
-          let airlinkCloudId: string | null = null;
+          let arclightCloudId: string | null = null;
           let filePath = response.data.backup.filePath;
 
           if (isCloudBackupEnabled) {
             try {
-              const cloudClient = new AirlinkCloudClient(settings.airlinkCloudApiKey!);
+              const cloudClient = new ArclightCloudClient(settings.arclightCloudApiKey!);
               const downloadResponse = await daemonRequest<import('stream').Readable>({
                 method: 'GET',
                 path: '/container/backup/download',
@@ -1089,7 +1089,7 @@ const coreModule: Module = {
               const uploadResult = await cloudClient.uploadFile(downloadResponse.data, uniqueCloudFileName);
 
               if (uploadResult && (uploadResult as Record<string, unknown>).id) {
-                airlinkCloudId = (uploadResult as Record<string, unknown>).id as string;
+                arclightCloudId = (uploadResult as Record<string, unknown>).id as string;
                 await daemonRequest({
                   method: 'DELETE',
                   path: '/container/backup',
@@ -1098,10 +1098,10 @@ const coreModule: Module = {
                   nodeKey: server.node.key,
                   body: { backupPath: filePath },
                 }).catch((e) => logger.warn(`Failed to delete temporary local backup: ${e}`));
-                filePath = 'airlink-cloud';
+                filePath = 'arclight-cloud';
               }
             } catch (cloudError) {
-              logger.error('Failed to redirect backup to Airlink Cloud:', cloudError);
+              logger.error('Failed to redirect backup to Arclight Cloud:', cloudError);
             }
           } else if (settings?.s3Enabled) {
             try {
@@ -1138,7 +1138,7 @@ const coreModule: Module = {
               filePath,
               size: BigInt(response.data.backup.size),
               checksum: typeof response.data.backup.checksum === 'string' ? response.data.backup.checksum : null,
-              airlinkCloudId,
+              arclightCloudId,
             },
             select: {
               UUID: true,
@@ -1163,7 +1163,7 @@ const coreModule: Module = {
     // ── POST /api/v1/servers/:id/backups/:backupId/restore ─────────────────
     router.post(
       '/api/v1/servers/:id/backups/:backupId/restore',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const backupId = getParamAsString(req.params.backupId);
@@ -1188,15 +1188,15 @@ const coreModule: Module = {
 
           let backupPath = backup.filePath;
 
-          if (backup.airlinkCloudId) {
+          if (backup.arclightCloudId) {
             const settings = await prisma.settings.findUnique({ where: { id: 1 } });
-            if (!settings?.airlinkCloudApiKey) {
-              res.status(500).json({ error: 'Airlink Cloud API key not configured' });
+            if (!settings?.arclightCloudApiKey) {
+              res.status(500).json({ error: 'Arclight Cloud API key not configured' });
               return;
             }
             try {
-              const cloudClient = new AirlinkCloudClient(settings.airlinkCloudApiKey);
-              const cloudDownloadResponse = await cloudClient.getDownloadStream(backup.airlinkCloudId);
+              const cloudClient = new ArclightCloudClient(settings.arclightCloudApiKey);
+              const cloudDownloadResponse = await cloudClient.getDownloadStream(backup.arclightCloudId);
               const uploadResponse = await daemonRequest<{ success: boolean; filePath?: string }>({
                 method: 'POST',
                 path: '/container/backup/upload',
@@ -1213,7 +1213,7 @@ const coreModule: Module = {
                 throw new Error('Failed to upload cloud backup to daemon');
               }
             } catch (err) {
-              logger.error('Failed to prepare Airlink Cloud backup for restore:', err);
+              logger.error('Failed to prepare Arclight Cloud backup for restore:', err);
               res.status(500).json({ error: 'Failed to prepare cloud backup for restore' });
               return;
             }
@@ -1286,7 +1286,7 @@ const coreModule: Module = {
     // ── DELETE /api/v1/servers/:id/backups/:backupId ───────────────────────
     router.delete(
       '/api/v1/servers/:id/backups/:backupId',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const backupId = getParamAsString(req.params.backupId);
@@ -1314,11 +1314,11 @@ const coreModule: Module = {
             return;
           }
 
-          if (backup.airlinkCloudId) {
+          if (backup.arclightCloudId) {
             const settings = await prisma.settings.findUnique({ where: { id: 1 } });
-            if (settings?.airlinkCloudApiKey) {
-              const cloudClient = new AirlinkCloudClient(settings.airlinkCloudApiKey);
-              await cloudClient.deleteFile(backup.airlinkCloudId).catch((e) => logger.warn(`Failed to delete backup from Airlink Cloud: ${e}`));
+            if (settings?.arclightCloudApiKey) {
+              const cloudClient = new ArclightCloudClient(settings.arclightCloudApiKey);
+              await cloudClient.deleteFile(backup.arclightCloudId).catch((e) => logger.warn(`Failed to delete backup from Arclight Cloud: ${e}`));
             }
           } else if (isS3Backup(backup.filePath)) {
             try {
@@ -1355,7 +1355,7 @@ const coreModule: Module = {
     // ── GET /api/v1/servers/:id/databases ───────────────────────────────────
     router.get(
       '/api/v1/servers/:id/databases',
-      apiValidator('airlink.api.servers.read'),
+      apiValidator('arclight.api.servers.read'),
       async (req: Request, res: Response) => {
         try {
           const server = await prisma.server.findUnique({
@@ -1384,7 +1384,7 @@ const coreModule: Module = {
     // ── POST /api/v1/servers/:id/databases ──────────────────────────────────
     router.post(
       '/api/v1/servers/:id/databases',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const { hostId } = req.body as { hostId?: string | number };
@@ -1463,7 +1463,7 @@ const coreModule: Module = {
     // ── DELETE /api/v1/servers/:id/databases/:dbId ──────────────────────────
     router.delete(
       '/api/v1/servers/:id/databases/:dbId',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const dbId = parseInt(getParamAsString(req.params.dbId), 10);
@@ -1505,7 +1505,7 @@ const coreModule: Module = {
     // ── GET /api/v1/servers/:id/subusers ────────────────────────────────────
     router.get(
       '/api/v1/servers/:id/subusers',
-      apiValidator('airlink.api.servers.read'),
+      apiValidator('arclight.api.servers.read'),
       async (req: Request, res: Response) => {
         try {
           const server = await prisma.server.findUnique({
@@ -1550,7 +1550,7 @@ const coreModule: Module = {
     // ── POST /api/v1/servers/:id/subusers ───────────────────────────────────
     router.post(
       '/api/v1/servers/:id/subusers',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const { email, permissions } = req.body as { email?: string; permissions?: unknown };
@@ -1608,7 +1608,7 @@ const coreModule: Module = {
     // ── PATCH /api/v1/servers/:id/subusers/:subUserId ───────────────────────
     router.patch(
       '/api/v1/servers/:id/subusers/:subUserId',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const subUserId = parseInt(getParamAsString(req.params.subUserId), 10);
@@ -1650,7 +1650,7 @@ const coreModule: Module = {
     // ── DELETE /api/v1/servers/:id/subusers/:subUserId ──────────────────────
     router.delete(
       '/api/v1/servers/:id/subusers/:subUserId',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const subUserId = parseInt(getParamAsString(req.params.subUserId), 10);
@@ -1682,7 +1682,7 @@ const coreModule: Module = {
     // ── GET /api/v1/servers/:id/startup ─────────────────────────────────────
     router.get(
       '/api/v1/servers/:id/startup',
-      apiValidator('airlink.api.servers.read'),
+      apiValidator('arclight.api.servers.read'),
       async (req: Request, res: Response) => {
         try {
           const server = await prisma.server.findUnique({
@@ -1727,7 +1727,7 @@ const coreModule: Module = {
     // ── PATCH /api/v1/servers/:id/startup ───────────────────────────────────
     router.patch(
       '/api/v1/servers/:id/startup',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const { startCommand, dockerImage, variables } = req.body as {
@@ -1821,7 +1821,7 @@ const coreModule: Module = {
     // ── GET /api/v1/servers/:id/schedules ───────────────────────────────────
     router.get(
       '/api/v1/servers/:id/schedules',
-      apiValidator('airlink.api.servers.read'),
+      apiValidator('arclight.api.servers.read'),
       async (req: Request, res: Response) => {
         try {
           const server = await prisma.server.findUnique({
@@ -1863,7 +1863,7 @@ const coreModule: Module = {
     // ── POST /api/v1/servers/:id/schedules ──────────────────────────────────
     router.post(
       '/api/v1/servers/:id/schedules',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const { name, cron, timeOffset } = req.body as { name?: string; cron?: string; timeOffset?: unknown };
@@ -1909,7 +1909,7 @@ const coreModule: Module = {
     // ── PATCH /api/v1/servers/:id/schedules/:scheduleId ─────────────────────
     router.patch(
       '/api/v1/servers/:id/schedules/:scheduleId',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const scheduleId = parseInt(getParamAsString(req.params.scheduleId), 10);
@@ -1956,7 +1956,7 @@ const coreModule: Module = {
     // ── DELETE /api/v1/servers/:id/schedules/:scheduleId ────────────────────
     router.delete(
       '/api/v1/servers/:id/schedules/:scheduleId',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const scheduleId = parseInt(getParamAsString(req.params.scheduleId), 10);
@@ -1987,7 +1987,7 @@ const coreModule: Module = {
     // ── POST /api/v1/servers/:id/schedules/:scheduleId/tasks ───────────────
     router.post(
       '/api/v1/servers/:id/schedules/:scheduleId/tasks',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const scheduleId = parseInt(getParamAsString(req.params.scheduleId), 10);
@@ -2055,7 +2055,7 @@ const coreModule: Module = {
     // ── DELETE /api/v1/servers/:id/schedules/:scheduleId/tasks/:taskId ─────
     router.delete(
       '/api/v1/servers/:id/schedules/:scheduleId/tasks/:taskId',
-      apiValidator('airlink.api.servers.update'),
+      apiValidator('arclight.api.servers.update'),
       async (req: Request, res: Response) => {
         const serverId = getParamAsString(req.params.id);
         const scheduleId = parseInt(getParamAsString(req.params.scheduleId), 10);
@@ -2093,7 +2093,7 @@ const coreModule: Module = {
     // ── GET /api/v1/nodes/:id/allocations ───────────────────────────────────
     router.get(
       '/api/v1/nodes/:id/allocations',
-      apiValidator('airlink.api.nodes.read'),
+      apiValidator('arclight.api.nodes.read'),
       async (req: Request, res: Response) => {
         try {
           const nodeId = getParamAsNumber(req.params.id);
@@ -2121,7 +2121,7 @@ const coreModule: Module = {
     // ── POST /api/v1/nodes/:id/allocations ─────────────────────────────────
     router.post(
       '/api/v1/nodes/:id/allocations',
-      apiValidator('airlink.api.nodes.update'),
+      apiValidator('arclight.api.nodes.update'),
       async (req: Request, res: Response) => {
         const nodeId = getParamAsNumber(req.params.id);
         const { ip, port } = req.body as { ip?: string; port?: unknown };
@@ -2167,7 +2167,7 @@ const coreModule: Module = {
     // ── DELETE /api/v1/nodes/:id/allocations/:allocationId ────────────────
     router.delete(
       '/api/v1/nodes/:id/allocations/:allocationId',
-      apiValidator('airlink.api.nodes.update'),
+      apiValidator('arclight.api.nodes.update'),
       async (req: Request, res: Response) => {
         const nodeId = getParamAsNumber(req.params.id);
         const allocationId = getParamAsNumber(req.params.allocationId);
@@ -2211,7 +2211,7 @@ const coreModule: Module = {
     // ── GET /api/v1/images ──────────────────────────────────────────────────
     router.get(
       '/api/v1/images',
-      apiValidator('airlink.api.images.read'),
+      apiValidator('arclight.api.images.read'),
       async (req: Request, res: Response) => {
         try {
           const page = Number(req.query.page) || 1;
@@ -2244,7 +2244,7 @@ const coreModule: Module = {
     // ── POST /api/v1/images ─────────────────────────────────────────────────
     router.post(
       '/api/v1/images',
-      apiValidator('airlink.api.images.create'),
+      apiValidator('arclight.api.images.create'),
       async (req: Request, res: Response) => {
         try {
           const { name, description, author, authorName, startup, stop } = req.body as {
@@ -2305,7 +2305,7 @@ const coreModule: Module = {
     // ── GET /api/v1/images/:id ──────────────────────────────────────────────
     router.get(
       '/api/v1/images/:id',
-      apiValidator('airlink.api.images.read'),
+      apiValidator('arclight.api.images.read'),
       async (req: Request, res: Response) => {
         try {
           const image = await prisma.images.findUnique({
@@ -2327,7 +2327,7 @@ const coreModule: Module = {
     // ── PATCH /api/v1/images/:id ────────────────────────────────────────────
     router.patch(
       '/api/v1/images/:id',
-      apiValidator('airlink.api.images.update'),
+      apiValidator('arclight.api.images.update'),
       async (req: Request, res: Response) => {
         try {
           const imageId = getParamAsNumber(req.params.id);
@@ -2380,7 +2380,7 @@ const coreModule: Module = {
     // ── DELETE /api/v1/images/:id ───────────────────────────────────────────
     router.delete(
       '/api/v1/images/:id',
-      apiValidator('airlink.api.images.delete'),
+      apiValidator('arclight.api.images.delete'),
       async (req: Request, res: Response) => {
         try {
           const imageId = getParamAsNumber(req.params.id);
@@ -2410,7 +2410,7 @@ const coreModule: Module = {
     // ── GET /api/v1/locations ───────────────────────────────────────────────
     router.get(
       '/api/v1/locations',
-      apiValidator('airlink.api.locations.read'),
+      apiValidator('arclight.api.locations.read'),
       async (req: Request, res: Response) => {
         try {
           const page = Number(req.query.page) || 1;
@@ -2433,7 +2433,7 @@ const coreModule: Module = {
     // ── POST /api/v1/locations ──────────────────────────────────────────────
     router.post(
       '/api/v1/locations',
-      apiValidator('airlink.api.locations.create'),
+      apiValidator('arclight.api.locations.create'),
       async (req: Request, res: Response) => {
         try {
           const { name, shortCode } = req.body as { name?: string; shortCode?: string };

@@ -1,13 +1,13 @@
 # Intent · 03 · Blueprint
 
-> System map of Airlink Panel — frontstage, backstage, support tier, trust boundaries, and failure modes.
+> System map of Arclight Panel — frontstage, backstage, support tier, trust boundaries, and failure modes.
 > A self-contained HTML service blueprint is in `03-blueprint-visual.html` alongside this file.
 
 ---
 
 ## System overview
 
-Airlink Panel is a control plane. It manages game servers that run inside containers on remote nodes. The panel itself is a browser-served Express app; each node runs a **daemon**; the daemon manages **Docker containers**, **files**, and **SFTP**; everything between panel and daemon is HMAC-signed.
+Arclight Panel is a control plane. It manages game servers that run inside containers on remote nodes. The panel itself is a browser-served Express app; each node runs a **daemon**; the daemon manages **Docker containers**, **files**, and **SFTP**; everything between panel and daemon is HMAC-signed.
 
 Purpose: let one panel operator (or a server owner) inspect health, provision infrastructure, manage access, edit settings, and recover from failures without leaving the browser.
 

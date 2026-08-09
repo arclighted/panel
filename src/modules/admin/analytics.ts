@@ -7,7 +7,7 @@ import logger from '../../handlers/logger';
 import { registerPermission } from '../../handlers/permissions';
 import { daemonRequest } from '../../handlers/utils/core/daemonRequest';
 
-registerPermission('airlink.admin.analytics.view');
+registerPermission('arclight.admin.analytics.view');
 
 const analyticsModule: Module = {
   info: {
@@ -15,7 +15,7 @@ const analyticsModule: Module = {
     description: 'This file provides analytics dashboard for the admin panel.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 
@@ -24,7 +24,7 @@ const analyticsModule: Module = {
 
     router.get(
       '/admin/analytics',
-      isAuthenticated(true, 'airlink.admin.analytics.view'),
+      isAuthenticated(true, 'arclight.admin.analytics.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -44,7 +44,7 @@ const analyticsModule: Module = {
     // Single endpoint that returns everything the analytics page needs
     router.get(
       '/api/admin/analytics/summary',
-      isAuthenticated(true, 'airlink.admin.analytics.view'),
+      isAuthenticated(true, 'arclight.admin.analytics.view'),
       async (_req: Request, res: Response) => {
         try {
           const [servers, users, nodes, images, loginHistory, playerHistory] = await Promise.all([

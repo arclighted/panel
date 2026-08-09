@@ -358,8 +358,8 @@ export const SettingsScalarFieldEnum = {
   require2faForAdmins: 'require2faForAdmins',
   behindReverseProxy: 'behindReverseProxy',
   hashApiKeys: 'hashApiKeys',
-  airlinkCloudApiKey: 'airlinkCloudApiKey',
-  airlinkCloudBackupEnabled: 'airlinkCloudBackupEnabled',
+  arclightCloudApiKey: 'arclightCloudApiKey',
+  arclightCloudBackupEnabled: 'arclightCloudBackupEnabled',
   smtpHost: 'smtpHost',
   smtpPort: 'smtpPort',
   smtpUser: 'smtpUser',
@@ -480,7 +480,7 @@ export const BackupScalarFieldEnum = {
   checksum: 'checksum',
   locked: 'locked',
   createdAt: 'createdAt',
-  airlinkCloudId: 'airlinkCloudId'
+  arclightCloudId: 'arclightCloudId'
 } as const
 
 export type BackupScalarFieldEnum = (typeof BackupScalarFieldEnum)[keyof typeof BackupScalarFieldEnum]

@@ -5,7 +5,7 @@ import { registeredModules } from '../modules/registry';
 
 export const loadModules = async (
   app: express.Express,
-  airlinkVersion: string,
+  arclightVersion: string,
   serverPort?: number,
   wsInstance?: { applyTo: (router: express.Router) => void },
 ) => {
@@ -22,7 +22,7 @@ export const loadModules = async (
     '| $$  | $| $| $$     | $| $| $$  | $| $$ \\  $$',
     '|__/  |__|__|__/     |__|__|__/  |__|__/  \\__/',
     '                                              ',
-    '---Airlink Panel - By Airlinklabs MIT LICENSE---',
+    '---Arclight Panel - By Arclighted MIT LICENSE---',
   ];
 
   ascii.forEach((line, i) => {
@@ -47,7 +47,7 @@ export const loadModules = async (
   console.log(border);
   console.log(padLine('Initializing - Loading core modules and components.'));
 
-  const panelMajor = airlinkVersion.split('.')[0];
+  const panelMajor = arclightVersion.split('.')[0];
   let loaded = 0;
   let errors = 0;
 
@@ -60,7 +60,7 @@ export const loadModules = async (
     if (modMajor !== panelMajor) {
       errors++;
       logger.error(
-        `[feature-registry] '${entry.name}' requires panel v${mod.info.version} (found v${airlinkVersion})`,
+        `[feature-registry] '${entry.name}' requires panel v${mod.info.version} (found v${arclightVersion})`,
       );
       continue;
     }

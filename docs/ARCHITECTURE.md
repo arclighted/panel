@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Modrinth Store is a panel addon that integrates the [Modrinth](https://modrinth.com) API into AirLink. Users can browse, search, and install mods, modpacks, plugins, shaders, resource packs, and datapacks from the panel UI.
+The Modrinth Store is a panel addon that integrates the [Modrinth](https://modrinth.com) API into Arclight. Users can browse, search, and install mods, modpacks, plugins, shaders, resource packs, and datapacks from the panel UI.
 
 ## Directory Structure
 

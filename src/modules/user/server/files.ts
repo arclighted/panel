@@ -87,7 +87,7 @@ export function registerFilesRoutes(router: Router): void {
 
         const files = (
           parseDaemonResponse(fsListSchema, filesResponse.data) ?? []
-        ).filter((file) => file.name !== 'airlink');
+        ).filter((file) => file.name !== 'arclight');
 
         files.sort((a, b) => {
           if (a.type === 'directory' && b.type === 'file') {
@@ -203,7 +203,7 @@ export function registerFilesRoutes(router: Router): void {
 
         const files = (
           parseDaemonResponse(fsListSchema, filesResponse.data) ?? []
-        ).filter((file) => file.name !== 'airlink');
+        ).filter((file) => file.name !== 'arclight');
 
         files.sort((a, b) => {
           if (a.type === 'directory' && b.type === 'file') {

@@ -15,13 +15,13 @@ export default async (router: Router, api: any) => {
   const requireAdmin = security.requireAuth(true);
 
   ui.addSidebarItem?.({
-    id: 'airlink-cloud',
-    label: 'Airlink Cloud',
+    id: 'arclight-cloud',
+    label: 'Arclight Cloud',
     icon: CLOUD_ICON,
-    url: '/airlink-cloud/settings',
+    url: '/arclight-cloud/settings',
     isAdminItem: true,
     priority: 20,
-    description: 'Configure Airlink Cloud integration',
+    description: 'Configure Arclight Cloud integration',
   });
 
   router.get('/settings', requireAdmin, async (req: any, res: any) => {
@@ -33,50 +33,50 @@ export default async (router: Router, api: any) => {
       const settings = (await prisma.settings.findUnique({ where: { id: 1 } })) || DEFAULT_SETTINGS;
 
       res.render(path.join(__dirname, '../views/settings.ejs'), {
-        title: 'Airlink Cloud',
+        title: 'Arclight Cloud',
         user: req.session?.user,
         req,
         settings,
       });
     } catch (error) {
-      logger.error('Error loading Airlink Cloud settings page:', error);
+      logger.error('Error loading Arclight Cloud settings page:', error);
       res.redirect('/admin/overview');
     }
   });
 
   router.post('/settings', requireAdmin, async (req: any, res: any) => {
     try {
-      const { airlinkCloudApiKey, airlinkCloudBackupEnabled } = req.body || {};
+      const { arclightCloudApiKey, arclightCloudBackupEnabled } = req.body || {};
 
       const data: Record<string, any> = {
-        airlinkCloudApiKey: airlinkCloudApiKey || null,
-        airlinkCloudBackupEnabled: airlinkCloudBackupEnabled === true || airlinkCloudBackupEnabled === 'true',
+        arclightCloudApiKey: arclightCloudApiKey || null,
+        arclightCloudBackupEnabled: arclightCloudBackupEnabled === true || arclightCloudBackupEnabled === 'true',
       };
 
       await prisma.settings.upsert({
         where: { id: 1 },
         update: data,
         create: {
-          title: 'Airlink',
+          title: 'Arclight',
           ...data,
         },
       });
 
       res.json({ success: true });
     } catch (error) {
-      logger.error('Error saving Airlink Cloud settings:', error);
+      logger.error('Error saving Arclight Cloud settings:', error);
       res.status(500).json({ success: false, error: 'Failed to save settings.' });
     }
   });
 
-  logger.info('Airlink Cloud addon initialized');
+  logger.info('Arclight Cloud addon initialized');
 
   return {
     onDisable: () => {
-      ui.removeSidebarItem?.('airlink-cloud');
+      ui.removeSidebarItem?.('arclight-cloud');
     },
     onUninstall: async () => {
-      ui.removeSidebarItem?.('airlink-cloud');
+      ui.removeSidebarItem?.('arclight-cloud');
     },
   };
 };

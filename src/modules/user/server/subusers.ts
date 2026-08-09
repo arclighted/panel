@@ -208,7 +208,7 @@ export function registerSubUserRoutes(router: Router): void {
         if (target.email) {
           await sendSubUserInvite({
             to: target.email,
-            panelName: 'Airlink',
+            panelName: 'Arclight',
             serverName: server.name,
             inviteUrl: `${process.env.PANEL_URL ?? ''}/server/${server.UUID}`,
           });

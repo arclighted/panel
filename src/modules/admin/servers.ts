@@ -40,10 +40,10 @@ const DEFAULT_DATABASE_LIMIT = 5;
 const DEFAULT_BACKUP_LIMIT = 5;
 const SUSPENDED_TRUE = 'true';
 
-registerPermission('airlink.admin.servers.view' as Permission);
-registerPermission('airlink.admin.servers.create' as Permission);
-registerPermission('airlink.admin.servers.update' as Permission);
-registerPermission('airlink.admin.servers.delete' as Permission);
+registerPermission('arclight.admin.servers.view' as Permission);
+registerPermission('arclight.admin.servers.create' as Permission);
+registerPermission('arclight.admin.servers.update' as Permission);
+registerPermission('arclight.admin.servers.delete' as Permission);
 
 const adminModule: Module = {
   info: {
@@ -51,7 +51,7 @@ const adminModule: Module = {
     description: 'This file is for admin functionality.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 
@@ -60,7 +60,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/servers',
-      isAuthenticated(true, 'airlink.admin.servers.view'),
+      isAuthenticated(true, 'arclight.admin.servers.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -89,7 +89,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/servers/edit/:id',
-      isAuthenticated(true, 'airlink.admin.servers.view'),
+      isAuthenticated(true, 'arclight.admin.servers.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -152,7 +152,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/servers/edit/:id',
-      isAuthenticated(true, 'airlink.admin.servers.update'),
+      isAuthenticated(true, 'arclight.admin.servers.update'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -361,7 +361,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/servers/create',
-      isAuthenticated(true, 'airlink.admin.servers.view'),
+      isAuthenticated(true, 'arclight.admin.servers.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -394,7 +394,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/servers/create',
-      isAuthenticated(true, 'airlink.admin.servers.create'),
+      isAuthenticated(true, 'arclight.admin.servers.create'),
       async (req: Request, res: Response) => {
         const {
           name,
@@ -797,7 +797,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/server/delete/:id',
-      isAuthenticated(true, 'airlink.admin.servers.delete'),
+      isAuthenticated(true, 'arclight.admin.servers.delete'),
       async (req: Request, res: Response) => {
         const { id } = req.params;
 
@@ -915,7 +915,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/servers/:id/suspend',
-      isAuthenticated(true, 'airlink.admin.servers.update'),
+      isAuthenticated(true, 'arclight.admin.servers.update'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -975,7 +975,7 @@ const adminModule: Module = {
           if (owner?.email) {
             await sendServerSuspended({
               to: owner.email,
-              panelName: 'Airlink',
+              panelName: 'Arclight',
               serverName: server.name,
               panelUrl: process.env.PANEL_URL ?? '',
             });
@@ -991,7 +991,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/servers/:id/unsuspend',
-      isAuthenticated(true, 'airlink.admin.servers.update'),
+      isAuthenticated(true, 'arclight.admin.servers.update'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -1041,7 +1041,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/servers/:id/transfer',
-      isAuthenticated(true, 'airlink.admin.servers.update'),
+      isAuthenticated(true, 'arclight.admin.servers.update'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -1097,7 +1097,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/servers/:id/transfer/status',
-      isAuthenticated(true, 'airlink.admin.servers.view'),
+      isAuthenticated(true, 'arclight.admin.servers.view'),
       async (req: Request, res: Response) => {
         try {
           const serverId = getParamAsNumber(req.params.id);
@@ -1130,7 +1130,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/queue',
-      isAuthenticated(true, 'airlink.admin.servers.view'),
+      isAuthenticated(true, 'arclight.admin.servers.view'),
       async (req: Request, res: Response) => {
         try {
           const entries = runtimeStartQueue.listQueueForAdmin();
@@ -1170,7 +1170,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/queue/:serverId/kick',
-      isAuthenticated(true, 'airlink.admin.servers.view'),
+      isAuthenticated(true, 'arclight.admin.servers.view'),
       async (req: Request, res: Response) => {
         try {
           const serverId = getParamAsString(req.params.serverId);
@@ -1189,7 +1189,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/queue/users/:userId/ban',
-      isAuthenticated(true, 'airlink.admin.servers.view'),
+      isAuthenticated(true, 'arclight.admin.servers.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = getParamAsNumber(req.params.userId);
@@ -1209,7 +1209,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/queue/users/:userId/unban',
-      isAuthenticated(true, 'airlink.admin.servers.view'),
+      isAuthenticated(true, 'arclight.admin.servers.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = getParamAsNumber(req.params.userId);

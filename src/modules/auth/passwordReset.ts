@@ -44,7 +44,7 @@ const passwordResetModule: Module = {
     description: 'Forgot password flow with email delivery and secure tokens.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 
@@ -83,7 +83,7 @@ const passwordResetModule: Module = {
 
             await sendPasswordReset({
               to: user.email,
-              panelName: process.env.NAME || 'Airlink',
+              panelName: process.env.NAME || 'Arclight',
               resetUrl,
             });
           }

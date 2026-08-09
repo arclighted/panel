@@ -4,10 +4,10 @@
 Verify the remaining cleanup items (dead JS files) and add test coverage per the ledger's coverage note.
 
 ## Finding: B-075 premise was wrong
-The prior audit concluded `public/javascript/admin/modrinth-admin.js` and `public/javascript/admin/admin-airlink-cloud-settings.js` were unreferenced dead files. That scan covered only `views/`, `public/`, and `src/` — it excluded `storage/addons/`. Re-verification shows:
+The prior audit concluded `public/javascript/admin/modrinth-admin.js` and `public/javascript/admin/admin-arclight-cloud-settings.js` were unreferenced dead files. That scan covered only `views/`, `public/`, and `src/` — it excluded `storage/addons/`. Re-verification shows:
 
 - `storage/addons/modrinth/views/admin.ejs:195` → `<script src="/javascript/admin/modrinth-admin.js">`
-- `storage/addons/airlink-cloud/views/settings.ejs:62` → `<script src="/javascript/admin/admin-airlink-cloud-settings.js">`
+- `storage/addons/arclight-cloud/views/settings.ejs:62` → `<script src="/javascript/admin/admin-arclight-cloud-settings.js">`
 
 Both files are live dependencies of disabled-but-shipped addons. **Not deleted.** Every admin/shared JS file was re-scanned (including `storage/addons/`) and all have ≥1 reference. Ledger B-075 corrected to reflect this.
 

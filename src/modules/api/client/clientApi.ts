@@ -70,7 +70,7 @@ const clientApiModule: Module = {
     description: 'User-facing API for server management via API keys.',
     version: '2.0.0',
     moduleVersion: '2.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 

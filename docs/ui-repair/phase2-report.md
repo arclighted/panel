@@ -58,7 +58,7 @@ None. Kept existing dependencies (lucide via `icon()`/`alIcon`, no new packages)
 ## Remaining risks
 
 - Migrated `window.api` sites rely on toast-on-failure side effects; any future raw-fetch migration must audit the "needs the error body" case (as admin-nodes.js does).
-- `modrinth-admin.js` and `admin-airlink-cloud-settings.js` remain dead files (defer deletion to Phase 8).
+- `modrinth-admin.js` and `admin-arclight-cloud-settings.js` remain dead files (defer deletion to Phase 8).
 - B-071 (parallel modals) and B-074 (server shell) are the two large deferred consolidations; they are independent of this phase's primitives.
 - `pnpm` launcher is broken in this environment (corepack/node 22 `ERR_VM_DYNAMIC_IMPORT_CALLBACK_MISSING`); all commands were run via `node_modules/.bin` directly. No project issue.
 

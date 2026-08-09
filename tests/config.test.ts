@@ -102,7 +102,7 @@ describe('config: getConfig', () => {
 
     const cfg = getConfig();
     expect(cfg.isHttps).toBe(false);
-    expect(cfg.name).toBe('AirLink');
+    expect(cfg.name).toBe('Arclight');
   });
 
   it('fails hard in production with no secret', () => {

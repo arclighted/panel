@@ -11,7 +11,7 @@ const adminMenuModule: Module = {
     description: 'Admin menu route.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 
@@ -20,7 +20,7 @@ const adminMenuModule: Module = {
 
     router.get(
       '/admin/menu',
-      isAuthenticated(true, 'airlink.admin.overview.main'),
+      isAuthenticated(true, 'arclight.admin.overview.main'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;

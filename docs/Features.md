@@ -1,4 +1,4 @@
-# Airlink Panel - Feature Guide
+# Arclight Panel - Feature Guide
 
 This covers the admin side, the user side, the addon system, and the API.
 
@@ -8,7 +8,7 @@ This covers the admin side, the user side, the addon system, and the API.
 
 ### Quick install
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/airlinklabs/panel/refs/heads/main/installer.sh)
+bash <(curl -s https://raw.githubusercontent.com/arclighted/panel/refs/heads/main/installer.sh)
 ```
 
 The installer is interactive. It walks you through database setup, admin account creation, and optional addon selection.
@@ -16,7 +16,7 @@ The installer is interactive. It walks you through database setup, admin account
 ### Manual install
 ```bash
 cd /var/www/
-git clone https://github.com/AirlinkLabs/panel.git
+git clone https://github.com/Arclighted/panel.git
 cd panel
 sudo chown -R www-data:www-data /var/www/panel
 sudo chmod -R 755 /var/www/panel
@@ -39,7 +39,7 @@ If a newer version of the panel is available, a notice appears here with a downl
 
 ### Nodes
 
-Nodes are the machines that run game servers. Each node runs the Airlink daemon, which the panel communicates with.
+Nodes are the machines that run game servers. Each node runs the Arclight daemon, which the panel communicates with.
 
 To create a node, go to Admin > Nodes > Create Node. You need a name, the node's IP address, and the daemon port (default: 3002).
 
@@ -92,7 +92,7 @@ The key is shown once after creation. Copy it immediately. It cannot be retrieve
 
 The addons page at `/admin/addons` lists all addons in the `storage/addons/` folder. Each entry shows whether the addon is enabled or disabled. Toggling the switch enables or disables the addon (a panel restart is required for the change to take effect).
 
-The marketplace tab lists community addons from the `airlinklabs/addons` registry. You can install addons with one click. The panel clones the repository, runs `pnpm install` and `pnpm run build`, and streams the output back to the browser.
+The marketplace tab lists community addons from the `arclighted/addons` registry. You can install addons with one click. The panel clones the repository, runs `pnpm install` and `pnpm run build`, and streams the output back to the browser.
 
 ### Settings
 
@@ -278,7 +278,7 @@ git clone https://github.com/you/your-addon.git your-addon
 cd your-addon
 pnpm install
 pnpm run build
-systemctl restart airlink-panel
+systemctl restart arclight-panel
 ```
 
 Then go to Admin > Addons and enable it.
@@ -294,7 +294,7 @@ Authorization: Bearer your-api-key
 
 Permissions are checked per request based on what the key was granted at creation. Attempting an action without the required permission returns a 403.
 
-Available permission scopes: `airlink.api.servers.*`, `airlink.api.users.*`, `airlink.api.nodes.*`, `airlink.api.settings.*`.
+Available permission scopes: `arclight.api.servers.*`, `arclight.api.users.*`, `arclight.api.nodes.*`, `arclight.api.settings.*`.
 
 All responses are JSON. Successful responses include the requested data. Errors return an object with an `error` field and an appropriate HTTP status code.
 

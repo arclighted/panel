@@ -154,7 +154,7 @@ async function spoolStreamToTemp(
 }> {
   const file = path.join(
     os.tmpdir(),
-    `airlink-hmac-${crypto.randomBytes(8).toString('hex')}.tmp`,
+    `arclight-hmac-${crypto.randomBytes(8).toString('hex')}.tmp`,
   );
   const hash = crypto.createHash('sha256');
   const nodeStream: NodeJS.ReadableStream = isWebStream(stream)
@@ -194,7 +194,7 @@ function isWebStream(
 }
 
 // Resolves the exact bytes that will hit the wire and their sha256 digest.
-// digest is null for empty bodies (no X-Airlink-Digest header, signed as '').
+// digest is null for empty bodies (no X-Arclight-Digest header, signed as '').
 async function bodyToWire(
   body: unknown,
   contentDigest?: string,
@@ -252,11 +252,11 @@ function buildDaemonHeaders(
   );
 
   return {
-    'X-Airlink-Timestamp': String(timestamp),
-    'X-Airlink-Signature': signature,
-    'X-Airlink-Nonce': nonce,
-    'X-Airlink-Payload-Version': String(HMAC_PAYLOAD_VERSION),
-    ...(digest ? { 'X-Airlink-Digest': `sha256:${digest}` } : {}),
+    'X-Arclight-Timestamp': String(timestamp),
+    'X-Arclight-Signature': signature,
+    'X-Arclight-Nonce': nonce,
+    'X-Arclight-Payload-Version': String(HMAC_PAYLOAD_VERSION),
+    ...(digest ? { 'X-Arclight-Digest': `sha256:${digest}` } : {}),
   };
 }
 
@@ -332,7 +332,7 @@ export async function daemonRequest<T = unknown>(
     // Basic auth is deprecated — only sent during migration period.
     // HMAC is the authoritative auth mechanism.
     ...(SEND_BASIC_AUTH
-      ? { auth: { username: 'Airlink', password: nodeKey } }
+      ? { auth: { username: 'Arclight', password: nodeKey } }
       : {}),
   };
 

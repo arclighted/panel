@@ -1,6 +1,6 @@
 # Intent · 02 · Investigate
 
-> Research plan, instruments, and synthesis protocol for Airlink Panel.
+> Research plan, instruments, and synthesis protocol for Arclight Panel.
 > Feeds the open questions from /strategize with a method for answering each.
 
 ---

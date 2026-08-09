@@ -1,6 +1,6 @@
-# AirLink Panel Addon System
+# Arclight Panel Addon System
 
-This is the reference for building addons for AirLink Panel. It covers the v2 manifest format, the Addon API surface, lifecycle hooks, permissions, settings, slots, commands, scheduled tasks, and the security model.
+This is the reference for building addons for Arclight Panel. It covers the v2 manifest format, the Addon API surface, lifecycle hooks, permissions, settings, slots, commands, scheduled tasks, and the security model.
 
 ## Table of Contents
 

@@ -1,6 +1,6 @@
 # Intent · 10 · Include
 
-> Accessibility audit of Airlink Panel against WCAG 2.2 (AA target, per DESIGN.md commitment). Method: static audit of views/components with evidence for each finding; keyboard map; screen-reader flow notes; remediation plan prioritized by human impact.
+> Accessibility audit of Arclight Panel against WCAG 2.2 (AA target, per DESIGN.md commitment). Method: static audit of views/components with evidence for each finding; keyboard map; screen-reader flow notes; remediation plan prioritized by human impact.
 
 ---
 

@@ -21,13 +21,13 @@ import { getParamAsString } from '../../utils/typeHelpers';
 import { containPath } from '../../utils/pathSecurity';
 import { logActivity } from '../../handlers/utils/activity/activityLogger';
 
-registerPermission('airlink.admin.addons.view');
-registerPermission('airlink.admin.addons.toggle');
-registerPermission('airlink.admin.addons.reload');
-registerPermission('airlink.admin.addons.store');
-registerPermission('airlink.admin.addons.install');
-registerPermission('airlink.admin.addons.settings' as Permission);
-registerPermission('airlink.admin.addons.commands' as Permission);
+registerPermission('arclight.admin.addons.view');
+registerPermission('arclight.admin.addons.toggle');
+registerPermission('arclight.admin.addons.reload');
+registerPermission('arclight.admin.addons.store');
+registerPermission('arclight.admin.addons.install');
+registerPermission('arclight.admin.addons.settings' as Permission);
+registerPermission('arclight.admin.addons.commands' as Permission);
 
 const addonsModule: Module = {
   info: {
@@ -35,7 +35,7 @@ const addonsModule: Module = {
     description: 'This file is for admin functionality of the Addons.',
     version: '2.0.0',
     moduleVersion: '2.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 
@@ -44,7 +44,7 @@ const addonsModule: Module = {
 
     router.get(
       '/admin/addons',
-      isAuthenticated(true, 'airlink.admin.addons.view'),
+      isAuthenticated(true, 'arclight.admin.addons.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -93,7 +93,7 @@ const addonsModule: Module = {
 
     router.get(
       '/admin/addons/list',
-      isAuthenticated(true, 'airlink.admin.addons.view'),
+      isAuthenticated(true, 'arclight.admin.addons.view'),
       async (_req: Request, res: Response) => {
         try {
           const addons = await getAllAddons();
@@ -109,7 +109,7 @@ const addonsModule: Module = {
 
     router.get(
       '/admin/addons/store',
-      isAuthenticated(true, 'airlink.admin.addons.store'),
+      isAuthenticated(true, 'arclight.admin.addons.store'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -180,7 +180,7 @@ const addonsModule: Module = {
 
     router.get(
       '/admin/addons/:slug',
-      isAuthenticated(true, 'airlink.admin.addons.view'),
+      isAuthenticated(true, 'arclight.admin.addons.view'),
       async (req: Request, res: Response) => {
         try {
           const slug = getParamAsString(req.params.slug);
@@ -228,7 +228,7 @@ const addonsModule: Module = {
 
     router.post(
       '/admin/addons/toggle/:slug',
-      isAuthenticated(true, 'airlink.admin.addons.toggle'),
+      isAuthenticated(true, 'arclight.admin.addons.toggle'),
       async (req: Request, res: Response) => {
         try {
           const slug = getParamAsString(req.params.slug);
@@ -261,7 +261,7 @@ const addonsModule: Module = {
 
     router.post(
       '/admin/addons/reload',
-      isAuthenticated(true, 'airlink.admin.addons.reload'),
+      isAuthenticated(true, 'arclight.admin.addons.reload'),
       async (req: Request, res: Response) => {
         try {
           const result = await reloadAddons(req.app);
@@ -280,7 +280,7 @@ const addonsModule: Module = {
 
     router.post(
       '/admin/addons/settings/:slug',
-      isAuthenticated(true, 'airlink.admin.addons.settings'),
+      isAuthenticated(true, 'arclight.admin.addons.settings'),
       async (req: Request, res: Response) => {
         try {
           const slug = getParamAsString(req.params.slug);
@@ -347,7 +347,7 @@ const addonsModule: Module = {
 
     router.post(
       '/admin/addons/command/:slug/:command',
-      isAuthenticated(true, 'airlink.admin.addons.commands'),
+      isAuthenticated(true, 'arclight.admin.addons.commands'),
       async (req: Request, res: Response) => {
         try {
           const slug = getParamAsString(req.params.slug);
@@ -373,7 +373,7 @@ const addonsModule: Module = {
 
     router.post(
       '/admin/addons/capability/:slug',
-      isAuthenticated(true, 'airlink.admin.addons.settings'),
+      isAuthenticated(true, 'arclight.admin.addons.settings'),
       async (req: Request, res: Response) => {
         try {
           const slug = getParamAsString(req.params.slug);
@@ -427,7 +427,7 @@ const addonsModule: Module = {
 
     router.post(
       '/admin/addons/uninstall/:slug',
-      isAuthenticated(true, 'airlink.admin.addons.install'),
+      isAuthenticated(true, 'arclight.admin.addons.install'),
       async (req: Request, res: Response) => {
         try {
           const slug = getParamAsString(req.params.slug);

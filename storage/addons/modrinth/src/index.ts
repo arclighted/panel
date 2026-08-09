@@ -13,7 +13,7 @@ import { createRoutes } from './routes';
 
 export const CONFIG = {
   MODRINTH_API_BASE: 'https://api.modrinth.com/v2',
-  USER_AGENT: 'AirLink-ModrinthAddon/2.0',
+  USER_AGENT: 'Arclight-ModrinthAddon/2.0',
   CACHE_DURATION: 30 * 60 * 1000,
   MAX_FILE_SIZE: 100 * 1024 * 1024,
   SEARCH_LIMIT: 20,

@@ -242,7 +242,7 @@ export async function fetchPublic(
       const response = await fetch(current, {
         redirect: 'manual',
         signal: controller.signal,
-        headers: { 'user-agent': 'AirlinkPanel/1.0' },
+        headers: { 'user-agent': 'ArclightPanel/1.0' },
       });
 
       if (response.status >= 300 && response.status < 400) {

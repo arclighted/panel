@@ -18,7 +18,7 @@ const dashboardModule: Module = {
     description: 'Server management routes: console, files, backups, settings, startup, players, and worlds.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 

@@ -1,7 +1,7 @@
 import { httpPost, httpDelete, httpGet } from '../../../utils/http';
 import logger from '../../logger';
 
-const AIRLINK_CLOUD_URL = 'https://api.airlinklabs.xyz';
+const ARCLIGHT_CLOUD_URL = 'https://api.arclight.my.id';
 
 async function streamToBuffer(stream: unknown): Promise<Buffer> {
   const chunks: Buffer[] = [];
@@ -12,7 +12,7 @@ async function streamToBuffer(stream: unknown): Promise<Buffer> {
   return Buffer.concat(chunks);
 }
 
-export class AirlinkCloudClient {
+export class ArclightCloudClient {
   private apiKey: string;
 
   constructor(apiKey: string) {
@@ -25,7 +25,7 @@ export class AirlinkCloudClient {
     form.append('file', new Blob([new Uint8Array(buffer)]), fileName);
 
     try {
-      const response = await httpPost(`${AIRLINK_CLOUD_URL}/storage/upload`, form, {
+      const response = await httpPost(`${ARCLIGHT_CLOUD_URL}/storage/upload`, form, {
         headers: {
           'X-API-Key': this.apiKey,
         },
@@ -33,14 +33,14 @@ export class AirlinkCloudClient {
 
       return response.data;
     } catch (error) {
-      logger.error('Airlink Cloud upload error:', error);
+      logger.error('Arclight Cloud upload error:', error);
       throw error;
     }
   }
 
   async deleteFile(fileId: string) {
     try {
-      const response = await httpDelete(`${AIRLINK_CLOUD_URL}/storage/files/${fileId}`, undefined, {
+      const response = await httpDelete(`${ARCLIGHT_CLOUD_URL}/storage/files/${fileId}`, undefined, {
         headers: {
           'X-API-Key': this.apiKey,
         },
@@ -48,14 +48,14 @@ export class AirlinkCloudClient {
 
       return response.data;
     } catch (error) {
-      logger.error('Airlink Cloud delete error:', error);
+      logger.error('Arclight Cloud delete error:', error);
       throw error;
     }
   }
 
   async getDownloadStream(fileId: string) {
     try {
-      const response = await httpGet(`${AIRLINK_CLOUD_URL}/storage/download/${fileId}`, {
+      const response = await httpGet(`${ARCLIGHT_CLOUD_URL}/storage/download/${fileId}`, {
         headers: {
           'X-API-Key': this.apiKey,
         },
@@ -64,7 +64,7 @@ export class AirlinkCloudClient {
 
       return response;
     } catch (error) {
-      logger.error('Airlink Cloud download error:', error);
+      logger.error('Arclight Cloud download error:', error);
       throw error;
     }
   }

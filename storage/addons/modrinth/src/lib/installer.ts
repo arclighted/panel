@@ -161,8 +161,8 @@ export class Installer {
       await this.updateInstallationStatus(serverId, versionId, 'completed');
 
       try {
-        await this.daemon.createDirectory(server, 'airlink');
-        await this.daemon.uploadFileToServer(server, 'airlink', 'installed.txt', Buffer.from('Installed: true'));
+        await this.daemon.createDirectory(server, 'arclight');
+        await this.daemon.uploadFileToServer(server, 'arclight', 'installed.txt', Buffer.from('Installed: true'));
       } catch {
         // Non-critical
       }

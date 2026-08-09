@@ -72,7 +72,7 @@ const EXCLUDED_WORLD_FOLDERS = new Set([
   'texturepacks',
   'server',
   'backups',
-  'airlink',
+  'arclight',
 ]);
 
 const REQUIRED_WORLD_FILES = ['uid.dat', 'level.dat'];

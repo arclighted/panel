@@ -6,12 +6,12 @@
  *
  * CREDITS:
  * - Addon developed by g-flame
- * - Panel by AirlinkLabs
+ * - Panel by Arclighted
  * - Special thanks to Modrinth for platform and API
  * - Thanks to all contributors
  *
  * NOTES:
- * - This file is part of the Airlink Addons – Modrinth Store project
+ * - This file is part of the Arclight Addons – Modrinth Store project
  * - All TypeScript logic written by g-flame
  *
  * =============================================================================

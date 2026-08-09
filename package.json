@@ -1,12 +1,12 @@
 {
-  "name": "Airlink",
+  "name": "Arclight",
   "version": "2.5.193",
-  "description": "Airlink panel, A simple-to-use game server management panel",
+  "description": "Arclight panel, A simple-to-use game server management panel",
   "repository": {
     "type": "git",
-    "url": "https://github.com/AirlinkLabs/panel"
+    "url": "https://github.com/Arclighted/panel"
   },
-  "author": "AirlinkLabs",
+  "author": "radityprtama",
   "license": "MIT",
   "scripts": {
     "setup": "pnpm install && prisma generate && prisma db push && pnpm run build",

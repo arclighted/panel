@@ -10,7 +10,7 @@ import logger from '../../handlers/logger';
 import { isAuthenticated } from '../../handlers/utils/auth/authUtil';
 import { getClientIp } from '../../utils/ip';
 
-const TOTP_ISSUER = 'Airlink';
+const TOTP_ISSUER = 'Arclight';
 const RECOVERY_CODE_COUNT = 10;
 
 function createTotp(secretBase32: string, label: string): OTPAuth.TOTP {
@@ -73,7 +73,7 @@ const twoFactorModule: Module = {
     description: 'TOTP-based two-factor authentication for user accounts.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirlinkLab',
+    author: 'ArclightLab',
     license: 'MIT',
   },
 

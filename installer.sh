@@ -18,17 +18,17 @@
 set -uo pipefail
 
 readonly VERSION="3.2.0-Stable"
-readonly LOG="/tmp/airlink.log"
-readonly PANEL_REPO="https://github.com/airlinklabs/panel.git"
-readonly DAEMON_RELEASE_API="https://api.github.com/repos/airlinklabs/daemon/releases/latest"
+readonly LOG="/tmp/arclight.log"
+readonly PANEL_REPO="https://github.com/arclighted/panel.git"
+readonly DAEMON_RELEASE_API="https://api.github.com/repos/arclighted/daemon/releases/latest"
 
 PNPM_REGISTRY="https://registry.npmjs.org"
 PNPM="pnpm"
 PNPM_STORE="/root/.pnpm-store"
 
 declare -a ADDONS=(
-    "Modrinth|https://github.com/airlinklabs/addons.git|modrinth|modrinth"
-    "Parachute|https://github.com/airlinklabs/addons.git|parachute|parachute"
+    "Modrinth|https://github.com/arclighted/addons.git|modrinth|modrinth"
+    "Parachute|https://github.com/arclighted/addons.git|parachute|parachute"
 )
 
 # =============================================================================
@@ -114,7 +114,7 @@ ni_header() {
     printf " / ___ \\ | ||  _ <| |___ | || |\\  | . \\ \n"
     printf "/_/   \\_\\___|_| \\_\\_____|___|_| \\_|_|\\_\\\\\n"
     printf "\n"
-    printf "  ${BOLD}Airlink Installer${RESET} ${C_GRAY}v${VERSION}${RESET}  ${C_GRAY}%s${RESET}\n\n" "$(date '+%Y-%m-%d %H:%M:%S')"
+    printf "  ${BOLD}Arclight Installer${RESET} ${C_GRAY}v${VERSION}${RESET}  ${C_GRAY}%s${RESET}\n\n" "$(date '+%Y-%m-%d %H:%M:%S')"
 }
 
 ni_start() { NI_TOTAL="$1"; NI_STEP=0; }
@@ -740,7 +740,7 @@ tui_progress_draw() {
     tui_box "$box_r" "$box_c" "$box_w" "$box_h" "Installing"
 
     move_to $(( box_r + 1 )) $(( box_c + 3 ))
-    printf "${DIM}Airlink v${VERSION}${RESET}"
+    printf "${DIM}Arclight v${VERSION}${RESET}"
     tui_hline $(( box_r + 2 )) "$box_c" "$box_w"
 
     local i
@@ -1161,7 +1161,7 @@ print(d.get('tag_name', 'unknown'))
 " 2>/dev/null) || tag="unknown"
     log "Latest daemon release: $tag"
 
-    # find the matching asset URL — name format: airlinkd-{platform}-{arch}-{version}.zip
+    # find the matching asset URL — name format: arclightd-{platform}-{arch}-{version}.zip
     local asset_url
     asset_url=$(echo "$release_json" | python3 -c "
 import json, sys
@@ -1169,7 +1169,7 @@ platform = sys.argv[1]
 arch     = sys.argv[2]
 d = json.load(sys.stdin)
 assets = d.get('assets', [])
-needle = 'airlinkd-' + platform + '-' + arch + '-'
+needle = 'arclightd-' + platform + '-' + arch + '-'
 for a in assets:
     name = a.get('name', '')
     if name.startswith(needle) and name.endswith('.zip'):
@@ -1179,10 +1179,10 @@ for a in assets:
 
     [[ -z "$asset_url" ]] && die "No daemon binary found for ${DAEMON_PLATFORM}-${DAEMON_ARCH} in release ${tag}"
     log "Downloading: $asset_url"
-    echo "Downloading airlinkd ${tag} for ${DAEMON_PLATFORM}-${DAEMON_ARCH}..."
+    echo "Downloading arclightd ${tag} for ${DAEMON_PLATFORM}-${DAEMON_ARCH}..."
 
     local tmpdir; tmpdir=$(mktemp -d /tmp/al-daemon-XXXXXX)
-    local zipfile="${tmpdir}/airlinkd.zip"
+    local zipfile="${tmpdir}/arclightd.zip"
 
     curl -fsSL --max-time 120 --progress-bar -o "$zipfile" "$asset_url" \
         || die "Failed to download daemon binary"
@@ -1191,16 +1191,16 @@ for a in assets:
     unzip -o -q "$zipfile" -d "$tmpdir" \
         || die "Failed to unzip daemon binary"
 
-    # the binary inside is always named airlinkd
-    [[ -f "${tmpdir}/airlinkd" ]] \
-        || die "Binary 'airlinkd' not found inside zip (contents: $(ls "$tmpdir"))"
+    # the binary inside is always named arclightd
+    [[ -f "${tmpdir}/arclightd" ]] \
+        || die "Binary 'arclightd' not found inside zip (contents: $(ls "$tmpdir"))"
 
     mkdir -p /etc/daemon
-    cp "${tmpdir}/airlinkd" /etc/daemon/airlinkd
-    chmod +x /etc/daemon/airlinkd
+    cp "${tmpdir}/arclightd" /etc/daemon/arclightd
+    chmod +x /etc/daemon/arclightd
     rm -rf "$tmpdir"
 
-    log "OK: airlinkd binary installed to /etc/daemon/airlinkd"
+    log "OK: arclightd binary installed to /etc/daemon/arclightd"
 
     # write .env if not already present
     if [[ ! -f /etc/daemon/.env ]]; then
@@ -1217,9 +1217,9 @@ ENVEOF
 }
 
 phase_daemon_service() {
-    cat > /etc/systemd/system/airlink-daemon.service <<SVCEOF
+    cat > /etc/systemd/system/arclight-daemon.service <<SVCEOF
 [Unit]
-Description=Airlink Daemon
+Description=Arclight Daemon
 After=network.target docker.service
 
 [Service]
@@ -1227,7 +1227,7 @@ Type=simple
 User=root
 WorkingDirectory=/etc/daemon
 EnvironmentFile=/etc/daemon/.env
-ExecStart=/etc/daemon/airlinkd
+ExecStart=/etc/daemon/arclightd
 Restart=on-failure
 RestartSec=5
 Environment=NODE_ENV=production
@@ -1236,7 +1236,7 @@ Environment=NODE_ENV=production
 WantedBy=multi-user.target
 SVCEOF
     systemctl daemon-reload
-    systemctl enable --now airlink-daemon
+    systemctl enable --now arclight-daemon
 }
 
 # =============================================================================
@@ -1322,9 +1322,9 @@ phase_panel_service() {
     local pnpm_bin; pnpm_bin=$(command -v pnpm)
     local node_bin_dir; node_bin_dir=$(dirname "$(command -v node)")
 
-    cat > /etc/systemd/system/airlink-panel.service <<SVCEOF
+    cat > /etc/systemd/system/arclight-panel.service <<SVCEOF
 [Unit]
-Description=Airlink Panel
+Description=Arclight Panel
 After=network.target
 
 [Service]
@@ -1342,7 +1342,7 @@ Environment=PATH=${node_bin_dir}:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/b
 WantedBy=multi-user.target
 SVCEOF
     systemctl daemon-reload
-    systemctl enable --now airlink-panel
+    systemctl enable --now arclight-panel
     _process_addons
 }
 
@@ -1400,17 +1400,17 @@ _process_addons() {
 # Remove helpers
 # =============================================================================
 tui_remove_panel() {
-    systemctl stop    airlink-panel &>/dev/null || true
-    systemctl disable airlink-panel &>/dev/null || true
-    rm -f /etc/systemd/system/airlink-panel.service
+    systemctl stop    arclight-panel &>/dev/null || true
+    systemctl disable arclight-panel &>/dev/null || true
+    rm -f /etc/systemd/system/arclight-panel.service
     rm -rf /var/www/panel
     systemctl daemon-reload
 }
 
 tui_remove_daemon() {
-    systemctl stop    airlink-daemon &>/dev/null || true
-    systemctl disable airlink-daemon &>/dev/null || true
-    rm -f /etc/systemd/system/airlink-daemon.service
+    systemctl stop    arclight-daemon &>/dev/null || true
+    systemctl disable arclight-daemon &>/dev/null || true
+    rm -f /etc/systemd/system/arclight-daemon.service
     rm -rf /etc/daemon
     systemctl daemon-reload
 }
@@ -1425,14 +1425,14 @@ tui_remove_deps() {
 }
 
 ping_install_counter() {
-    curl -sf "https://api.counterapi.dev/v2/airlinklabs/installed-air/up" \
+    curl -sf "https://api.counterapi.dev/v2/arclighted/installed-air/up" \
          -o /dev/null 2>/dev/null || true
 }
 
 # =============================================================================
 # TUI config collection
 # =============================================================================
-PANEL_NAME="Airlink"
+PANEL_NAME="Arclight"
 PANEL_PORT="3000"
 PANEL_ADDRESS="127.0.0.1"
 DAEMON_PORT="3002"
@@ -1440,7 +1440,7 @@ DAEMON_KEY=""
 ADDON_CHOICES="none"
 
 tui_collect_panel_config() {
-    tui_input "Panel name" "Airlink"
+    tui_input "Panel name" "Arclight"
     PANEL_NAME="$TUI_INPUT"
 
     local err=""
@@ -1621,7 +1621,7 @@ run_interactive() {
     done
 
     tui_cleanup
-    printf "\n  Airlink Installer v${VERSION} — done\n\n"
+    printf "\n  Arclight Installer v${VERSION} — done\n\n"
 }
 
 # =============================================================================
@@ -1632,7 +1632,7 @@ run_noninteractive() {
 
     local mode="${ARG_MODE:-both}"
 
-    PANEL_NAME="${ARG_NAME:-Airlink}"
+    PANEL_NAME="${ARG_NAME:-Arclight}"
     PANEL_PORT="${ARG_PORT:-3000}"
     PANEL_ADDRESS="${ARG_PANEL_ADDR:-127.0.0.1}"
     DAEMON_PORT="${ARG_DAEMON_PORT:-3002}"
@@ -1691,7 +1691,7 @@ run_noninteractive() {
     [[ "$mode" != "daemon" ]] && printf "  ${C_GRAY}Panel :${RESET}  http://%s:%s\n" "$server_ip" "$PANEL_PORT"
     [[ "$mode" != "panel"  ]] && printf "  ${C_GRAY}Daemon:${RESET}  port %s\n" "$DAEMON_PORT"
     printf "  ${C_GRAY}Logs  :${RESET}  %s\n" "$LOG"
-    printf "  ${C_GRAY}System:${RESET}  journalctl -u airlink-panel -f\n\n"
+    printf "  ${C_GRAY}System:${RESET}  journalctl -u arclight-panel -f\n\n"
 }
 
 # =============================================================================
@@ -1700,7 +1700,7 @@ run_noninteractive() {
 [[ $EUID -eq 0 ]] || { echo "Run as root or with sudo."; exit 1; }
 
 touch "$LOG" || true
-log "=== Airlink Installer v${VERSION} started (pid $$) ==="
+log "=== Arclight Installer v${VERSION} started (pid $$) ==="
 
 parse_args "$@"
 detect_os

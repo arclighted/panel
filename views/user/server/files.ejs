@@ -1339,9 +1339,9 @@ function openCreateFileModal() {
     } catch { loader.close(); showToast('<%= req.translations.fileCreateError || "Error creating file" %>', 'error'); }
   }
 
-  // Fallback for daemons without /fs/mkdir — create a .airlink_keep file inside.
+  // Fallback for daemons without /fs/mkdir — create a .arclight_keep file inside.
   async function tryCreateFolderViaFile(finalPath, raw) {
-    const keepPath = finalPath.replace(/\/*$/, '') + '/.airlink_keep';
+    const keepPath = finalPath.replace(/\/*$/, '') + '/.arclight_keep';
     const encoded = encodeURIComponent(keepPath);
     try {
       const res = await fetch('/server/<%= server.UUID %>/files/' + encoded, {

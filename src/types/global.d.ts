@@ -12,8 +12,8 @@ interface AdminSidebarGroup {
 declare global {
   var uiComponentStore: UIComponentStore;
   var appName: string;
-  var airlinkVersion: string;
-  var airlinkCodename: string;
+  var arclightVersion: string;
+  var arclightCodename: string;
   var adminMenuItems: SidebarItem[];
   var regularMenuItems: SidebarItem[];
   var adminSidebarGroups: AdminSidebarGroup[];
@@ -21,8 +21,8 @@ declare global {
     interface Global {
       uiComponentStore: UIComponentStore;
       appName: string;
-      airlinkVersion: string;
-      airlinkCodename: string;
+      arclightVersion: string;
+      arclightCodename: string;
       adminMenuItems: SidebarItem[];
       regularMenuItems: SidebarItem[];
       adminSidebarGroups: AdminSidebarGroup[];

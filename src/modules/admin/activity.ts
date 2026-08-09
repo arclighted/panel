@@ -14,7 +14,7 @@ const activityModule: Module = {
     description: 'Audit log of panel actions (servers, files, backups, subusers, databases).',
     version: '2.1.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 

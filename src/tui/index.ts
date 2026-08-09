@@ -16,7 +16,7 @@ import { resolve } from 'node:path';
 import { collectStats, panelPid, probe, PANEL_URL, type Stats } from './stats';
 
 const TUI_DIR = __dirname;
-const LOG_DIR = process.env.AIRLINK_LOG_DIR ?? `${TUI_DIR}/../../logs`;
+const LOG_DIR = process.env.ARCLIGHT_LOG_DIR ?? `${TUI_DIR}/../../logs`;
 const PANEL_DIR = resolve(TUI_DIR, '../..');
 const PANEL_ENTRY = `${PANEL_DIR}/dist/app.js`;
 const PANEL_ENV_FILE = `${PANEL_DIR}/.env`;
@@ -157,7 +157,7 @@ async function main() {
       cwd: PANEL_DIR,
       stdio: 'inherit',
     });
-    console.log(`Airlink Panel running (headless) — PID ${child.pid ?? '?'} — Ctrl+C to stop`);
+    console.log(`Arclight Panel running (headless) — PID ${child.pid ?? '?'} — Ctrl+C to stop`);
     const exit = () => {
       child.kill('SIGTERM');
       setTimeout(() => process.exit(0), 1500);
@@ -268,11 +268,11 @@ async function main() {
       gap: 1,
       borderStyle: 'rounded',
       borderColor: BORDER,
-      title: 'Airlink Panel',
+      title: 'Arclight Panel',
       titleColor: GREEN,
     },
     Box({ id: 'art-box', flexDirection: 'column' }, Text({ content: ART.join('\n'), fg: GREEN })),
-    Text({ content: `Airlink Panel v${VERSION} · ${CODENAME}`, fg: BLUE })
+    Text({ content: `Arclight Panel v${VERSION} · ${CODENAME}`, fg: BLUE })
   );
 
   const statusPanel = Box(

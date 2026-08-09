@@ -68,7 +68,7 @@ describe('parseAddonManifest', () => {
   it('rejects permissions outside the addon namespace', () => {
     const dir = writeAddon('demo-addon', {
       ...goodManifest,
-      permissions: ['airlink.admin.everything'],
+      permissions: ['arclight.admin.everything'],
     });
     const result = parseAddonManifest(path.join(dir, 'package.json'), 'demo-addon');
     expect(result.success).toBe(false);

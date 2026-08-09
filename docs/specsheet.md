@@ -1,4 +1,4 @@
-# Airlink API Specsheet
+# Arclight API Specsheet
 
 > The reference for panel-daemon communication, user-panel routes, and how everything fits together.
 
@@ -371,8 +371,8 @@
 | Method | Path | Auth | Description |
 |--------|------|------|-------------|
 | `GET` | `/admin/menu` | 👑 | Admin menu management page |
-| `GET` | `/admin/airlink-cloud` | 👑 | AirLink Cloud settings page |
-| `POST` | `/admin/airlink-cloud` | 👑 | Update AirLink Cloud settings |
+| `GET` | `/admin/arclight-cloud` | 👑 | Arclight Cloud settings page |
+| `POST` | `/admin/arclight-cloud` | 👑 | Update Arclight Cloud settings |
 
 ---
 
@@ -384,25 +384,25 @@ All routes use `Authorization: Bearer <api_key>` header with scoped permissions.
 |--------|------|------------|-------------|------|
 | `GET` | `/api/v1/ping` | None | Ping/health check | - |
 | `GET` | `/api/v1` | None | API index (version, endpoints) | - |
-| `GET` | `/api/v1/users` | `airlink.api.users.read` | List users | - |
-| `GET` | `/api/v1/users/:id` | `airlink.api.users.read` | Get user by ID | - |
-| `POST` | `/api/v1/users` | `airlink.api.users.create` | Create user | `{ email, username, password, isAdmin?, description? }` |
-| `PATCH` | `/api/v1/users/:id` | `airlink.api.users.update` | Update user | `{ email?, username?, password?, isAdmin?, description? }` |
-| `DELETE` | `/api/v1/users/:id` | `airlink.api.users.delete` | Delete user | - |
-| `GET` | `/api/v1/servers` | `airlink.api.servers.read` | List servers | - |
-| `GET` | `/api/v1/servers/:id` | `airlink.api.servers.read` | Get server by ID | - |
-| `POST` | `/api/v1/servers` | `airlink.api.servers.create` | Create server | `{ name, nodeId, imageId, ownerId, ... }` |
-| `PATCH` | `/api/v1/servers/:id` | `airlink.api.servers.update` | Update server | Various fields |
-| `POST` | `/api/v1/servers/:id/suspend` | `airlink.api.servers.update` | Suspend server | - |
-| `POST` | `/api/v1/servers/:id/unsuspend` | `airlink.api.servers.update` | Unsuspend server | - |
-| `DELETE` | `/api/v1/servers/:id` | `airlink.api.servers.delete` | Delete server | - |
-| `GET` | `/api/v1/nodes` | `airlink.api.nodes.read` | List nodes | - |
-| `GET` | `/api/v1/nodes/:id` | `airlink.api.nodes.read` | Get node by ID | - |
-| `POST` | `/api/v1/nodes` | `airlink.api.nodes.create` | Create node | `{ name, address, port, ram, cpu, disk, key, sftpPort? }` |
-| `PATCH` | `/api/v1/nodes/:id` | `airlink.api.nodes.update` | Update node | Various fields |
-| `DELETE` | `/api/v1/nodes/:id` | `airlink.api.nodes.delete` | Delete node | - |
-| `GET` | `/api/v1/settings` | `airlink.api.settings.read` | Get panel settings | - |
-| `PATCH` | `/api/v1/settings` | `airlink.api.settings.update` | Update panel settings | `{ title?, description?, logo?, favicon?, theme?, language? }` |
+| `GET` | `/api/v1/users` | `arclight.api.users.read` | List users | - |
+| `GET` | `/api/v1/users/:id` | `arclight.api.users.read` | Get user by ID | - |
+| `POST` | `/api/v1/users` | `arclight.api.users.create` | Create user | `{ email, username, password, isAdmin?, description? }` |
+| `PATCH` | `/api/v1/users/:id` | `arclight.api.users.update` | Update user | `{ email?, username?, password?, isAdmin?, description? }` |
+| `DELETE` | `/api/v1/users/:id` | `arclight.api.users.delete` | Delete user | - |
+| `GET` | `/api/v1/servers` | `arclight.api.servers.read` | List servers | - |
+| `GET` | `/api/v1/servers/:id` | `arclight.api.servers.read` | Get server by ID | - |
+| `POST` | `/api/v1/servers` | `arclight.api.servers.create` | Create server | `{ name, nodeId, imageId, ownerId, ... }` |
+| `PATCH` | `/api/v1/servers/:id` | `arclight.api.servers.update` | Update server | Various fields |
+| `POST` | `/api/v1/servers/:id/suspend` | `arclight.api.servers.update` | Suspend server | - |
+| `POST` | `/api/v1/servers/:id/unsuspend` | `arclight.api.servers.update` | Unsuspend server | - |
+| `DELETE` | `/api/v1/servers/:id` | `arclight.api.servers.delete` | Delete server | - |
+| `GET` | `/api/v1/nodes` | `arclight.api.nodes.read` | List nodes | - |
+| `GET` | `/api/v1/nodes/:id` | `arclight.api.nodes.read` | Get node by ID | - |
+| `POST` | `/api/v1/nodes` | `arclight.api.nodes.create` | Create node | `{ name, address, port, ram, cpu, disk, key, sftpPort? }` |
+| `PATCH` | `/api/v1/nodes/:id` | `arclight.api.nodes.update` | Update node | Various fields |
+| `DELETE` | `/api/v1/nodes/:id` | `arclight.api.nodes.delete` | Delete node | - |
+| `GET` | `/api/v1/settings` | `arclight.api.settings.read` | Get panel settings | - |
+| `PATCH` | `/api/v1/settings` | `arclight.api.settings.update` | Update panel settings | `{ title?, description?, logo?, favicon?, theme?, language? }` |
 
 ---
 
@@ -439,8 +439,8 @@ Older API using raw Bearer token validation. All routes require `Authorization: 
 
 All authenticated routes require:
 1. **IP allowlist** - must be in `ALLOWED_IPS`
-2. **Basic Auth** - `Authorization: Basic <base64(Airlink:<key>)>`
-3. **HMAC-SHA256** - `X-Airlink-Timestamp`, `X-Airlink-Signature`, `X-Airlink-Nonce` headers
+2. **Basic Auth** - `Authorization: Basic <base64(Arclight:<key>)>`
+3. **HMAC-SHA256** - `X-Arclight-Timestamp`, `X-Arclight-Signature`, `X-Arclight-Nonce` headers
 
 ---
 
@@ -556,9 +556,9 @@ Panel                                    Daemon
   │        :${path}:${body}")              │
   │  4. Send with headers:                 │
   │     Authorization: Basic <base64>      │
-  │     X-Airlink-Timestamp: <ts>          │
-  │     X-Airlink-Signature: <hex>         │
-  │     X-Airlink-Nonce: <nonce>           │
+  │     X-Arclight-Timestamp: <ts>          │
+  │     X-Arclight-Signature: <hex>         │
+  │     X-Arclight-Nonce: <nonce>           │
   │──────────────────────────────────────▶  │
   │                                        │  5. Verify IP allowlist
   │                                        │  6. Verify Basic Auth
@@ -576,9 +576,9 @@ POST /container/start HTTP/1.1
 Host: node1.example.com:3002
 Content-Type: application/json
 Authorization: Basic QWlybGluazp5b3VyLXNlY3JldC1rZXk=
-X-Airlink-Timestamp: 1718476800
-X-Airlink-Signature: a1b2c3d4e5f6...
-X-Airlink-Nonce: 8f14e45fceea167a5a36dedd4bea2543
+X-Arclight-Timestamp: 1718476800
+X-Arclight-Signature: a1b2c3d4e5f6...
+X-Arclight-Nonce: 8f14e45fceea167a5a36dedd4bea2543
 
 {"id":"abc-123","image":"nginx:latest","StartCommand":"nginx -g 'daemon off;'"}
 ```
@@ -625,9 +625,9 @@ The daemon:
 
 | Header | Description |
 |--------|-------------|
-| `X-Airlink-Timestamp` | Unix epoch seconds |
-| `X-Airlink-Signature` | HMAC-SHA256 hex digest |
-| `X-Airlink-Nonce` | Random nonce (16 bytes hex) |
+| `X-Arclight-Timestamp` | Unix epoch seconds |
+| `X-Arclight-Signature` | HMAC-SHA256 hex digest |
+| `X-Arclight-Nonce` | Random nonce (16 bytes hex) |
 
 ---
 
@@ -659,9 +659,9 @@ Client ◀──200 { servers: [...] } Panel
 ```
 Panel ──POST /container/start──▶ Daemon
         Authorization: Basic <base64>
-        X-Airlink-Timestamp: <ts>
-        X-Airlink-Signature: <sig>
-        X-Airlink-Nonce: <nonce>
+        X-Arclight-Timestamp: <ts>
+        X-Arclight-Signature: <sig>
+        X-Arclight-Nonce: <nonce>
                                  │  Verify IP → Basic Auth → HMAC
 Panel ◀──200 { status: ... }──── Daemon
 ```

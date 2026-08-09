@@ -270,7 +270,7 @@ describe('scheduled backup recording (runSchedule)', () => {
       serverId: 'srv-abc',
       filePath: 'backups/srv-abc/bk-111-backup.tar.gz',
       checksum: 'abc123',
-      airlinkCloudId: null,
+      arclightCloudId: null,
     });
     expect(data.size).toEqual(BigInt(12345));
   });

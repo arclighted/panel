@@ -21,7 +21,7 @@ export interface ModrinthClientConfig {
 
 const DEFAULT_CONFIG: ModrinthClientConfig = {
   apiBase: 'https://api.modrinth.com/v2',
-  userAgent: 'AirLink-ModrinthAddon/2.0',
+  userAgent: 'Arclight-ModrinthAddon/2.0',
   searchLimit: 20,
   cacheDuration: 10 * 60 * 1000,
   retryAttempts: 3,

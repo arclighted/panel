@@ -1,6 +1,6 @@
 # Intent · 09 · Fortify
 
-> Harden Airlink Panel for real-world use: every state outside the happy path. Method: state inventory per surface, edge-case catalog by stress category, first-run assessment, and resilience recommendations. Where the /evaluate pass flagged "unverified," those findings are resolved here with file evidence.
+> Harden Arclight Panel for real-world use: every state outside the happy path. Method: state inventory per surface, edge-case catalog by stress category, first-run assessment, and resilience recommendations. Where the /evaluate pass flagged "unverified," those findings are resolved here with file evidence.
 
 ---
 

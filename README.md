@@ -1,23 +1,25 @@
 > [!WARNING]
+>
 > # This project is a work in progress and is highly unstable
+>
 > It is not recommended for production use. APIs, features, and data may break, change, or disappear at any time. Use at your own risk.
 
-# Airlink Panel (Katharos)
+# Arclight Panel
 
 Open-source game server management panel.
 
 ![TypeScript](https://img.shields.io/badge/TypeScript-007ACC?style=for-the-badge&logo=typescript&logoColor=white)
 ![Prisma](https://img.shields.io/badge/Prisma-3982CE?style=for-the-badge&logo=Prisma&logoColor=white)
-[![License](https://img.shields.io/github/license/AirlinkLabs/panel)](https://github.com/AirlinkLabs/panel/blob/main/LICENSE)
-[![Discord](https://img.shields.io/discord/1302020587316707420)](https://discord.gg/ujXyxwwMHc)
+[![License](https://img.shields.io/github/license/arclighted/panel)](https://github.com/arclighted/panel/blob/main/LICENSE)
 
 ---
 
 ## What is this?
 
-Airlink Panel is a web-based control center for deploying, monitoring, and managing game servers across multiple machines. The panel communicates with daemons running on each node to manage Docker containers, files, and SFTP.
+Arclight Panel is a web-based control center for deploying, monitoring, and managing game servers across multiple machines. The panel communicates with daemons running on each node to manage Docker containers, files, and SFTP.
 
 **Features:**
+
 - Web UI for admins and users (EJS templates, Tailwind CSS)
 - Node-based architecture: one panel, many daemons
 - Addon system for extending functionality
@@ -29,17 +31,15 @@ Airlink Panel is a web-based control center for deploying, monitoring, and manag
 - Analytics and player stats
 - Multi-language support (i18n)
 
-Documentation: [airlinklabs.xyz/docs/quick-start/](https://airlinklabs.xyz/docs/quick-start/)
+Documentation: [arclight.my.id/docs/quick-start/](https://arclight.my.id/docs/quick-start/)
 
 ---
 
 ## Project Leads
 
-| Handle | Role |
-|--------|------|
-| [thavanish](https://github.com/bthavanish) | Maintainer |
-| [privt00](https://github.com/privt00) | Project lead |
-| [achul123](https://github.com/achul123) | Core developer |
+| Handle                                          | Role       |
+| ----------------------------------------------- | ---------- |
+| [radityprtama](https://github.com/radityprtama) | Maintainer |
 
 ---
 
@@ -58,7 +58,7 @@ Documentation: [airlinklabs.xyz/docs/quick-start/](https://airlinklabs.xyz/docs/
 
 ```bash
 sudo su
-bash <(curl -s https://raw.githubusercontent.com/airlinklabs/panel/refs/heads/main/installer.sh)
+bash <(curl -s https://raw.githubusercontent.com/arclighted/panel/refs/heads/main/installer.sh)
 ```
 
 The installer handles Node.js, Docker, database setup, build, and systemd service creation.
@@ -66,17 +66,17 @@ The installer handles Node.js, Docker, database setup, build, and systemd servic
 Manage with systemd:
 
 ```bash
-systemctl start airlink-panel
-systemctl stop airlink-panel
-systemctl restart airlink-panel
-journalctl -u airlink-panel -f
+systemctl start arclight-panel
+systemctl stop arclight-panel
+systemctl restart arclight-panel
+journalctl -u arclight-panel -f
 ```
 
 ### Option 2: Manual
 
 ```bash
 cd /var/www/
-git clone https://github.com/AirlinkLabs/panel.git
+git clone https://github.com/arclighted/panel.git
 cd panel
 
 chown -R www-data:www-data /var/www/panel
@@ -97,7 +97,7 @@ pnpm run start
 
 ```bash
 npm install -g pm2
-pm2 start "pnpm run start" --name airlink-panel
+pm2 start "pnpm run start" --name arclight-panel
 pm2 save
 pm2 startup
 ```
@@ -108,14 +108,14 @@ pm2 startup
 
 Copy `example.env` to `.env` and set the required values:
 
-| Variable | Required | Description |
-|----------|----------|-------------|
-| `NAME` | No | Panel display name (default: Airlink) |
-| `NODE_ENV` | Yes | Set to `production` for live deployments |
-| `URL` | Yes | Full URL the panel is served from, e.g. `http://192.168.1.10:3000` |
-| `PORT` | Yes | Port to listen on |
-| `DATABASE_URL` | Yes | SQLite path, e.g. `file:./storage/dev.db` |
-| `SESSION_SECRET` | Yes | Random secret for session signing. Generate with `openssl rand -hex 32` |
+| Variable         | Required | Description                                                             |
+| ---------------- | -------- | ----------------------------------------------------------------------- |
+| `NAME`           | No       | Panel display name (default: Arclight)                                  |
+| `NODE_ENV`       | Yes      | Set to `production` for live deployments                                |
+| `URL`            | Yes      | Full URL the panel is served from, e.g. `http://192.168.1.10:3000`      |
+| `PORT`           | Yes      | Port to listen on                                                       |
+| `DATABASE_URL`   | Yes      | SQLite path, e.g. `file:./storage/dev.db`                               |
+| `SESSION_SECRET` | Yes      | Random secret for session signing. Generate with `openssl rand -hex 32` |
 
 > [!IMPORTANT]
 > `DATABASE_URL` must be an **absolute path** in production (e.g. `file:/var/www/panel/storage/dev.db`). Relative paths break when started from a different working directory.
@@ -143,6 +143,10 @@ See [`storage/addons/README.md`](storage/addons/README.md) for structure and API
 
 ## Development
 
+See [`docs/DEVELOPMENT.md`](docs/DEVELOPMENT.md) for the full developer guide: setup, project layout, testing, and how the panel and daemon communicate.
+
+Quick start:
+
 ```bash
 pnpm install
 pnpm run dev        # Start in dev mode (auto-restart on changes)
@@ -155,21 +159,15 @@ pnpm run build      # Build for production
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature`
-3. Commit: `git commit -m 'feat: describe your change'`
-4. Push and open a pull request against `main`
-
-Run `pnpm run lint` and `pnpm run typecheck` before submitting.
+See [`CONTRIBUTING.md`](CONTRIBUTING.md) for the contribution guide, code standards, and PR process.
 
 ---
 
 ## Links
 
-- Website: [airlinklabs.xyz](https://airlinklabs.xyz/)
-- Docs: [airlinklabs.xyz/docs/quick-start](https://airlinklabs.xyz/docs/quick-start/)
-- Discord: [discord.gg/ujXyxwwMHc](https://discord.gg/ujXyxwwMHc)
-- GitHub: [github.com/airlinklabs/panel](https://github.com/airlinklabs/panel)
+- Website: [arclight.my.id](https://arclight.my.id/)
+- Docs: [arclight.my.id/docs/quick-start](https://arclight.my.id/docs/quick-start/)
+- GitHub: [github.com/arclighted/panel](https://github.com/arclighted/panel)
 
 ## License
 

@@ -22,7 +22,7 @@ function writeReport() {
 const DAEMON = 'http://localhost:3002';
 const SERVER_UUID = process.env.SMOKE_SERVER_UUID ?? 'b22bc81a-e01a-4018-abdd-8777b6916e9e';
 
-test.describe('AirLink 22-step smoke journey', () => {
+test.describe('Arclight 22-step smoke journey', () => {
   test.afterAll(() => writeReport());
 
   test('S01 boot panel', async ({ page }) => {
@@ -69,7 +69,7 @@ test.describe('AirLink 22-step smoke journey', () => {
     await page.fill('input[name="password"]', 'SmokeUser123!');
     await page.locator('button[type="submit"]').click();
     await page.waitForURL('**/');
-    await expect(page.locator('body')).toContainText('AirLink');
+    await expect(page.locator('body')).toContainText('Arclight');
     record('04 user create + login', 'PASS', `user=${username} registered`);
     await bctx.close();
   });
@@ -83,7 +83,7 @@ test.describe('AirLink 22-step smoke journey', () => {
 
   test('S06 node HMAC handshake round-trips', async ({ page }) => {
     await page.goto(`/server/${SERVER_UUID}`);
-    await expect(page.locator('body')).toContainText('AirLink');
+    await expect(page.locator('body')).toContainText('Arclight');
     const text = await page.locator('body').innerText();
     const showsState = /RUN|STOPPED|OFFLINE|INSTALL/i.test(text);
     record('06 HMAC handshake (server state round-trip)', showsState ? 'PASS' : 'BLOCKED', 'server console rendered');

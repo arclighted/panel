@@ -1,6 +1,6 @@
 # Intent · 08 · Evaluate
 
-> Structured UX evaluation of Airlink Panel against Nielsen heuristics, the Intent anti-pattern catalog, and task-success analysis.
+> Structured UX evaluation of Arclight Panel against Nielsen heuristics, the Intent anti-pattern catalog, and task-success analysis.
 > Method: static audit of views/components (81 EJS files), interaction inventory, and cognitive walkthroughs of the incident and provision flows. No live usability test was run — the /investigate plan covers that; findings here are evidence-graded accordingly.
 
 ---

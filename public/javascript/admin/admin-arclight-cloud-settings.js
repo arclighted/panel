@@ -1,7 +1,7 @@
 (function() {
   const csrfToken = document.getElementById('page-data').dataset.csrfToken;
-  const apiKeyInput = document.getElementById('airlinkCloudApiKey');
-  const backupToggle = document.getElementById('airlinkCloudBackupEnabled');
+  const apiKeyInput = document.getElementById('arclightCloudApiKey');
+  const backupToggle = document.getElementById('arclightCloudBackupEnabled');
 
   let savedKey = apiKeyInput.value;
   let savedEnabled = backupToggle.checked;
@@ -11,15 +11,15 @@
     const backupEnabled = backupToggle.checked;
 
     try {
-      const res = await fetch('/airlink-cloud/settings', {
+      const res = await fetch('/arclight-cloud/settings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'X-CSRF-Token': csrfToken
         },
         body: JSON.stringify({
-          airlinkCloudApiKey: apiKey,
-          airlinkCloudBackupEnabled: backupEnabled
+          arclightCloudApiKey: apiKey,
+          arclightCloudBackupEnabled: backupEnabled
         })
       });
 

@@ -172,7 +172,7 @@ export async function runSchedule(schedule: ScheduleWithRelations): Promise<Sche
               filePath: resp.data.backup.filePath,
               size: BigInt(resp.data.backup.size ?? 0),
               checksum: typeof resp.data.backup.checksum === 'string' ? resp.data.backup.checksum : null,
-              airlinkCloudId: null,
+              arclightCloudId: null,
             });
           } catch (err) {
             errors.push(`task ${task.id}: failed to record backup: ${describeThrownError(err)}`);

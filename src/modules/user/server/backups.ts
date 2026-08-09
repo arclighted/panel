@@ -6,7 +6,7 @@ import { getParamAsString } from '../../../utils/typeHelpers';
 import { safeClientMessage } from '../../../utils/errors';
 import prisma from '../../../db';
 import { daemonRequest, daemonBaseUrl } from '../../../handlers/utils/core/daemonRequest';
-import { AirlinkCloudClient } from '../../../handlers/utils/core/airlinkCloud';
+import { ArclightCloudClient } from '../../../handlers/utils/core/arclightCloud';
 import { logActivity } from '../../../handlers/utils/activity/activityLogger';
 import { startJob, getJob, isRunning, finishJob, describeJob } from '../../../handlers/jobRegistry';
 import {
@@ -29,7 +29,7 @@ export async function persistBackupRecord(params: {
   filePath: string;
   size: bigint;
   checksum: string | null;
-  airlinkCloudId: string | null;
+  arclightCloudId: string | null;
 }): Promise<Awaited<ReturnType<typeof prisma.backup.create>>> {
   return prisma.backup.create({
     data: {
@@ -39,7 +39,7 @@ export async function persistBackupRecord(params: {
       filePath: params.filePath,
       size: params.size,
       checksum: params.checksum,
-      airlinkCloudId: params.airlinkCloudId,
+      arclightCloudId: params.arclightCloudId,
     },
   });
 }
@@ -132,7 +132,7 @@ export function registerBackupRoutes(router: Router): void {
         }
 
         const settings = await prisma.settings.findUnique({ where: { id: 1 } });
-        const isCloudBackupEnabled = settings?.airlinkCloudBackupEnabled && settings?.airlinkCloudApiKey;
+        const isCloudBackupEnabled = settings?.arclightCloudBackupEnabled && settings?.arclightCloudApiKey;
 
         const backupCount = await prisma.backup.count({ where: { serverId: getParamAsString(serverId) } });
         if (server.backupLimit > 0 && backupCount >= server.backupLimit) {
@@ -184,13 +184,13 @@ export function registerBackupRoutes(router: Router): void {
 
         if (response.data.success) {
           const daemonFilePath = response.data.backup!.filePath;
-          let airlinkCloudId: string | null = null;
+          let arclightCloudId: string | null = null;
           let filePath = daemonFilePath;
           let remoteRedirect: 'none' | 'ok' | 'failed' = 'none';
 
           if (isCloudBackupEnabled) {
             try {
-              const cloudClient = new AirlinkCloudClient(settings.airlinkCloudApiKey!);
+              const cloudClient = new ArclightCloudClient(settings.arclightCloudApiKey!);
 
               const downloadResponse = await daemonRequest<import('stream').Readable>({
                 method: 'GET',
@@ -210,11 +210,11 @@ export function registerBackupRoutes(router: Router): void {
 
               const remoteId = (uploadResult as Record<string, unknown>)?.id as string | undefined;
               if (!remoteId) {
-                throw new Error('Airlink Cloud upload returned no file id');
+                throw new Error('Arclight Cloud upload returned no file id');
               }
 
-              airlinkCloudId = remoteId;
-              filePath = 'airlink-cloud';
+              arclightCloudId = remoteId;
+              filePath = 'arclight-cloud';
               remoteRedirect = 'ok';
 
               daemonRequest({
@@ -226,7 +226,7 @@ export function registerBackupRoutes(router: Router): void {
                 body: { backupPath: daemonFilePath },
               }).catch(e => logger.warn(`Failed to delete temporary local backup: ${e}`));
             } catch (cloudError) {
-              logger.error('Failed to redirect backup to Airlink Cloud:', cloudError);
+              logger.error('Failed to redirect backup to Arclight Cloud:', cloudError);
               remoteRedirect = 'failed';
             }
           } else if (settings?.s3Enabled) {
@@ -270,7 +270,7 @@ export function registerBackupRoutes(router: Router): void {
             filePath,
             size: BigInt(response.data.backup!.size),
             checksum: typeof response.data.backup!.checksum === 'string' ? response.data.backup!.checksum : null,
-            airlinkCloudId,
+            arclightCloudId,
           });
 
           await logActivity(req, 'backup:create', { serverId: getParamAsString(serverId), metadata: { name: name.trim(), uuid: backup.UUID } });
@@ -281,7 +281,7 @@ export function registerBackupRoutes(router: Router): void {
 
           let message: string;
           if (remoteRedirect === 'ok') {
-            message = isCloudBackupEnabled ? 'Backup created and uploaded to Airlink Cloud' : 'Backup created successfully';
+            message = isCloudBackupEnabled ? 'Backup created and uploaded to Arclight Cloud' : 'Backup created successfully';
           } else if (remoteRedirect === 'failed') {
             message = 'Backup created on the node, but the remote upload failed.';
           } else {
@@ -394,16 +394,16 @@ export function registerBackupRoutes(router: Router): void {
 
         let backupPath = backup.filePath;
 
-        if (backup.airlinkCloudId) {
+        if (backup.arclightCloudId) {
           const settings = await prisma.settings.findUnique({ where: { id: 1 } });
-          if (!settings?.airlinkCloudApiKey) {
-            res.status(500).json({ error: 'Airlink Cloud API key not configured' });
+          if (!settings?.arclightCloudApiKey) {
+            res.status(500).json({ error: 'Arclight Cloud API key not configured' });
             return;
           }
 
           try {
-            const cloudClient = new AirlinkCloudClient(settings.airlinkCloudApiKey);
-            const cloudDownloadResponse = await cloudClient.getDownloadStream(backup.airlinkCloudId);
+            const cloudClient = new ArclightCloudClient(settings.arclightCloudApiKey);
+            const cloudDownloadResponse = await cloudClient.getDownloadStream(backup.arclightCloudId);
 
             const uploadResponse = await daemonRequest<{ success: boolean; filePath?: string }>({
               method: 'POST',
@@ -425,7 +425,7 @@ export function registerBackupRoutes(router: Router): void {
               throw new Error('Failed to upload cloud backup to daemon');
             }
           } catch (err) {
-            logger.error('Failed to prepare Airlink Cloud backup for restore:', err);
+            logger.error('Failed to prepare Arclight Cloud backup for restore:', err);
             res.status(500).json({ error: 'Failed to prepare cloud backup for restore' });
             return;
           }
@@ -475,7 +475,7 @@ export function registerBackupRoutes(router: Router): void {
           timeout: 300000,
         });
 
-        if (backup.airlinkCloudId && backupPath !== 'airlink-cloud') {
+        if (backup.arclightCloudId && backupPath !== 'arclight-cloud') {
           daemonRequest({
             method: 'DELETE',
             path: '/container/backup',
@@ -563,15 +563,15 @@ export function registerBackupRoutes(router: Router): void {
           return;
         }
 
-        if (backup.airlinkCloudId) {
+        if (backup.arclightCloudId) {
           const settings = await prisma.settings.findUnique({ where: { id: 1 } });
-          if (!settings?.airlinkCloudApiKey) {
-            res.status(500).json({ error: 'Airlink Cloud API key not configured' });
+          if (!settings?.arclightCloudApiKey) {
+            res.status(500).json({ error: 'Arclight Cloud API key not configured' });
             return;
           }
 
-          const cloudClient = new AirlinkCloudClient(settings.airlinkCloudApiKey);
-          const downloadResponse = await cloudClient.getDownloadStream(backup.airlinkCloudId);
+          const cloudClient = new ArclightCloudClient(settings.arclightCloudApiKey);
+          const downloadResponse = await cloudClient.getDownloadStream(backup.arclightCloudId);
 
           const fileName = `${backup.name}_${backup.createdAt.toISOString().split('T')[0]}.tar.gz`;
           res.setHeader(
@@ -674,11 +674,11 @@ export function registerBackupRoutes(router: Router): void {
           return;
         }
 
-        if (backup.airlinkCloudId) {
+        if (backup.arclightCloudId) {
           const settings = await prisma.settings.findUnique({ where: { id: 1 } });
-          if (settings?.airlinkCloudApiKey) {
-            const cloudClient = new AirlinkCloudClient(settings.airlinkCloudApiKey);
-            await cloudClient.deleteFile(backup.airlinkCloudId).catch(e => logger.warn(`Failed to delete backup from Airlink Cloud: ${e}`));
+          if (settings?.arclightCloudApiKey) {
+            const cloudClient = new ArclightCloudClient(settings.arclightCloudApiKey);
+            await cloudClient.deleteFile(backup.arclightCloudId).catch(e => logger.warn(`Failed to delete backup from Arclight Cloud: ${e}`));
           }
         } else if (isS3Backup(backup.filePath)) {
           try {

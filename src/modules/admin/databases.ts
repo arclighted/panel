@@ -10,10 +10,10 @@ import { safeClientMessage } from '../../utils/errors';
 import { testDatabaseHost } from '../../handlers/utils/core/mysqlProvisioner';
 import { ensureS3Bucket } from '../../handlers/utils/core/s3Client';
 
-registerPermission('airlink.admin.databases.view');
-registerPermission('airlink.admin.databases.create');
-registerPermission('airlink.admin.databases.delete');
-registerPermission('airlink.admin.databases.test');
+registerPermission('arclight.admin.databases.view');
+registerPermission('arclight.admin.databases.create');
+registerPermission('arclight.admin.databases.delete');
+registerPermission('arclight.admin.databases.test');
 
 const databasesModule: Module = {
   info: {
@@ -21,7 +21,7 @@ const databasesModule: Module = {
     description: 'Manages MySQL database hosts and host creation.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 
@@ -30,7 +30,7 @@ const databasesModule: Module = {
 
     router.get(
       '/admin/databases',
-      isAuthenticated(true, 'airlink.admin.databases.view'),
+      isAuthenticated(true, 'arclight.admin.databases.view'),
       async (req: Request, res: Response) => {
         try {
           const hosts = await prisma.databaseHost.findMany({
@@ -52,7 +52,7 @@ const databasesModule: Module = {
 
     router.get(
       '/admin/databases/create',
-      isAuthenticated(true, 'airlink.admin.databases.create'),
+      isAuthenticated(true, 'arclight.admin.databases.create'),
       async (req: Request, res: Response) => {
         const user = await prisma.users.findUnique({ where: { id: req.session?.user?.id } });
         const settings = await prisma.settings.findUnique({ where: { id: 1 } });
@@ -63,7 +63,7 @@ const databasesModule: Module = {
 
     router.post(
       '/admin/databases/create',
-      isAuthenticated(true, 'airlink.admin.databases.create'),
+      isAuthenticated(true, 'arclight.admin.databases.create'),
       async (req: Request, res: Response) => {
         try {
           const { name, host, port, username, password, nodeId } = req.body;
@@ -92,7 +92,7 @@ const databasesModule: Module = {
 
     router.post(
       '/admin/databases/auto-host',
-      isAuthenticated(true, 'airlink.admin.databases.create'),
+      isAuthenticated(true, 'arclight.admin.databases.create'),
       async (req: Request, res: Response) => {
         try {
           const hosts = await prisma.databaseHost.findMany({ orderBy: { id: 'asc' } });
@@ -121,7 +121,7 @@ const databasesModule: Module = {
 
     router.post(
       '/admin/databases/auto-bucket',
-      isAuthenticated(true, 'airlink.admin.databases.create'),
+      isAuthenticated(true, 'arclight.admin.databases.create'),
       async (req: Request, res: Response) => {
         try {
           const { created } = await ensureS3Bucket();
@@ -142,7 +142,7 @@ const databasesModule: Module = {
 
     router.post(
       '/admin/databases/:id/test',
-      isAuthenticated(true, 'airlink.admin.databases.test'),
+      isAuthenticated(true, 'arclight.admin.databases.test'),
       async (req: Request, res: Response) => {
         try {
           const id = getParamAsNumber(req.params.id);
@@ -164,7 +164,7 @@ const databasesModule: Module = {
 
     router.delete(
       '/admin/databases/:id',
-      isAuthenticated(true, 'airlink.admin.databases.delete'),
+      isAuthenticated(true, 'arclight.admin.databases.delete'),
       async (req: Request, res: Response) => {
         try {
           const id = getParamAsNumber(req.params.id);

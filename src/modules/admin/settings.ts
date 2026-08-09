@@ -147,7 +147,7 @@ async function saveSettings(data: Record<string, unknown>) {
     where:  { id: 1 },
     update: data,
     create: {
-      title:    'AirLink',
+      title:    'Arclight',
       logo:     '../assets/logo.png',
       favicon:  '../assets/favicon.ico',
       lightTheme: 'default',
@@ -181,7 +181,7 @@ const adminModule: Module = {
     description:   'Settings management for the admin panel.',
     version:       '2.0.0',
     moduleVersion: '2.0.0',
-    author:        'AirlinkLab',
+    author:        'ArclightLab',
     license:       'MIT',
   },
 
@@ -603,7 +603,7 @@ const adminModule: Module = {
       async (_req: Request, res: Response) => {
         try {
           await saveSettings({
-            title:             'Airlink',
+            title:             'Arclight',
             logo:              '../assets/logo.png',
             favicon:           '../assets/favicon.ico',
             lightTheme:        'default',

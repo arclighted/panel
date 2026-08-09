@@ -1,6 +1,6 @@
 # Intent · 12 · Localize
 
-> Localization readiness audit of Airlink Panel. The panel ships **10 locales** — en, es, ru, zh, it, fr, de, ja, ta, pt — with server-side string tables and a `req.translations.x || 'English'` fallback. That's a strong start; the audit finds the structure is i18n-ready but the **coverage stops at the deep surfaces**, and there are three hard-culture/technical defects to fix before expansion.
+> Localization readiness audit of Arclight Panel. The panel ships **10 locales** — en, es, ru, zh, it, fr, de, ja, ta, pt — with server-side string tables and a `req.translations.x || 'English'` fallback. That's a strong start; the audit finds the structure is i18n-ready but the **coverage stops at the deep surfaces**, and there are three hard-culture/technical defects to fix before expansion.
 
 ---
 

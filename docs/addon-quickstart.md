@@ -1,10 +1,10 @@
-# AirLink Panel Addon Quick Start Guide
+# Arclight Panel Addon Quick Start Guide
 
 This guide walks through building your first addon using the v2 addon system.
 
 ## Prerequisites
 
-- AirLink Panel installed and running
+- Arclight Panel installed and running
 - Basic knowledge of TypeScript
 - Familiarity with Express.js
 
@@ -21,7 +21,7 @@ mkdir -p panel/storage/addons/my-first-addon/views
   "name": "My First Addon",
   "identifier": "my-first-addon",
   "version": "1.0.0",
-  "description": "My first AirLink Panel addon",
+  "description": "My first Arclight Panel addon",
   "author": "Your Name",
   "main": "index.ts",
   "router": "/my-first-addon",

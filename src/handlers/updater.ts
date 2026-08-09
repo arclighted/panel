@@ -84,7 +84,7 @@ export async function checkForUpdates(): Promise<Result<UpdateInfo, UpdateError>
       }
 
       const response = await httpGet<GithubCommit>(
-        'https://api.github.com/repos/airlinklabs/panel/commits/main',
+        'https://api.github.com/repos/arclighted/panel/commits/main',
       );
       const latestCommit = response.data;
 
@@ -102,7 +102,7 @@ export async function checkForUpdates(): Promise<Result<UpdateInfo, UpdateError>
       });
     } else {
       const response = await httpGet<GithubRelease>(
-        'https://api.github.com/repos/airlinklabs/panel/releases/latest',
+        'https://api.github.com/repos/arclighted/panel/releases/latest',
       );
       const latestRelease = response.data;
       const latestVersion = latestRelease.tag_name.replace('v', '');
@@ -145,7 +145,7 @@ export async function performUpdate(): Promise<Result<void, UpdateError>> {
       }
     } else {
       const response = await httpGet<GithubRelease>(
-        'https://api.github.com/repos/airlinklabs/panel/releases/latest',
+        'https://api.github.com/repos/arclighted/panel/releases/latest',
       );
       const latestRelease = response.data;
 

@@ -120,7 +120,7 @@
     function resetAppearanceForm() {
       if (!formAppearance) return;
       var title = formAppearance.querySelector('input[name="title"]');
-      if (title) title.value = "Airlink";
+      if (title) title.value = "Arclight";
       selectThemeRadio("lightTheme", "default");
       selectThemeRadio("darkTheme", "default");
       var loginUrl = document.getElementById("login-wallpaper-url");

@@ -36,7 +36,7 @@ vi.mock('../src/handlers/utils/core/s3Client', () => ({
 
 import prisma from '../src/db';
 import { daemonRequest } from '../src/handlers/utils/core/daemonRequest';
-import { AirlinkCloudClient } from '../src/handlers/utils/core/airlinkCloud';
+import { ArclightCloudClient } from '../src/handlers/utils/core/arclightCloud';
 import { uploadStreamToS3 } from '../src/handlers/utils/core/s3Client';
 import { registerBackupRoutes } from '../src/modules/user/server/backups';
 
@@ -75,13 +75,13 @@ const daemonBackupResult = {
 };
 
 const defaultCloudSettings = {
-  airlinkCloudBackupEnabled: true,
-  airlinkCloudApiKey: 'cloud-key',
+  arclightCloudBackupEnabled: true,
+  arclightCloudApiKey: 'cloud-key',
   s3Enabled: false,
 };
 const defaultLocalSettings = {
-  airlinkCloudBackupEnabled: false,
-  airlinkCloudApiKey: null,
+  arclightCloudBackupEnabled: false,
+  arclightCloudApiKey: null,
   s3Enabled: false,
 };
 
@@ -115,7 +115,7 @@ async function withServer(app: express.Express, fn: (base: string) => Promise<vo
   }
 }
 
-function createdBackupRow(filePath: string, airlinkCloudId: string | null) {
+function createdBackupRow(filePath: string, arclightCloudId: string | null) {
   return {
     id: 1,
     UUID: 'backup-uuid-1',
@@ -126,7 +126,7 @@ function createdBackupRow(filePath: string, airlinkCloudId: string | null) {
     checksum: 'sha1abc',
     locked: false,
     createdAt: new Date('2026-01-01T00:00:00.000Z'),
-    airlinkCloudId,
+    arclightCloudId,
   };
 }
 
@@ -146,7 +146,7 @@ describe('backups backend create state machine', () => {
     (mockPrisma.backup.count as any).mockResolvedValue(0);
     (mockPrisma.settings.findUnique as any).mockResolvedValue(defaultLocalSettings as any);
     (mockPrisma.backup.create as any).mockImplementation((args: any) =>
-      Promise.resolve(createdBackupRow(args.data.filePath, args.data.airlinkCloudId) as any),
+      Promise.resolve(createdBackupRow(args.data.filePath, args.data.arclightCloudId) as any),
     );
     (mockPrisma.activityLog.create as any).mockResolvedValue({});
     defaultDaemon();
@@ -156,9 +156,9 @@ describe('backups backend create state machine', () => {
     vi.restoreAllMocks();
   });
 
-  it('create with remote redirect SUCCESS (cloud): deletes local temp, sets cloud id & filePath=airlink-cloud, persisted, remoteRedirect ok', async () => {
+  it('create with remote redirect SUCCESS (cloud): deletes local temp, sets cloud id & filePath=arclight-cloud, persisted, remoteRedirect ok', async () => {
     (mockPrisma.settings.findUnique as any).mockResolvedValue(defaultCloudSettings as any);
-    vi.spyOn(AirlinkCloudClient.prototype, 'uploadFile').mockResolvedValue({ id: 'cloud-file-1' } as any);
+    vi.spyOn(ArclightCloudClient.prototype, 'uploadFile').mockResolvedValue({ id: 'cloud-file-1' } as any);
 
     await withServer(buildApp(), async (base) => {
       const res = await postCreate(base);
@@ -166,13 +166,13 @@ describe('backups backend create state machine', () => {
       const body = await res.json();
       expect(body.success).toBe(true);
       expect(body.remoteRedirect).toBe('ok');
-      expect(body.message).toBe('Backup created and uploaded to Airlink Cloud');
-      expect(body.backup.filePath).toBe('airlink-cloud');
-      expect(body.backup.airlinkCloudId).toBe('cloud-file-1');
+      expect(body.message).toBe('Backup created and uploaded to Arclight Cloud');
+      expect(body.backup.filePath).toBe('arclight-cloud');
+      expect(body.backup.arclightCloudId).toBe('cloud-file-1');
 
       const createArgs = (mockPrisma.backup.create as any).mock.calls[0][0];
-      expect(createArgs.data.filePath).toBe('airlink-cloud');
-      expect(createArgs.data.airlinkCloudId).toBe('cloud-file-1');
+      expect(createArgs.data.filePath).toBe('arclight-cloud');
+      expect(createArgs.data.arclightCloudId).toBe('cloud-file-1');
       expect(createArgs.data.UUID).toBe('backup-uuid-1');
 
       // local temp deleted via daemon DELETE backing the daemon-local path
@@ -185,8 +185,8 @@ describe('backups backend create state machine', () => {
 
   it('create with remote redirect SUCCESS (s3): sets S3 key & persists, remoteRedirect ok', async () => {
     (mockPrisma.settings.findUnique as any).mockResolvedValue({
-      airlinkCloudBackupEnabled: false,
-      airlinkCloudApiKey: null,
+      arclightCloudBackupEnabled: false,
+      arclightCloudApiKey: null,
       s3Enabled: true,
     } as any);
     mockUploadStreamToS3.mockResolvedValue('done');
@@ -206,7 +206,7 @@ describe('backups backend create state machine', () => {
 
   it('create with remote redirect FAILURE (cloud upload throws): temp NOT deleted, persists daemon-local path + null cloud id, remoteRedirect failed with explicit message', async () => {
     (mockPrisma.settings.findUnique as any).mockResolvedValue(defaultCloudSettings as any);
-    vi.spyOn(AirlinkCloudClient.prototype, 'uploadFile').mockRejectedValue(new Error('cloud down'));
+    vi.spyOn(ArclightCloudClient.prototype, 'uploadFile').mockRejectedValue(new Error('cloud down'));
 
     await withServer(buildApp(), async (base) => {
       const res = await postCreate(base);
@@ -216,11 +216,11 @@ describe('backups backend create state machine', () => {
       expect(body.remoteRedirect).toBe('failed');
       expect(body.message).toContain('remote upload failed');
       expect(body.backup.filePath).toBe(daemonLocalPath);
-      expect(body.backup.airlinkCloudId).toBeNull();
+      expect(body.backup.arclightCloudId).toBeNull();
 
       const createArgs = (mockPrisma.backup.create as any).mock.calls[0][0];
       expect(createArgs.data.filePath).toBe(daemonLocalPath);
-      expect(createArgs.data.airlinkCloudId).toBeNull();
+      expect(createArgs.data.arclightCloudId).toBeNull();
 
       // no daemon DELETE should have been issued for the local temp
       const deleteCall = mockDaemonRequest.mock.calls.find((c: any) => c[0].method === 'DELETE');
@@ -230,14 +230,14 @@ describe('backups backend create state machine', () => {
 
   it('create with remote redirect FAILURE (cloud returns no id): local kept, persisted with null cloud id, remoteRedirect failed', async () => {
     (mockPrisma.settings.findUnique as any).mockResolvedValue(defaultCloudSettings as any);
-    vi.spyOn(AirlinkCloudClient.prototype, 'uploadFile').mockResolvedValue({} as any);
+    vi.spyOn(ArclightCloudClient.prototype, 'uploadFile').mockResolvedValue({} as any);
 
     await withServer(buildApp(), async (base) => {
       const res = await postCreate(base);
       const body = await res.json();
       expect(body.remoteRedirect).toBe('failed');
       expect(body.backup.filePath).toBe(daemonLocalPath);
-      expect(body.backup.airlinkCloudId).toBeNull();
+      expect(body.backup.arclightCloudId).toBeNull();
       const deleteCall = mockDaemonRequest.mock.calls.find((c: any) => c[0].method === 'DELETE');
       expect(deleteCall).toBeUndefined();
     });
@@ -245,8 +245,8 @@ describe('backups backend create state machine', () => {
 
   it('create with remote redirect FAILURE (s3 upload throws): local kept, persisted, remoteRedirect failed', async () => {
     (mockPrisma.settings.findUnique as any).mockResolvedValue({
-      airlinkCloudBackupEnabled: false,
-      airlinkCloudApiKey: null,
+      arclightCloudBackupEnabled: false,
+      arclightCloudApiKey: null,
       s3Enabled: true,
     } as any);
     mockUploadStreamToS3.mockRejectedValue(new Error('s3 unreachable'));
@@ -272,7 +272,7 @@ describe('backups backend create state machine', () => {
       expect(body.remoteRedirect).toBe('none');
       expect(body.message).toBe('Backup created successfully');
       expect(body.backup.filePath).toBe(daemonLocalPath);
-      expect(body.backup.airlinkCloudId).toBeNull();
+      expect(body.backup.arclightCloudId).toBeNull();
       const deleteCall = mockDaemonRequest.mock.calls.find((c: any) => c[0].method === 'DELETE');
       expect(deleteCall).toBeUndefined();
     });

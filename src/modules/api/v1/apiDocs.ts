@@ -11,7 +11,7 @@ export const apiEndpoints = [
   "data": {
     "version": "v1",
     "endpoints": [
-      { "method": "GET", "path": "/api/v1/users", "description": "List users", "permission": "airlink.api.users.read" }
+      { "method": "GET", "path": "/api/v1/users", "description": "List users", "permission": "arclight.api.users.read" }
     ]
   }
 }`
@@ -25,7 +25,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/users',
         description: 'Get a paginated list of users. Query params: page, per_page.',
-        permission: 'airlink.api.users.read',
+        permission: 'arclight.api.users.read',
         responseExample: `{
   "data": [
     {
@@ -43,7 +43,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/users',
         description: 'Create a new user. Password is hashed with bcrypt.',
-        permission: 'airlink.api.users.create',
+        permission: 'arclight.api.users.create',
         requestExample: `{
   "email": "newuser@example.com",
   "username": "newuser",
@@ -65,7 +65,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/users/:id',
         description: 'Get details for a specific user',
-        permission: 'airlink.api.users.read',
+        permission: 'arclight.api.users.read',
         responseExample: `{
   "data": {
     "id": 1,
@@ -80,7 +80,7 @@ export const apiEndpoints = [
         method: 'PATCH',
         path: '/api/v1/users/:id',
         description: 'Update an existing user. Only send fields to change.',
-        permission: 'airlink.api.users.update',
+        permission: 'arclight.api.users.update',
         requestExample: `{
   "email": "updated@example.com",
   "username": "updatedname"
@@ -99,7 +99,7 @@ export const apiEndpoints = [
         method: 'DELETE',
         path: '/api/v1/users/:id',
         description: 'Delete a user by ID',
-        permission: 'airlink.api.users.delete',
+        permission: 'arclight.api.users.delete',
         responseExample: `{
   "data": { "success": true }
 }`
@@ -113,7 +113,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/servers',
         description: 'Get a paginated list of servers. Query params: page, per_page.',
-        permission: 'airlink.api.servers.read',
+        permission: 'arclight.api.servers.read',
         responseExample: `{
   "data": [
     {
@@ -140,7 +140,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/servers',
         description: 'Create a new server. UUID is auto-generated.',
-        permission: 'airlink.api.servers.create',
+        permission: 'arclight.api.servers.create',
         requestExample: `{
   "name": "My Server",
   "description": "Optional description",
@@ -165,7 +165,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/servers/:id',
         description: 'Get details for a specific server (by UUID)',
-        permission: 'airlink.api.servers.read',
+        permission: 'arclight.api.servers.read',
         responseExample: `{
   "data": {
     "id": 1,
@@ -180,7 +180,7 @@ export const apiEndpoints = [
         method: 'PATCH',
         path: '/api/v1/servers/:id',
         description: 'Update an existing server (by UUID). Only send fields to change.',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         requestExample: `{
   "name": "Updated Server Name",
   "Memory": 4096
@@ -198,7 +198,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/servers/:id/suspend',
         description: 'Suspend a server (by UUID)',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         responseExample: `{
   "data": {
     "id": 1,
@@ -211,7 +211,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/servers/:id/unsuspend',
         description: 'Unsuspend a server (by UUID)',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         responseExample: `{
   "data": {
     "id": 1,
@@ -224,7 +224,7 @@ export const apiEndpoints = [
         method: 'DELETE',
         path: '/api/v1/servers/:id',
         description: 'Delete a server (by UUID)',
-        permission: 'airlink.api.servers.delete',
+        permission: 'arclight.api.servers.delete',
         responseExample: `{
   "data": { "success": true }
 }`
@@ -238,7 +238,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/nodes',
         description: 'Get a paginated list of nodes. Query params: page, per_page.',
-        permission: 'airlink.api.nodes.read',
+        permission: 'arclight.api.nodes.read',
         responseExample: `{
   "data": [
     {
@@ -260,7 +260,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/nodes',
         description: 'Create a new node',
-        permission: 'airlink.api.nodes.create',
+        permission: 'arclight.api.nodes.create',
         requestExample: `{
   "name": "Node 2",
   "address": "192.168.1.100",
@@ -287,7 +287,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/nodes/:id',
         description: 'Get details for a specific node',
-        permission: 'airlink.api.nodes.read',
+        permission: 'arclight.api.nodes.read',
         responseExample: `{
   "data": {
     "id": 1,
@@ -315,7 +315,7 @@ export const apiEndpoints = [
         method: 'PATCH',
         path: '/api/v1/nodes/:id',
         description: 'Update an existing node. Only send fields to change.',
-        permission: 'airlink.api.nodes.update',
+        permission: 'arclight.api.nodes.update',
         requestExample: `{
   "name": "Updated Node",
   "ram": 32768
@@ -337,7 +337,7 @@ export const apiEndpoints = [
         method: 'DELETE',
         path: '/api/v1/nodes/:id',
         description: 'Delete a node. Fails if servers are assigned.',
-        permission: 'airlink.api.nodes.delete',
+        permission: 'arclight.api.nodes.delete',
         responseExample: `{
   "data": { "success": true }
 }`
@@ -351,12 +351,12 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/settings',
         description: 'Get panel settings',
-        permission: 'airlink.api.settings.read',
+        permission: 'arclight.api.settings.read',
         responseExample: `{
   "data": {
     "id": 1,
-    "title": "Airlink",
-    "description": "AirLink is a free and open source project by AirlinkLabs",
+    "title": "Arclight",
+    "description": "Arclight is a free and open source project by Arclighted",
     "logo": "../assets/logo.png",
     "favicon": "../assets/favicon.ico",
     "theme": "default",
@@ -370,7 +370,7 @@ export const apiEndpoints = [
         method: 'PATCH',
         path: '/api/v1/settings',
         description: 'Update panel settings',
-        permission: 'airlink.api.settings.update',
+        permission: 'arclight.api.settings.update',
         requestExample: `{
   "title": "My Panel",
   "description": "My custom panel",
@@ -402,7 +402,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/servers/:id/backups',
         description: 'List backups for a server (by UUID)',
-        permission: 'airlink.api.servers.read',
+        permission: 'arclight.api.servers.read',
         responseExample: `{
   "data": [
     {
@@ -420,7 +420,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/servers/:id/backups',
         description: 'Create a backup for a server (by UUID)',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         requestExample: `{
   "name": "Pre-update backup"
 }`,
@@ -438,7 +438,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/servers/:id/backups/:backupId/restore',
         description: 'Restore a backup (by server UUID + backup UUID)',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         responseExample: `{
   "data": { "success": true }
 }`
@@ -447,7 +447,7 @@ export const apiEndpoints = [
         method: 'DELETE',
         path: '/api/v1/servers/:id/backups/:backupId',
         description: 'Delete a backup. Fails if the backup is locked.',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         responseExample: `{
   "data": { "success": true }
 }`
@@ -461,7 +461,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/servers/:id/databases',
         description: 'List databases for a server (by UUID)',
-        permission: 'airlink.api.servers.read',
+        permission: 'arclight.api.servers.read',
         responseExample: `{
   "data": [
     {
@@ -479,7 +479,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/servers/:id/databases',
         description: 'Provision a database for a server. Respects server + owner database limits.',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         requestExample: `{
   "hostId": 1
 }`,
@@ -496,7 +496,7 @@ export const apiEndpoints = [
         method: 'DELETE',
         path: '/api/v1/servers/:id/databases/:dbId',
         description: 'Deprovision and delete a database',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         responseExample: `{
   "data": { "success": true }
 }`
@@ -510,7 +510,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/servers/:id/subusers',
         description: 'List subusers for a server (by UUID)',
-        permission: 'airlink.api.servers.read',
+        permission: 'arclight.api.servers.read',
         responseExample: `{
   "data": [
     {
@@ -526,7 +526,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/servers/:id/subusers',
         description: 'Add a user (by email) as a subuser',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         requestExample: `{
   "email": "admin@example.com",
   "permissions": ["console", "files"]
@@ -543,7 +543,7 @@ export const apiEndpoints = [
         method: 'PATCH',
         path: '/api/v1/servers/:id/subusers/:subUserId',
         description: 'Update a subuser\u2019s permissions',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         requestExample: `{
   "permissions": ["console", "files.read"]
 }`,
@@ -555,7 +555,7 @@ export const apiEndpoints = [
         method: 'DELETE',
         path: '/api/v1/servers/:id/subusers/:subUserId',
         description: 'Remove a subuser',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         responseExample: `{
   "data": { "success": true }
 }`
@@ -569,7 +569,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/servers/:id/startup',
         description: 'Get startup command, Docker image, and variables',
-        permission: 'airlink.api.servers.read',
+        permission: 'arclight.api.servers.read',
         responseExample: `{
   "data": {
     "startCommand": "java -jar server.jar",
@@ -584,7 +584,7 @@ export const apiEndpoints = [
         method: 'PATCH',
         path: '/api/v1/servers/:id/startup',
         description: 'Update startup command, Docker image, or variables. Variables are validated against stored rules.',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         requestExample: `{
   "startCommand": "java -Xms1G -jar server.jar",
   "dockerImage": "ghcr.io/parkernoad:java_17",
@@ -603,7 +603,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/servers/:id/schedules',
         description: 'List schedules (with tasks) for a server',
-        permission: 'airlink.api.servers.read',
+        permission: 'arclight.api.servers.read',
         responseExample: `{
   "data": [
     {
@@ -621,7 +621,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/servers/:id/schedules',
         description: 'Create a schedule',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         requestExample: `{
   "name": "Nightly backup",
   "cron": "0 0 * * *",
@@ -641,7 +641,7 @@ export const apiEndpoints = [
         method: 'PATCH',
         path: '/api/v1/servers/:id/schedules/:scheduleId',
         description: 'Enable/disable a schedule or update its time offset',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         requestExample: `{
   "enabled": true
 }`,
@@ -657,7 +657,7 @@ export const apiEndpoints = [
         method: 'DELETE',
         path: '/api/v1/servers/:id/schedules/:scheduleId',
         description: 'Delete a schedule',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         responseExample: `{
   "data": { "success": true }
 }`
@@ -666,7 +666,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/servers/:id/schedules/:scheduleId/tasks',
         description: 'Add a task (command | power | backup) to a schedule',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         requestExample: `{
   "action": "command",
   "payload": { "command": "say hello" },
@@ -686,7 +686,7 @@ export const apiEndpoints = [
         method: 'DELETE',
         path: '/api/v1/servers/:id/schedules/:scheduleId/tasks/:taskId',
         description: 'Delete a task from a schedule',
-        permission: 'airlink.api.servers.update',
+        permission: 'arclight.api.servers.update',
         responseExample: `{
   "data": { "success": true }
 }`
@@ -700,7 +700,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/nodes/:id/allocations',
         description: 'List allocations for a node, including claimed servers',
-        permission: 'airlink.api.nodes.read',
+        permission: 'arclight.api.nodes.read',
         responseExample: `{
   "data": [
     {
@@ -717,7 +717,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/nodes/:id/allocations',
         description: 'Add a port to the node\u2019s allocation pool',
-        permission: 'airlink.api.nodes.update',
+        permission: 'arclight.api.nodes.update',
         requestExample: `{
   "ip": "",
   "port": 25566
@@ -736,7 +736,7 @@ export const apiEndpoints = [
         method: 'DELETE',
         path: '/api/v1/nodes/:id/allocations/:allocationId',
         description: 'Delete an allocation. Fails if it is currently in use.',
-        permission: 'airlink.api.nodes.update',
+        permission: 'arclight.api.nodes.update',
         responseExample: `{
   "data": { "success": true }
 }`
@@ -750,7 +750,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/images',
         description: 'Get a paginated list of egg images. Query params: page, per_page.',
-        permission: 'airlink.api.images.read',
+        permission: 'arclight.api.images.read',
         responseExample: `{
   "data": [
     {
@@ -770,7 +770,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/images',
         description: 'Create a new egg image',
-        permission: 'airlink.api.images.create',
+        permission: 'arclight.api.images.create',
         requestExample: `{
   "name": "Java",
   "description": "Generic Java egg",
@@ -789,7 +789,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/images/:id',
         description: 'Get a single image with all egg data',
-        permission: 'airlink.api.images.read',
+        permission: 'arclight.api.images.read',
         responseExample: `{
   "data": {
     "id": 1,
@@ -805,7 +805,7 @@ export const apiEndpoints = [
         method: 'PATCH',
         path: '/api/v1/images/:id',
         description: 'Update an image. Array fields (dockerImages, variables, info, scripts) are sent as raw JSON.',
-        permission: 'airlink.api.images.update',
+        permission: 'arclight.api.images.update',
         requestExample: `{
   "name": "Java 17",
   "dockerImages": [{ "Java 17": "ghcr.io/pterodactyl/yolks:java_17" }]
@@ -822,7 +822,7 @@ export const apiEndpoints = [
         method: 'DELETE',
         path: '/api/v1/images/:id',
         description: 'Delete an image. Fails if it is used by servers.',
-        permission: 'airlink.api.images.delete',
+        permission: 'arclight.api.images.delete',
         responseExample: `{
   "data": { "success": true }
 }`
@@ -836,7 +836,7 @@ export const apiEndpoints = [
         method: 'GET',
         path: '/api/v1/locations',
         description: 'Get a paginated list of locations. Query params: page, per_page.',
-        permission: 'airlink.api.locations.read',
+        permission: 'arclight.api.locations.read',
         responseExample: `{
   "data": [
     {
@@ -854,7 +854,7 @@ export const apiEndpoints = [
         method: 'POST',
         path: '/api/v1/locations',
         description: 'Create a location',
-        permission: 'airlink.api.locations.create',
+        permission: 'arclight.api.locations.create',
         requestExample: `{
   "name": "US East",
   "shortCode": "us-east"

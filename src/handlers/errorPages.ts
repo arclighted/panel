@@ -9,7 +9,7 @@ interface ErrorPageInfo {
 }
 
 const DEFAULT_SETTINGS = {
-  title: 'Airlink',
+  title: 'Arclight',
   favicon: '/favicon.ico',
   logo: '/assets/logo.png',
   lightTheme: 'default',

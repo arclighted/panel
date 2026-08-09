@@ -1,6 +1,6 @@
 # Addon Migrations
 
-AirLink Panel addons can define database migrations in their manifest. Migrations are applied atomically and support rollback.
+Arclight Panel addons can define database migrations in their manifest. Migrations are applied atomically and support rollback.
 
 ## Table of Contents
 

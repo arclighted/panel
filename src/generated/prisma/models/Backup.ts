@@ -46,7 +46,7 @@ export type BackupMinAggregateOutputType = {
   checksum: string | null
   locked: boolean | null
   createdAt: Date | null
-  airlinkCloudId: string | null
+  arclightCloudId: string | null
 }
 
 export type BackupMaxAggregateOutputType = {
@@ -59,7 +59,7 @@ export type BackupMaxAggregateOutputType = {
   checksum: string | null
   locked: boolean | null
   createdAt: Date | null
-  airlinkCloudId: string | null
+  arclightCloudId: string | null
 }
 
 export type BackupCountAggregateOutputType = {
@@ -72,7 +72,7 @@ export type BackupCountAggregateOutputType = {
   checksum: number
   locked: number
   createdAt: number
-  airlinkCloudId: number
+  arclightCloudId: number
   _all: number
 }
 
@@ -97,7 +97,7 @@ export type BackupMinAggregateInputType = {
   checksum?: true
   locked?: true
   createdAt?: true
-  airlinkCloudId?: true
+  arclightCloudId?: true
 }
 
 export type BackupMaxAggregateInputType = {
@@ -110,7 +110,7 @@ export type BackupMaxAggregateInputType = {
   checksum?: true
   locked?: true
   createdAt?: true
-  airlinkCloudId?: true
+  arclightCloudId?: true
 }
 
 export type BackupCountAggregateInputType = {
@@ -123,7 +123,7 @@ export type BackupCountAggregateInputType = {
   checksum?: true
   locked?: true
   createdAt?: true
-  airlinkCloudId?: true
+  arclightCloudId?: true
   _all?: true
 }
 
@@ -223,7 +223,7 @@ export type BackupGroupByOutputType = {
   checksum: string | null
   locked: boolean
   createdAt: Date
-  airlinkCloudId: string | null
+  arclightCloudId: string | null
   _count: BackupCountAggregateOutputType | null
   _avg: BackupAvgAggregateOutputType | null
   _sum: BackupSumAggregateOutputType | null
@@ -259,7 +259,7 @@ export type BackupWhereInput = {
   checksum?: Prisma.StringNullableFilter<"Backup"> | string | null
   locked?: Prisma.BoolFilter<"Backup"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Backup"> | Date | string
-  airlinkCloudId?: Prisma.StringNullableFilter<"Backup"> | string | null
+  arclightCloudId?: Prisma.StringNullableFilter<"Backup"> | string | null
   server?: Prisma.XOR<Prisma.ServerScalarRelationFilter, Prisma.ServerWhereInput>
 }
 
@@ -273,7 +273,7 @@ export type BackupOrderByWithRelationInput = {
   checksum?: Prisma.SortOrderInput | Prisma.SortOrder
   locked?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  airlinkCloudId?: Prisma.SortOrderInput | Prisma.SortOrder
+  arclightCloudId?: Prisma.SortOrderInput | Prisma.SortOrder
   server?: Prisma.ServerOrderByWithRelationInput
 }
 
@@ -290,7 +290,7 @@ export type BackupWhereUniqueInput = Prisma.AtLeast<{
   checksum?: Prisma.StringNullableFilter<"Backup"> | string | null
   locked?: Prisma.BoolFilter<"Backup"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Backup"> | Date | string
-  airlinkCloudId?: Prisma.StringNullableFilter<"Backup"> | string | null
+  arclightCloudId?: Prisma.StringNullableFilter<"Backup"> | string | null
   server?: Prisma.XOR<Prisma.ServerScalarRelationFilter, Prisma.ServerWhereInput>
 }, "id" | "UUID">
 
@@ -304,7 +304,7 @@ export type BackupOrderByWithAggregationInput = {
   checksum?: Prisma.SortOrderInput | Prisma.SortOrder
   locked?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  airlinkCloudId?: Prisma.SortOrderInput | Prisma.SortOrder
+  arclightCloudId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.BackupCountOrderByAggregateInput
   _avg?: Prisma.BackupAvgOrderByAggregateInput
   _max?: Prisma.BackupMaxOrderByAggregateInput
@@ -325,7 +325,7 @@ export type BackupScalarWhereWithAggregatesInput = {
   checksum?: Prisma.StringNullableWithAggregatesFilter<"Backup"> | string | null
   locked?: Prisma.BoolWithAggregatesFilter<"Backup"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Backup"> | Date | string
-  airlinkCloudId?: Prisma.StringNullableWithAggregatesFilter<"Backup"> | string | null
+  arclightCloudId?: Prisma.StringNullableWithAggregatesFilter<"Backup"> | string | null
 }
 
 export type BackupCreateInput = {
@@ -336,7 +336,7 @@ export type BackupCreateInput = {
   checksum?: string | null
   locked?: boolean
   createdAt?: Date | string
-  airlinkCloudId?: string | null
+  arclightCloudId?: string | null
   server: Prisma.ServerCreateNestedOneWithoutBackupsInput
 }
 
@@ -350,7 +350,7 @@ export type BackupUncheckedCreateInput = {
   checksum?: string | null
   locked?: boolean
   createdAt?: Date | string
-  airlinkCloudId?: string | null
+  arclightCloudId?: string | null
 }
 
 export type BackupUpdateInput = {
@@ -361,7 +361,7 @@ export type BackupUpdateInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  airlinkCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  arclightCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   server?: Prisma.ServerUpdateOneRequiredWithoutBackupsNestedInput
 }
 
@@ -375,7 +375,7 @@ export type BackupUncheckedUpdateInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  airlinkCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  arclightCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type BackupCreateManyInput = {
@@ -388,7 +388,7 @@ export type BackupCreateManyInput = {
   checksum?: string | null
   locked?: boolean
   createdAt?: Date | string
-  airlinkCloudId?: string | null
+  arclightCloudId?: string | null
 }
 
 export type BackupUpdateManyMutationInput = {
@@ -399,7 +399,7 @@ export type BackupUpdateManyMutationInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  airlinkCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  arclightCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type BackupUncheckedUpdateManyInput = {
@@ -412,7 +412,7 @@ export type BackupUncheckedUpdateManyInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  airlinkCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  arclightCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type BackupListRelationFilter = {
@@ -435,7 +435,7 @@ export type BackupCountOrderByAggregateInput = {
   checksum?: Prisma.SortOrder
   locked?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  airlinkCloudId?: Prisma.SortOrder
+  arclightCloudId?: Prisma.SortOrder
 }
 
 export type BackupAvgOrderByAggregateInput = {
@@ -453,7 +453,7 @@ export type BackupMaxOrderByAggregateInput = {
   checksum?: Prisma.SortOrder
   locked?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  airlinkCloudId?: Prisma.SortOrder
+  arclightCloudId?: Prisma.SortOrder
 }
 
 export type BackupMinOrderByAggregateInput = {
@@ -466,7 +466,7 @@ export type BackupMinOrderByAggregateInput = {
   checksum?: Prisma.SortOrder
   locked?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
-  airlinkCloudId?: Prisma.SortOrder
+  arclightCloudId?: Prisma.SortOrder
 }
 
 export type BackupSumOrderByAggregateInput = {
@@ -532,7 +532,7 @@ export type BackupCreateWithoutServerInput = {
   checksum?: string | null
   locked?: boolean
   createdAt?: Date | string
-  airlinkCloudId?: string | null
+  arclightCloudId?: string | null
 }
 
 export type BackupUncheckedCreateWithoutServerInput = {
@@ -544,7 +544,7 @@ export type BackupUncheckedCreateWithoutServerInput = {
   checksum?: string | null
   locked?: boolean
   createdAt?: Date | string
-  airlinkCloudId?: string | null
+  arclightCloudId?: string | null
 }
 
 export type BackupCreateOrConnectWithoutServerInput = {
@@ -585,7 +585,7 @@ export type BackupScalarWhereInput = {
   checksum?: Prisma.StringNullableFilter<"Backup"> | string | null
   locked?: Prisma.BoolFilter<"Backup"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Backup"> | Date | string
-  airlinkCloudId?: Prisma.StringNullableFilter<"Backup"> | string | null
+  arclightCloudId?: Prisma.StringNullableFilter<"Backup"> | string | null
 }
 
 export type BackupCreateManyServerInput = {
@@ -597,7 +597,7 @@ export type BackupCreateManyServerInput = {
   checksum?: string | null
   locked?: boolean
   createdAt?: Date | string
-  airlinkCloudId?: string | null
+  arclightCloudId?: string | null
 }
 
 export type BackupUpdateWithoutServerInput = {
@@ -608,7 +608,7 @@ export type BackupUpdateWithoutServerInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  airlinkCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  arclightCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type BackupUncheckedUpdateWithoutServerInput = {
@@ -620,7 +620,7 @@ export type BackupUncheckedUpdateWithoutServerInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  airlinkCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  arclightCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type BackupUncheckedUpdateManyWithoutServerInput = {
@@ -632,7 +632,7 @@ export type BackupUncheckedUpdateManyWithoutServerInput = {
   checksum?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   locked?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  airlinkCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  arclightCloudId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -647,7 +647,7 @@ export type BackupSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   checksum?: boolean
   locked?: boolean
   createdAt?: boolean
-  airlinkCloudId?: boolean
+  arclightCloudId?: boolean
   server?: boolean | Prisma.ServerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["backup"]>
 
@@ -661,7 +661,7 @@ export type BackupSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extens
   checksum?: boolean
   locked?: boolean
   createdAt?: boolean
-  airlinkCloudId?: boolean
+  arclightCloudId?: boolean
   server?: boolean | Prisma.ServerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["backup"]>
 
@@ -675,7 +675,7 @@ export type BackupSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extens
   checksum?: boolean
   locked?: boolean
   createdAt?: boolean
-  airlinkCloudId?: boolean
+  arclightCloudId?: boolean
   server?: boolean | Prisma.ServerDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["backup"]>
 
@@ -689,10 +689,10 @@ export type BackupSelectScalar = {
   checksum?: boolean
   locked?: boolean
   createdAt?: boolean
-  airlinkCloudId?: boolean
+  arclightCloudId?: boolean
 }
 
-export type BackupOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "UUID" | "name" | "serverId" | "filePath" | "size" | "checksum" | "locked" | "createdAt" | "airlinkCloudId", ExtArgs["result"]["backup"]>
+export type BackupOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "UUID" | "name" | "serverId" | "filePath" | "size" | "checksum" | "locked" | "createdAt" | "arclightCloudId", ExtArgs["result"]["backup"]>
 export type BackupInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   server?: boolean | Prisma.ServerDefaultArgs<ExtArgs>
 }
@@ -718,7 +718,7 @@ export type $BackupPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
     checksum: string | null
     locked: boolean
     createdAt: Date
-    airlinkCloudId: string | null
+    arclightCloudId: string | null
   }, ExtArgs["result"]["backup"]>
   composites: {}
 }
@@ -1152,7 +1152,7 @@ export interface BackupFieldRefs {
   readonly checksum: Prisma.FieldRef<"Backup", 'String'>
   readonly locked: Prisma.FieldRef<"Backup", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"Backup", 'DateTime'>
-  readonly airlinkCloudId: Prisma.FieldRef<"Backup", 'String'>
+  readonly arclightCloudId: Prisma.FieldRef<"Backup", 'String'>
 }
     
 

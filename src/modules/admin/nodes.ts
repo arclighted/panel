@@ -25,10 +25,10 @@ const NODE_KEY_LENGTH = 32;
 const NODE_ADDRESS_REGEX =
   /^(localhost|(?:\d{1,3}\.){3}\d{1,3}|(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})$/;
 
-registerPermission('airlink.admin.nodes.view' as Permission);
-registerPermission('airlink.admin.nodes.create' as Permission);
-registerPermission('airlink.admin.nodes.update' as Permission);
-registerPermission('airlink.admin.nodes.delete' as Permission);
+registerPermission('arclight.admin.nodes.view' as Permission);
+registerPermission('arclight.admin.nodes.create' as Permission);
+registerPermission('arclight.admin.nodes.update' as Permission);
+registerPermission('arclight.admin.nodes.delete' as Permission);
 
 interface NodeWithInstances {
   id: number;
@@ -121,7 +121,7 @@ const adminModule: Module = {
     description: 'This file is for admin functionality of the Nodes.',
     version: '2.0.0',
     moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
+    author: 'Arclight',
     license: 'MIT',
   },
 
@@ -130,7 +130,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/nodes',
-      isAuthenticated(true, 'airlink.admin.nodes.view'),
+      isAuthenticated(true, 'arclight.admin.nodes.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -166,7 +166,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/nodes/create',
-      isAuthenticated(true, 'airlink.admin.nodes.view'),
+      isAuthenticated(true, 'arclight.admin.nodes.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -197,7 +197,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/nodes/list',
-      isAuthenticated(true, 'airlink.admin.nodes.view'),
+      isAuthenticated(true, 'arclight.admin.nodes.view'),
       async (_req: Request, res: Response) => {
         // Include servers data for port allocation UI
         const listNode = await listNodes(res, true);
@@ -207,7 +207,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/nodes/create',
-      isAuthenticated(true, 'airlink.admin.nodes.create'),
+      isAuthenticated(true, 'arclight.admin.nodes.create'),
       async (req: Request, res: Response) => {
         const { name, ram, cpu, disk, address, port } = req.body;
         const locationId = req.body.locationId
@@ -415,7 +415,7 @@ const adminModule: Module = {
 
     router.delete(
       '/admin/node/:id',
-      isAuthenticated(true, 'airlink.admin.nodes.delete'),
+      isAuthenticated(true, 'arclight.admin.nodes.delete'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -507,7 +507,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/node/:id/configure',
-      isAuthenticated(true, 'airlink.admin.nodes.view'),
+      isAuthenticated(true, 'arclight.admin.nodes.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -541,7 +541,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/node/:id/verify',
-      isAuthenticated(true, 'airlink.admin.nodes.view'),
+      isAuthenticated(true, 'arclight.admin.nodes.view'),
       async (req: Request, res: Response) => {
         try {
           const nodeId = getParamAsNumber(req.params.id);
@@ -594,7 +594,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/node/:id',
-      isAuthenticated(true, 'airlink.admin.nodes.view'),
+      isAuthenticated(true, 'arclight.admin.nodes.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -640,7 +640,7 @@ const adminModule: Module = {
 
     router.put(
       '/admin/node/:id/edit',
-      isAuthenticated(true, 'airlink.admin.nodes.update'),
+      isAuthenticated(true, 'arclight.admin.nodes.update'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
@@ -817,7 +817,7 @@ const adminModule: Module = {
 
     router.post(
       '/admin/node/:id/maintenance',
-      isAuthenticated(true, 'airlink.admin.nodes.update'),
+      isAuthenticated(true, 'arclight.admin.nodes.update'),
       async (req: Request, res: Response) => {
         try {
           const nodeId = getParamAsNumber(req.params.id);
@@ -849,7 +849,7 @@ const adminModule: Module = {
 
     router.get(
       '/admin/node/:id/stats',
-      isAuthenticated(true, 'airlink.admin.nodes.view'),
+      isAuthenticated(true, 'arclight.admin.nodes.view'),
       async (req: Request, res: Response) => {
         const userId = req.session?.user?.id;
         const user = await prisma.users.findUnique({ where: { id: userId } });

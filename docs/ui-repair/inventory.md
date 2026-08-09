@@ -69,7 +69,7 @@ Notes:
 
 - `admin/users/user.ejs` is unreachable: a second `/admin/users/create` handler in `users.ts` references `req.params.id` on a create route; the first handler wins.
 - `admin/menu/menu.ejs` is only a `window.location.replace('/')`.
-- Dead page JS (never referenced by a view): `admin-airlink-cloud-settings.js`, `modrinth-admin.js`.
+- Dead page JS (never referenced by a view): `admin-arclight-cloud-settings.js`, `modrinth-admin.js`.
 - 3 pages include `header.ejs` but no `footer.ejs` (mounts/index, servers/create, servers/edit): `motion.js` is not loaded there.
 - Manage + files + schedules + file + backups + startup + settings carry 8k-60k of inline script each. These are the refactor-heavy pages.
 
@@ -122,7 +122,7 @@ Notes:
 | shared/checkbox-anim.js | checkbox bounce; reduced-motion not gated | active |
 | shared/custom-select.js | upgrades `<select>` to combobox | active (8 pages) |
 | shared/format-switcher.js | MB/GB unit switcher | active (8 pages) |
-| shared/layout-animations.js | FLIP animations; `airlinkAnimate` API mostly dead, CSS side effects dominate | mostly dead |
+| shared/layout-animations.js | FLIP animations; `arclightAnimate` API mostly dead, CSS side effects dominate | mostly dead |
 | shared/loading-popup.js | full-screen loader | active (12 pages) |
 | shared/motion.js | `data-animate` viewport reveals; no view uses `data-animate` | inert |
 | shared/page-loader.js | SPA nav transitions; hard navigation under the hood | active |

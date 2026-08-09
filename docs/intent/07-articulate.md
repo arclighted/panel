@@ -1,6 +1,6 @@
 # Intent · 07 · Articulate
 
-> Voice framework, microcopy pattern library, error inventory, empty states, and a content model for Airlink Panel.
+> Voice framework, microcopy pattern library, error inventory, empty states, and a content model for Arclight Panel.
 > Grounded in the existing voice (PRODUCT.md): "short, concrete, operational — calm, competent, practical."
 
 ---

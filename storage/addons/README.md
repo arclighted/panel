@@ -1,6 +1,6 @@
-# AirLink Panel Addons
+# Arclight Panel Addons
 
-This directory contains addons for AirLink Panel. Addons extend the panel with custom features, routes, and UI.
+This directory contains addons for Arclight Panel. Addons extend the panel with custom features, routes, and UI.
 
 ## Creating an Addon
 

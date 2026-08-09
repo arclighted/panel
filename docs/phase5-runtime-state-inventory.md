@@ -5,7 +5,7 @@
 
 ## Deployment model
 
-Single-process panel (`node dist/app.js`), single-process daemon (`airlinkd`)
+Single-process panel (`node dist/app.js`), single-process daemon (`arclightd`)
 per host. No horizontal scaling. Sessions, rate limiting, realtime, and queue
 state are all in-process. Redis/BullMQ is **not approved** and not needed.
 

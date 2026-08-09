@@ -103,7 +103,7 @@ export function getConfig(): PanelConfig {
     isHttps: url.startsWith('https://'),
     url,
     port: parsePort(process.env.PORT),
-    name: process.env.NAME || 'AirLink',
+    name: process.env.NAME || 'Arclight',
     sessionSecret: resolveSessionSecret(
       process.env.SESSION_SECRET,
       isProduction,
