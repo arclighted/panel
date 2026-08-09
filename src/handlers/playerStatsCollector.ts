@@ -1,10 +1,12 @@
-
-import prisma from '../db';
-import logger from './logger';
-import { daemonRequest } from './utils/core/daemonRequest';
-import { parseServerPorts } from './utils/server/ports';
-import { emitRealtime } from './realtime/events';
-
+import prisma from "../db";
+import logger from "./logger";
+import { daemonRequest } from "./utils/core/daemonRequest";
+import {
+  daemonPlayerListSchema,
+  parseDaemonResponse,
+} from "../platform/daemon/dtos";
+import { parseServerPorts } from "./utils/server/ports";
+import { emitRealtime } from "./realtime/events";
 
 // Interval in milliseconds (5 minutes)
 const COLLECTION_INTERVAL = 5 * 60 * 1000;
@@ -30,7 +32,9 @@ export async function collectPlayerStats(): Promise<void> {
         try {
           // Parse ports to find the primary port
           const ports = parseServerPorts(server.Ports);
-          const primaryPort = ports.find((p) => p.primary)?.externalPort?.toString();
+          const primaryPort = ports
+            .find((p) => p.primary)
+            ?.externalPort?.toString();
 
           if (!primaryPort) {
             return {
@@ -42,25 +46,28 @@ export async function collectPlayerStats(): Promise<void> {
           }
 
           // Fetch player data from the daemon
-          const response = await daemonRequest<{ onlinePlayers?: number; maxPlayers?: number; online?: boolean }>({
+          const response = await daemonRequest<unknown>({
             nodeAddress: server.node.address,
             nodePort: server.node.port,
             nodeKey: server.node.key,
-            method: 'GET',
-            path: '/minecraft/players',
+            method: "GET",
+            path: "/minecraft/players",
             params: {
               id: server.UUID,
               host: server.node.address,
-              port: primaryPort
+              port: primaryPort,
             },
-            timeout: 5000
+            timeout: 5000,
           });
+
+          const playersData =
+            parseDaemonResponse(daemonPlayerListSchema, response.data) ?? {};
 
           return {
             serverId: server.UUID,
-            playerCount: response.data.onlinePlayers || 0,
-            maxPlayers: response.data.maxPlayers || 0,
-            online: response.data.online || false,
+            playerCount: playersData.onlinePlayers || 0,
+            maxPlayers: playersData.maxPlayers || 0,
+            online: playersData.online || false,
           };
         } catch {
           return {
@@ -70,13 +77,19 @@ export async function collectPlayerStats(): Promise<void> {
             online: false,
           };
         }
-      })
+      }),
     );
 
     // Calculate totals
-    const totalPlayers = playerData.reduce((sum, server) => sum + server.playerCount, 0);
-    const maxPlayers = playerData.reduce((sum, server) => sum + server.maxPlayers, 0);
-    const onlineServers = playerData.filter(server => server.online).length;
+    const totalPlayers = playerData.reduce(
+      (sum, server) => sum + server.playerCount,
+      0,
+    );
+    const maxPlayers = playerData.reduce(
+      (sum, server) => sum + server.maxPlayers,
+      0,
+    );
+    const onlineServers = playerData.filter((server) => server.online).length;
     const totalServers = servers.length;
 
     // Store in database
@@ -85,16 +98,16 @@ export async function collectPlayerStats(): Promise<void> {
         totalPlayers,
         maxPlayers,
         onlineServers,
-        totalServers
-      }
+        totalServers,
+      },
     });
 
     // Clean up old data
     const oldestToKeep = await prisma.playerStats.findMany({
       orderBy: {
-        timestamp: 'desc'
+        timestamp: "desc",
       },
-      take: MAX_DATA_POINTS
+      take: MAX_DATA_POINTS,
     });
 
     if (oldestToKeep.length === MAX_DATA_POINTS) {
@@ -103,21 +116,21 @@ export async function collectPlayerStats(): Promise<void> {
       await prisma.playerStats.deleteMany({
         where: {
           timestamp: {
-            lt: oldestTimestamp
-          }
-        }
+            lt: oldestTimestamp,
+          },
+        },
       });
     }
 
     // Player stats were just collected — tell any admin playerstats page to
     // re-fetch instead of waiting out its own poll interval.
     emitRealtime({
-      type: 'player.stats.updated',
+      type: "player.stats.updated",
       scope: { admin: true },
       state: {},
     });
   } catch (error) {
-    logger.warn('Player stats collection failed', { error });
+    logger.warn("Player stats collection failed", { error });
   }
 }
 
@@ -135,8 +148,13 @@ export function startPlayerStatsCollection(): void {
   collectPlayerStats();
 
   // Then set up interval
-  statsCollectionInterval = setInterval(collectPlayerStats, COLLECTION_INTERVAL);
-  logger.info(`Player stats collection started (interval: ${COLLECTION_INTERVAL / 1000} seconds)`);
+  statsCollectionInterval = setInterval(
+    collectPlayerStats,
+    COLLECTION_INTERVAL,
+  );
+  logger.info(
+    `Player stats collection started (interval: ${COLLECTION_INTERVAL / 1000} seconds)`,
+  );
 }
 
 /**
@@ -146,6 +164,6 @@ export function stopPlayerStatsCollection(): void {
   if (statsCollectionInterval) {
     clearInterval(statsCollectionInterval);
     statsCollectionInterval = null;
-    logger.info('Player stats collection stopped');
+    logger.info("Player stats collection stopped");
   }
 }

@@ -1,5 +1,9 @@
-import { isHttpError } from '../../../utils/http';
-import { daemonRequest } from '../core/daemonRequest';
+import { isHttpError } from "../../../utils/http";
+import {
+  containerStatusSchema,
+  parseDaemonResponse,
+} from "../../../platform/daemon/dtos";
+import { daemonRequest } from "../core/daemonRequest";
 
 const SERVER_STATUS_TIMEOUT_MS = 3000;
 
@@ -8,12 +12,6 @@ interface ServerInfo {
   nodePort: number;
   serverUUID: string;
   nodeKey: string;
-}
-
-interface DaemonStatusResponse {
-  running?: boolean;
-  status?: string;
-  startedAt?: string;
 }
 
 interface ServerStatus {
@@ -26,19 +24,21 @@ interface ServerStatus {
   daemonOffline?: boolean;
 }
 
-export async function getServerStatus(serverInfo: ServerInfo): Promise<ServerStatus> {
+export async function getServerStatus(
+  serverInfo: ServerInfo,
+): Promise<ServerStatus> {
   try {
-    const response = await daemonRequest<DaemonStatusResponse>({
+    const response = await daemonRequest<unknown>({
       nodeAddress: serverInfo.nodeAddress,
       nodePort: serverInfo.nodePort,
       nodeKey: serverInfo.nodeKey,
-      method: 'GET',
-      path: '/container/status',
+      method: "GET",
+      path: "/container/status",
       params: { id: serverInfo.serverUUID },
       timeout: SERVER_STATUS_TIMEOUT_MS,
     });
 
-    const data = response.data;
+    const data = parseDaemonResponse(containerStatusSchema, response.data);
     const status: ServerStatus = {
       online: false,
       starting: false,
@@ -51,9 +51,11 @@ export async function getServerStatus(serverInfo: ServerInfo): Promise<ServerSta
       status.online = true;
       if (data.startedAt) {
         status.startedAt = data.startedAt;
-        status.uptime = Math.floor((Date.now() - new Date(data.startedAt).getTime()) / 1000);
+        status.uptime = Math.floor(
+          (Date.now() - new Date(data.startedAt).getTime()) / 1000,
+        );
       }
-    } else if (data && data.status === 'restarting') {
+    } else if (data && data.status === "restarting") {
       status.starting = true;
     }
 
@@ -71,21 +73,21 @@ export async function getServerStatus(serverInfo: ServerInfo): Promise<ServerSta
     if (isHttpError(error)) {
       if (error.status === 0) {
         const code = (error as unknown as { code?: string }).code;
-        if (code === 'ECONNREFUSED') {
-          errorStatus.error = 'Connection refused — daemon may be offline';
-        } else if (code === 'ETIMEDOUT' || code === 'ECONNABORTED') {
-          errorStatus.error = 'Connection timed out';
-        } else if (code === 'ENOTFOUND') {
-          errorStatus.error = 'Host not found — check node address';
+        if (code === "ECONNREFUSED") {
+          errorStatus.error = "Connection refused — daemon may be offline";
+        } else if (code === "ETIMEDOUT" || code === "ECONNABORTED") {
+          errorStatus.error = "Connection timed out";
+        } else if (code === "ENOTFOUND") {
+          errorStatus.error = "Host not found — check node address";
         } else {
-          errorStatus.error = 'Connection failed';
+          errorStatus.error = "Connection failed";
         }
       } else {
         errorStatus.error = `Daemon responded with ${error.status}`;
         errorStatus.daemonOffline = false;
       }
     } else {
-      errorStatus.error = 'An unexpected error occurred';
+      errorStatus.error = "An unexpected error occurred";
     }
 
     return errorStatus;

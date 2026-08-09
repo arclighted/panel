@@ -4,20 +4,40 @@
    ============================================ */
 
 :root {
-  /* Easing curves */
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);          /* Decelerate — reveals, modals, slide-ins */
-  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);       /* Standard — hover states, tabs, color */
-  --ease-in: cubic-bezier(0.4, 0, 1, 1);               /* Accelerate — exits only */
-  --ease-emphasized: cubic-bezier(0.2, 0, 0, 1);       /* M3 Emphasized — spatial transitions */
-  --ease-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);    /* Overshoot — checkbox, toggle micro-interaction */
+  /* Easing curves — canonical values from tw.css design system */
+  --ease-out: cubic-bezier(
+    0.16,
+    1,
+    0.3,
+    1
+  ); /* Decelerate — reveals, modals, slide-ins */
+  --ease-standard: cubic-bezier(
+    0.16,
+    1,
+    0.3,
+    1
+  ); /* Standard — hover states, tabs, color */
+  --ease-in: cubic-bezier(0.4, 0, 1, 1); /* Accelerate — exits only */
+  --ease-emphasized: cubic-bezier(
+    0.2,
+    0,
+    0,
+    1
+  ); /* M3 Emphasized — spatial transitions */
+  --ease-bounce: cubic-bezier(
+    0.34,
+    1.56,
+    0.64,
+    1
+  ); /* Overshoot — checkbox, toggle micro-interaction */
 
-  /* Durations */
-  --dur-instant: 80ms;    /* Color/border changes, focus rings */
-  --dur-quick: 150ms;     /* Hover states, button press */
-  --dur-default: 220ms;   /* Most transitions */
-  --dur-enter: 320ms;     /* Modal open, panel slide, reveal */
-  --dur-exit: 180ms;      /* Modal close, panel hide */
-  --dur-stagger: 40ms;    /* Per-item delay in lists */
+  /* Durations — canonical values from tw.css design system */
+  --dur-instant: 80ms; /* Color/border changes, focus rings */
+  --dur-quick: 150ms; /* Hover states, button press */
+  --dur-default: 200ms; /* Most transitions */
+  --dur-enter: 320ms; /* Modal open, panel slide, reveal */
+  --dur-exit: 180ms; /* Modal close, panel hide */
+  --dur-stagger: 40ms; /* Per-item delay in lists */
 }
 
 /* ── data-animate ATTRIBUTE SYSTEM ─────────────────────────────
@@ -39,14 +59,36 @@
 /* Hidden pre-state — applied only after JS initializes the observer.
    No will-change here: motion.js grants it inline for the duration
    of the animation only. */
-[data-animate].will-animate          { opacity: 0; }
-[data-animate="fade"].will-animate   { opacity: 0; }
-[data-animate="fade-up"].will-animate    { opacity: 0; transform: translateY(12px); }
-[data-animate="fade-down"].will-animate  { opacity: 0; transform: translateY(-12px); }
-[data-animate="slide-left"].will-animate { opacity: 0; transform: translateX(16px); }
-[data-animate="slide-right"].will-animate{ opacity: 0; transform: translateX(-16px); }
-[data-animate="scale"].will-animate   { opacity: 0; transform: scale(0.96); }
-[data-animate="blur"].will-animate    { opacity: 0; filter: blur(6px); }
+[data-animate].will-animate {
+  opacity: 0;
+}
+[data-animate="fade"].will-animate {
+  opacity: 0;
+}
+[data-animate="fade-up"].will-animate {
+  opacity: 0;
+  transform: translateY(12px);
+}
+[data-animate="fade-down"].will-animate {
+  opacity: 0;
+  transform: translateY(-12px);
+}
+[data-animate="slide-left"].will-animate {
+  opacity: 0;
+  transform: translateX(16px);
+}
+[data-animate="slide-right"].will-animate {
+  opacity: 0;
+  transform: translateX(-16px);
+}
+[data-animate="scale"].will-animate {
+  opacity: 0;
+  transform: scale(0.96);
+}
+[data-animate="blur"].will-animate {
+  opacity: 0;
+  filter: blur(6px);
+}
 
 /* Animated-in state — keyframe driven, fill both so the element
    holds its final state after the animation ends */
@@ -56,17 +98,37 @@
   animation-fill-mode: both;
 }
 
-[data-animate="fade"].motion-visible { animation-name: motion-fade-in; }
-[data-animate="fade-up"].motion-visible { animation-name: motion-slide-up; }
-[data-animate="fade-down"].motion-visible { animation-name: motion-slide-down; }
-[data-animate="slide-left"].motion-visible { animation-name: motion-slide-left; }
-[data-animate="slide-right"].motion-visible { animation-name: motion-slide-right; }
-[data-animate="scale"].motion-visible { animation-name: motion-scale-in; }
-[data-animate="blur"].motion-visible { animation-name: motion-blur-in; }
+[data-animate="fade"].motion-visible {
+  animation-name: motion-fade-in;
+}
+[data-animate="fade-up"].motion-visible {
+  animation-name: motion-slide-up;
+}
+[data-animate="fade-down"].motion-visible {
+  animation-name: motion-slide-down;
+}
+[data-animate="slide-left"].motion-visible {
+  animation-name: motion-slide-left;
+}
+[data-animate="slide-right"].motion-visible {
+  animation-name: motion-slide-right;
+}
+[data-animate="scale"].motion-visible {
+  animation-name: motion-scale-in;
+}
+[data-animate="blur"].motion-visible {
+  animation-name: motion-blur-in;
+}
 
 /* Exit animations (JS-triggered) */
-.motion-exit-fade { animation-name: motion-fade-out; animation-duration: var(--dur-exit); }
-.motion-exit-scale { animation-name: motion-scale-out; animation-duration: var(--dur-exit); }
+.motion-exit-fade {
+  animation-name: motion-fade-out;
+  animation-duration: var(--dur-exit);
+}
+.motion-exit-scale {
+  animation-name: motion-scale-out;
+  animation-duration: var(--dur-exit);
+}
 
 /* ── Group animations (container children) ───────────────────── */
 
@@ -88,48 +150,98 @@
 /* ── Keyframes ───────────────────────────────────────────────── */
 
 @keyframes motion-fade-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes motion-fade-out {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes motion-slide-up {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes motion-slide-down {
-  from { opacity: 0; transform: translateY(-16px); }
-  to { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(-16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @keyframes motion-slide-left {
-  from { opacity: 0; transform: translateX(24px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes motion-slide-right {
-  from { opacity: 0; transform: translateX(-24px); }
-  to { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-24px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 @keyframes motion-scale-in {
-  from { opacity: 0; transform: scale(0.95); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 @keyframes motion-scale-out {
-  from { opacity: 1; transform: scale(1); }
-  to { opacity: 0; transform: scale(0.95); }
+  from {
+    opacity: 1;
+    transform: scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: scale(0.95);
+  }
 }
 
 @keyframes motion-blur-in {
-  from { opacity: 0; filter: blur(4px); }
-  to { opacity: 1; filter: blur(0); }
+  from {
+    opacity: 0;
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    filter: blur(0);
+  }
 }
 
 /* ── Modal overlay / panel ────────────────────────────────────── */
@@ -181,8 +293,7 @@
    it by toggling the class off/on. Fill-mode both keeps the panel at
    rest after the animation. */
 .al-modal-panel.al-modal-reenter {
-  animation:
-    modal-reenter var(--dur-default) var(--ease-out);
+  animation: modal-reenter var(--dur-default) var(--ease-out);
   animation-fill-mode: both;
 }
 
@@ -316,7 +427,7 @@
 }
 
 .al-btn-lifecycle[data-loading="true"]::after {
-  content: '';
+  content: "";
   display: inline-block;
   width: 0.875rem;
   height: 0.875rem;
@@ -333,7 +444,7 @@
 .al-skeleton {
   background: linear-gradient(
     90deg,
-    var(--theme-skeleton-base)  0%,
+    var(--theme-skeleton-base) 0%,
     var(--theme-skeleton-shine) 50%,
     var(--theme-skeleton-base) 100%
   );
@@ -343,8 +454,12 @@
 }
 
 @keyframes al-shimmer {
-  0%   { background-position: 200% center; }
-  100% { background-position: -200% center; }
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
 }
 
 /* ── Reduced motion — always respect this ─────────────────────── */

@@ -1,19 +1,26 @@
-import { Router, Request, Response } from 'express';
-import { isAuthenticatedForServer, requireSubUserPermission } from '../../../handlers/utils/auth/serverAuthUtil';
-import logger from '../../../handlers/logger';
-import { checkForServerInstallation } from '../../../handlers/checkForServerInstallation';
-import { getServerStatus } from '../../../handlers/utils/server/serverStatus';
-import { getParamAsString } from '../../../utils/typeHelpers';
-import prisma from '../../../db';
-import { daemonRequest } from '../../../handlers/utils/core/daemonRequest';
+import { Router, Request, Response } from "express";
+import {
+  isAuthenticatedForServer,
+  requireSubUserPermission,
+} from "../../../handlers/utils/auth/serverAuthUtil";
+import logger from "../../../handlers/logger";
+import { checkForServerInstallation } from "../../../handlers/checkForServerInstallation";
+import { getServerStatus } from "../../../handlers/utils/server/serverStatus";
+import { getParamAsString } from "../../../utils/typeHelpers";
+import prisma from "../../../db";
+import { daemonRequest } from "../../../handlers/utils/core/daemonRequest";
+import {
+  daemonPlayerListSchema,
+  parseDaemonResponse,
+} from "../../../platform/daemon/dtos";
 import {
   type ServerPageServer,
   getServerStatusInput,
   getImageFeatures,
   getPrimaryPort,
-} from './shared';
+} from "./shared";
 
-type PlayerServer = Pick<ServerPageServer, 'UUID' | 'Ports' | 'node' | 'image'>;
+type PlayerServer = Pick<ServerPageServer, "UUID" | "Ports" | "node" | "image">;
 
 export function registerPlayersRoutes(router: Router): void {
   // The daemon /minecraft/players handler pings host:port on the node address.
@@ -26,7 +33,7 @@ export function registerPlayersRoutes(router: Router): void {
     let serverInfo = {
       maxPlayers: 0,
       onlinePlayers: 0,
-      version: 'Unknown',
+      version: "Unknown",
     };
     let hadFetchError = false;
     let serverIsOnline = false;
@@ -36,15 +43,9 @@ export function registerPlayersRoutes(router: Router): void {
         `Fetching players for server ${server.UUID} on port ${primaryPort}`,
       );
 
-      const playersResponse = await daemonRequest<{
-        online?: boolean;
-        version?: string;
-        players?: Array<{ name: string; uuid: string }>;
-        maxPlayers?: number;
-        onlinePlayers?: number;
-      }>({
-        method: 'GET',
-        path: '/minecraft/players',
+      const playersResponse = await daemonRequest<unknown>({
+        method: "GET",
+        path: "/minecraft/players",
         nodeAddress: server.node.address,
         nodePort: server.node.port,
         nodeKey: server.node.key,
@@ -56,20 +57,25 @@ export function registerPlayersRoutes(router: Router): void {
         timeout: 8000,
       });
 
-      if (playersResponse.data) {
-        serverIsOnline =
-          typeof playersResponse.data.online === 'boolean'
-            ? playersResponse.data.online
-            : !!playersResponse.data.version;
+      const playersData = parseDaemonResponse(
+        daemonPlayerListSchema,
+        playersResponse.data,
+      );
 
-        if (Array.isArray(playersResponse.data.players)) {
-          players = playersResponse.data.players;
+      if (playersData) {
+        serverIsOnline =
+          typeof playersData.online === "boolean"
+            ? playersData.online
+            : !!playersData.version;
+
+        if (Array.isArray(playersData.players)) {
+          players = playersData.players;
         }
 
         serverInfo = {
-          maxPlayers: playersResponse.data.maxPlayers || 0,
-          onlinePlayers: playersResponse.data.onlinePlayers || 0,
-          version: playersResponse.data.version || 'Unknown',
+          maxPlayers: playersData.maxPlayers || 0,
+          onlinePlayers: playersData.onlinePlayers || 0,
+          version: playersData.version || "Unknown",
         };
 
         logger.info(`Successfully fetched server data for ${server.UUID}`);
@@ -77,18 +83,21 @@ export function registerPlayersRoutes(router: Router): void {
           `Server version: ${serverInfo.version}, Players: ${players.length} (${serverInfo.onlinePlayers}/${serverInfo.maxPlayers})`,
         );
         logger.info(
-          `Server online status: ${serverIsOnline ? 'Online' : 'Offline'}`,
+          `Server online status: ${serverIsOnline ? "Online" : "Offline"}`,
         );
       } else {
         logger.warn(`No valid data returned for server ${server.UUID}`);
         hadFetchError = true;
       }
     } catch (error: unknown) {
-      const errCode = error && typeof error === 'object' && 'code' in error ? String((error as { code: unknown }).code) : undefined;
+      const errCode =
+        error && typeof error === "object" && "code" in error
+          ? String((error as { code: unknown }).code)
+          : undefined;
       if (
-        errCode !== 'ECONNREFUSED' &&
-        errCode !== 'ETIMEDOUT' &&
-        errCode !== 'ENOTFOUND'
+        errCode !== "ECONNREFUSED" &&
+        errCode !== "ETIMEDOUT" &&
+        errCode !== "ENOTFOUND"
       ) {
         logger.error(
           `Error fetching players from daemon for server ${server.UUID}:`,
@@ -102,9 +111,9 @@ export function registerPlayersRoutes(router: Router): void {
   }
 
   router.get(
-    '/server/:id/players/data',
-    isAuthenticatedForServer('id'),
-    requireSubUserPermission('console'),
+    "/server/:id/players/data",
+    isAuthenticatedForServer("id"),
+    requireSubUserPermission("console"),
     async (req: Request, res: Response) => {
       const serverId = getParamAsString(req.params?.id);
 
@@ -115,14 +124,19 @@ export function registerPlayersRoutes(router: Router): void {
         });
 
         if (!server) {
-          res.status(404).json({ error: 'Server not found' });
+          res.status(404).json({ error: "Server not found" });
           return;
         }
 
         const primaryPort = getPrimaryPort(server.Ports);
 
         if (!primaryPort) {
-          res.json({ serverInfo: null, players: [], serverIsOnline: false, error: 'No primary port found' });
+          res.json({
+            serverInfo: null,
+            players: [],
+            serverIsOnline: false,
+            error: "No primary port found",
+          });
           return;
         }
 
@@ -133,19 +147,19 @@ export function registerPlayersRoutes(router: Router): void {
           players,
           serverInfo,
           serverIsOnline,
-          error: hadFetchError && !serverIsOnline ? 'unreachable' : null,
+          error: hadFetchError && !serverIsOnline ? "unreachable" : null,
         });
       } catch (error) {
-        logger.error('Error fetching players data:', error);
-        res.status(500).json({ error: 'Failed to get players data' });
+        logger.error("Error fetching players data:", error);
+        res.status(500).json({ error: "Failed to get players data" });
       }
     },
   );
 
   router.get(
-    '/server/:id/players',
-    isAuthenticatedForServer('id'),
-    requireSubUserPermission('console'),
+    "/server/:id/players",
+    isAuthenticatedForServer("id"),
+    requireSubUserPermission("console"),
     async (req: Request, res: Response) => {
       const userId = req.session?.user?.id;
       const serverId = req.params?.id;
@@ -153,7 +167,7 @@ export function registerPlayersRoutes(router: Router): void {
       try {
         const user = await prisma.users.findUnique({ where: { id: userId } });
         if (!user) {
-          res.status(404).json({ error: 'User not found' });
+          res.status(404).json({ error: "User not found" });
           return;
         }
 
@@ -163,7 +177,7 @@ export function registerPlayersRoutes(router: Router): void {
         });
 
         if (!server) {
-          res.status(404).json({ error: 'Server not found' });
+          res.status(404).json({ error: "Server not found" });
           return;
         }
 
@@ -172,11 +186,13 @@ export function registerPlayersRoutes(router: Router): void {
         const features = getImageFeatures(server.image);
 
         if (!primaryPort) {
-          return res.render('user/server/players', {
-            errorMessage: { message: 'No primary port found' },
+          return res.render("user/server/players", {
+            errorMessage: { message: "No primary port found" },
             user,
             features,
-            installed: await checkForServerInstallation(getParamAsString(serverId)),
+            installed: await checkForServerInstallation(
+              getParamAsString(serverId),
+            ),
             players: [],
             server,
             req,
@@ -189,29 +205,33 @@ export function registerPlayersRoutes(router: Router): void {
 
         const settings = await prisma.settings.findUnique({ where: { id: 1 } });
         const hasError = hadFetchError && !serverIsOnline;
-        const serverStatus = await getServerStatus(getServerStatusInput(server));
+        const serverStatus = await getServerStatus(
+          getServerStatusInput(server),
+        );
 
-        return res.render('user/server/players', {
+        return res.render("user/server/players", {
           errorMessage: hasError
             ? {
-              message:
-                  'Unable to fetch players. The server may be offline or not responding.',
-            }
+                message:
+                  "Unable to fetch players. The server may be offline or not responding.",
+              }
             : {},
           serverIsOnline,
           user,
           players,
           serverInfo,
           features,
-          installed: await checkForServerInstallation(getParamAsString(serverId)),
+          installed: await checkForServerInstallation(
+            getParamAsString(serverId),
+          ),
           server,
           serverStatus,
           req,
           settings,
         });
       } catch (error) {
-        logger.error('Error getting players:', error);
-        res.status(500).json({ error: 'Failed to get players' });
+        logger.error("Error getting players:", error);
+        res.status(500).json({ error: "Failed to get players" });
       }
     },
   );

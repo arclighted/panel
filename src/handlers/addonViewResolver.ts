@@ -11,14 +11,14 @@
  *      (defence in depth against any future caller passing a dotted name).
  */
 
-import path from 'path';
-import fs from 'fs';
+import path from "path";
+import fs from "fs";
 
 /** Pattern shared with addon identifiers: lowercase alnum, dash, ≤48 chars. */
 export const ADDON_SLUG_REGEX = /^[a-z0-9][a-z0-9-]{0,47}$/;
 
 export function isValidAddonSlug(slug: unknown): slug is string {
-  return typeof slug === 'string' && ADDON_SLUG_REGEX.test(slug);
+  return typeof slug === "string" && ADDON_SLUG_REGEX.test(slug);
 }
 
 /**
@@ -31,13 +31,20 @@ export function resolveAddonViewPath(
   slug: string,
   viewName: string,
 ): string | null {
-  if (!isValidAddonSlug(slug)) {return null;}
-  if (typeof viewName !== 'string' || viewName.length === 0) {return null;}
-  if (viewName.includes('\0') || viewName.split(/[\\/]/).some((seg) => seg === '..')) {
+  if (!isValidAddonSlug(slug)) {
+    return null;
+  }
+  if (typeof viewName !== "string" || viewName.length === 0) {
+    return null;
+  }
+  if (
+    viewName.includes("\0") ||
+    viewName.split(/[\\/]/).some((seg) => seg === "..")
+  ) {
     return null;
   }
 
-  const viewsBase = path.resolve(addonsRoot, slug, 'views');
+  const viewsBase = path.resolve(addonsRoot, slug, "views");
   const target = path.resolve(viewsBase, viewName);
 
   if (target !== viewsBase && !target.startsWith(viewsBase + path.sep)) {
@@ -45,9 +52,26 @@ export function resolveAddonViewPath(
   }
 
   try {
-    if (!fs.existsSync(target) || !fs.statSync(target).isFile()) {return null;}
+    if (!fs.existsSync(target) || !fs.statSync(target).isFile()) {
+      return null;
+    }
   } catch {
     return null;
   }
   return target;
+}
+
+/**
+ * Lists the slugs of installed addons that have a `views/` directory, newest
+ * last. Only slugs matching the addon identifier pattern are returned; the
+ * resolver never trusts request-derived names.
+ */
+export function getAddonDirs(addonsRoot: string): string[] {
+  if (!fs.existsSync(addonsRoot)) {
+    return [];
+  }
+  return fs
+    .readdirSync(addonsRoot, { withFileTypes: true })
+    .filter((d) => d.isDirectory() && isValidAddonSlug(d.name))
+    .map((d) => d.name);
 }

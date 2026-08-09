@@ -101,7 +101,7 @@
 .tab-content,
 .m-pane {
   transition:
-    opacity   0.38s cubic-bezier(0.16, 1, 0.3, 1),
+    opacity 0.38s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.38s cubic-bezier(0.16, 1, 0.3, 1);
   transition-behavior: allow-discrete;
 }
@@ -170,7 +170,7 @@
 #server-page-body > * {
   transition:
     transform 0.36s cubic-bezier(0.16, 1, 0.3, 1),
-    opacity   0.36s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.36s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 /* ── Server & folder card load-in ─────────────────────────────────────────
@@ -184,8 +184,14 @@
 }
 
 @keyframes card-enter {
-  from { opacity: 0; transform: translateY(8px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 /* ── All table rows load-in ──────────────────────────────────────────────*/
@@ -208,8 +214,14 @@ tbody tr {
 }
 
 @keyframes row-enter {
-  from { opacity: 0; transform: translateX(-4px); }
-  to   { opacity: 1; transform: translateX(0); }
+  from {
+    opacity: 0;
+    transform: translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* ── All grid items load-in ─────────────────────────────────────────────*/
@@ -220,8 +232,12 @@ tbody tr {
 
 /* ── Skeleton shimmer ───────────────────────────────────────────────────*/
 @keyframes skeleton-shimmer {
-  0%   { background-position: -200% 0; }
-  100% { background-position: 200% 0; }
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
 }
 
 .skeleton {
@@ -239,19 +255,39 @@ tbody tr {
 .dark .skeleton {
   background: linear-gradient(
     90deg,
-    rgba(255,255,255,0.04) 25%,
-    rgba(255,255,255,0.08) 50%,
-    rgba(255,255,255,0.04) 75%
+    rgba(255, 255, 255, 0.04) 25%,
+    rgba(255, 255, 255, 0.08) 50%,
+    rgba(255, 255, 255, 0.04) 75%
   );
   background-size: 200% 100%;
 }
 
-.skeleton-text     { height: 12px; width: 60%; }
-.skeleton-text-sm  { height: 10px; width: 40%; }
-.skeleton-title    { height: 16px; width: 80%; }
-.skeleton-avatar   { width: 36px; height: 36px; border-radius: 50%; }
-.skeleton-card     { height: 80px; width: 100%; }
-.skeleton-row      { height: 48px; width: 100%; margin-bottom: 4px; }
+.skeleton-text {
+  height: 12px;
+  width: 60%;
+}
+.skeleton-text-sm {
+  height: 10px;
+  width: 40%;
+}
+.skeleton-title {
+  height: 16px;
+  width: 80%;
+}
+.skeleton-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+}
+.skeleton-card {
+  height: 80px;
+  width: 100%;
+}
+.skeleton-row {
+  height: 48px;
+  width: 100%;
+  margin-bottom: 4px;
+}
 
 /* ── Stats cards load-in ──────────────────────────────────────────────────*/
 .stats-card {
@@ -281,12 +317,14 @@ img {
   transition: none !important;
 }
 
-/* Respect user's motion preference */
+/* Respect user's motion preference — collapse animations only, preserve transitions
+   for focus visibility, state feedback, and reduced-motion-appropriate motion. */
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
   }
 }

@@ -1,14 +1,31 @@
-import session from 'express-session';
-import prisma from '../db';
+import session from "express-session";
+import prisma from "../db";
 
 // Use the express-session SessionData type directly
 type SessionData = session.SessionData;
 
 class PrismaSessionStore extends session.Store {
-  async get(sid: string, callback: (err: Error | null, session?: SessionData) => void) {
+  async get(
+    sid: string,
+    callback: (err: Error | null, session?: SessionData) => void,
+  ) {
     try {
-      const row = await prisma.session.findUnique({ where: { session_id: sid } });
-      callback(null, row ? (JSON.parse(row.data) as SessionData) : undefined);
+      const row = await prisma.session.findUnique({
+        where: { session_id: sid },
+      });
+      if (!row) {
+        callback(null, undefined);
+        return;
+      }
+      // Delete expired sessions — prevents DB bloat from abandoned sessions.
+      if (row.expires && row.expires < new Date()) {
+        await prisma.session
+          .delete({ where: { session_id: sid } })
+          .catch(() => {});
+        callback(null, undefined);
+        return;
+      }
+      callback(null, JSON.parse(row.data) as SessionData);
     } catch (err) {
       callback(err as Error);
     }

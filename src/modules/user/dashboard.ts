@@ -1,11 +1,15 @@
-import { Router, Request, Response } from 'express';
-import { Module } from '../../handlers/moduleInit';
-import prisma from '../../db';
-import { isAuthenticated } from '../../handlers/utils/auth/authUtil';
-import { getUser } from '../../handlers/utils/user/user';
-import logger from '../../handlers/logger';
-import { daemonRequest } from '../../handlers/utils/core/daemonRequest';
-import type { ErrorMessage } from './server/shared';
+import { Router, Request, Response } from "express";
+import { Module } from "../../handlers/moduleInit";
+import prisma from "../../db";
+import { isAuthenticated } from "../../handlers/utils/auth/authUtil";
+import { getUser } from "../../handlers/utils/user/user";
+import logger from "../../handlers/logger";
+import { daemonRequest } from "../../handlers/utils/core/daemonRequest";
+import {
+  containerStatusSchema,
+  parseDaemonResponse,
+} from "../../platform/daemon/dtos";
+import type { ErrorMessage } from "./server/shared";
 
 interface ServerSnapshot {
   status: string;
@@ -40,16 +44,21 @@ const nodeHealthFetches = new Map<number, Promise<CachedNodeHealth>>();
 const serverSnapshotFetches = new Map<string, Promise<CachedServerSnapshot>>();
 
 function errCodeToReason(code?: string): string {
-  return code === 'ECONNREFUSED'
-    ? 'daemon unreachable'
-    : code === 'ETIMEDOUT' || code === 'ECONNABORTED'
-      ? 'connection timed out'
-      : code === 'ENOTFOUND'
-        ? 'host not found'
-        : 'unreachable';
+  return code === "ECONNREFUSED"
+    ? "daemon unreachable"
+    : code === "ETIMEDOUT" || code === "ECONNABORTED"
+      ? "connection timed out"
+      : code === "ENOTFOUND"
+        ? "host not found"
+        : "unreachable";
 }
 
-function checkNodeHealth(node: { id: number; address: string; port: number; key: string }): Promise<CachedNodeHealth> {
+function checkNodeHealth(node: {
+  id: number;
+  address: string;
+  port: number;
+  key: string;
+}): Promise<CachedNodeHealth> {
   if (nodeHealthFetches.has(node.id)) return nodeHealthFetches.get(node.id)!;
   const fetch = (async () => {
     const checkedAt = Date.now();
@@ -58,16 +67,23 @@ function checkNodeHealth(node: { id: number; address: string; port: number; key:
         nodeAddress: node.address,
         nodePort: node.port,
         nodeKey: node.key,
-        method: 'GET',
-        path: '/',
+        method: "GET",
+        path: "/",
         timeout: 2000,
       });
       const health: CachedNodeHealth = { online: true, checkedAt };
       nodeHealthCache.set(node.id, health);
       return health;
     } catch (err: unknown) {
-      const code = err && typeof err === 'object' && 'code' in err ? String((err as { code: unknown }).code) : undefined;
-      const health: CachedNodeHealth = { online: false, reason: errCodeToReason(code), checkedAt };
+      const code =
+        err && typeof err === "object" && "code" in err
+          ? String((err as { code: unknown }).code)
+          : undefined;
+      const health: CachedNodeHealth = {
+        online: false,
+        reason: errCodeToReason(code),
+        checkedAt,
+      };
       nodeHealthCache.set(node.id, health);
       return health;
     }
@@ -85,30 +101,36 @@ function fetchServerSnapshot(
   const fetch = (async () => {
     const fetchedAt = Date.now();
     const snapshot: CachedServerSnapshot = {
-      status: 'unknown',
+      status: "unknown",
       dockerStatus: null,
-      ramUsage: '0',
-      cpuUsage: '0',
-      ramUsed: '0MB',
+      ramUsage: "0",
+      cpuUsage: "0",
+      ramUsed: "0MB",
       nodeOffline: true,
       fetchedAt,
     };
     try {
-      const statusResponse = await daemonRequest({
+      const statusResponse = await daemonRequest<unknown>({
         nodeAddress: node.address,
         nodePort: node.port,
         nodeKey: node.key,
-        method: 'GET',
-        path: '/container/status',
+        method: "GET",
+        path: "/container/status",
         params: { id: uuid },
         timeout: 2000,
       });
 
-      const data = statusResponse.data as { running?: boolean; status?: string } | undefined;
+      const data = parseDaemonResponse(
+        containerStatusSchema,
+        statusResponse.data,
+      );
       const isRunning = data?.running === true;
-      snapshot.status = isRunning ? 'running' : 'stopped';
+      snapshot.status = isRunning ? "running" : "stopped";
       const dockerStatus = data?.status;
-      snapshot.dockerStatus = typeof dockerStatus === 'string' && dockerStatus.length > 0 ? dockerStatus : null;
+      snapshot.dockerStatus =
+        typeof dockerStatus === "string" && dockerStatus.length > 0
+          ? dockerStatus
+          : null;
       snapshot.nodeOffline = false;
 
       if (isRunning) {
@@ -117,8 +139,8 @@ function fetchServerSnapshot(
             nodeAddress: node.address,
             nodePort: node.port,
             nodeKey: node.key,
-            method: 'GET',
-            path: '/container/stats',
+            method: "GET",
+            path: "/container/stats",
             params: { id: uuid },
             timeout: 2000,
           });
@@ -135,22 +157,29 @@ function fetchServerSnapshot(
 
             const memUsageBytes = statsData.memory?.usage || 0;
             const memUsageMB = memUsageBytes / (1024 * 1024);
-            snapshot.ramUsed = memUsageMB >= 1024
-              ? `${(memUsageMB / 1024).toFixed(1)}GB`
-              : `${memUsageMB.toFixed(0)}MB`;
+            snapshot.ramUsed =
+              memUsageMB >= 1024
+                ? `${(memUsageMB / 1024).toFixed(1)}GB`
+                : `${memUsageMB.toFixed(0)}MB`;
           }
         } catch (statsError) {
-          if (statsError instanceof Error && 'status' in statsError) {
+          if (statsError instanceof Error && "status" in statsError) {
             const httpErr = statsError as { code?: string };
             if (
-              httpErr.code !== 'ECONNREFUSED' &&
-              httpErr.code !== 'ETIMEDOUT' &&
-              httpErr.code !== 'ENOTFOUND'
+              httpErr.code !== "ECONNREFUSED" &&
+              httpErr.code !== "ETIMEDOUT" &&
+              httpErr.code !== "ENOTFOUND"
             ) {
-              logger.error(`Error fetching stats for server ${uuid}:`, statsError);
+              logger.error(
+                `Error fetching stats for server ${uuid}:`,
+                statsError,
+              );
             }
           } else {
-            logger.error(`Error fetching stats for server ${uuid}:`, statsError);
+            logger.error(
+              `Error fetching stats for server ${uuid}:`,
+              statsError,
+            );
           }
         }
       }
@@ -179,7 +208,9 @@ function getNodeHealth(
   if (cached && Date.now() - cached.checkedAt < NODE_TTL) return cached;
   if (cached) {
     if (revalidate) {
-      checkNodeHealth(node).catch((err) => logger.warn('Background node health revalidation failed:', err));
+      checkNodeHealth(node).catch((err) =>
+        logger.warn("Background node health revalidation failed:", err),
+      );
     }
     return cached;
   }
@@ -195,7 +226,9 @@ function getServerSnapshot(
   if (cached && Date.now() - cached.fetchedAt < SERVER_TTL) return cached;
   if (cached) {
     if (revalidate) {
-      fetchServerSnapshot(node, server.UUID).catch((err) => logger.warn('Background server snapshot revalidation failed:', err));
+      fetchServerSnapshot(node, server.UUID).catch((err) =>
+        logger.warn("Background server snapshot revalidation failed:", err),
+      );
     }
     return cached;
   }
@@ -204,18 +237,18 @@ function getServerSnapshot(
 
 const dashboardModule: Module = {
   info: {
-    name: 'Dashboard Module',
-    description: 'This file is for dashboard functionality.',
-    version: '2.0.0',
-    moduleVersion: '1.0.0',
-    author: 'AirLinkLab',
-    license: 'MIT',
+    name: "Dashboard Module",
+    description: "This file is for dashboard functionality.",
+    version: "2.0.0",
+    moduleVersion: "1.0.0",
+    author: "AirLinkLab",
+    license: "MIT",
   },
 
   router: () => {
     const router = Router();
 
-    router.get('/', isAuthenticated(), async (req: Request, res: Response) => {
+    router.get("/", isAuthenticated(), async (req: Request, res: Response) => {
       const errorMessage: ErrorMessage = {};
       const userId = req.session?.user?.id;
       try {
@@ -224,8 +257,8 @@ const dashboardModule: Module = {
           prisma.settings.findUnique({ where: { id: 1 } }),
         ]);
         if (!user) {
-          errorMessage.message = 'User not found.';
-          res.render('user/dashboard', { errorMessage, user, req });
+          errorMessage.message = "User not found.";
+          res.render("user/dashboard", { errorMessage, user, req });
           return;
         }
 
@@ -235,7 +268,8 @@ const dashboardModule: Module = {
           !user.onboardingSkipped,
         );
         res.locals.needsOnboarding = needsOnboarding;
-        res.locals.canCreateServerForOnboarding = !user.isAdmin && (settings?.allowUserCreateServer ?? false);
+        res.locals.canCreateServerForOnboarding =
+          !user.isAdmin && (settings?.allowUserCreateServer ?? false);
 
         const servers = await prisma.server.findMany({
           where: { ownerId: user.id },
@@ -258,7 +292,7 @@ const dashboardModule: Module = {
 
         let page: number = 1;
 
-        if (typeof req.query.page === 'string') {
+        if (typeof req.query.page === "string") {
           page = parseInt(req.query.page, 10);
         }
 
@@ -285,30 +319,39 @@ const dashboardModule: Module = {
           const folders = await prisma.serverFolder.findMany({
             where: { ownerId: user.id },
             include: { members: true },
-            orderBy: { createdAt: 'asc' },
+            orderBy: { createdAt: "asc" },
           });
-          const settings2 = await prisma.settings.findUnique({ where: { id: 1 } });
-          const userServerLimit = user.serverLimit !== null && user.serverLimit !== undefined
-            ? user.serverLimit
-            : (settings2?.defaultServerLimit ?? 0);
-          const canCreateServer = !user.isAdmin && (settings2?.allowUserCreateServer ?? false) && userServerLimit > 0;
+          const settings2 = await prisma.settings.findUnique({
+            where: { id: 1 },
+          });
+          const userServerLimit =
+            user.serverLimit !== null && user.serverLimit !== undefined
+              ? user.serverLimit
+              : (settings2?.defaultServerLimit ?? 0);
+          const canCreateServer =
+            !user.isAdmin &&
+            (settings2?.allowUserCreateServer ?? false) &&
+            userServerLimit > 0;
 
           const offlineNodes = mergedServers
             .filter((s) => !nodeStatuses[s.node.id]?.online)
-            .reduce<Record<number, { name: string; reason: string }>>((acc, s) => {
-              if (!acc[s.node.id]) {
-                acc[s.node.id] = {
-                  name: s.node.name,
-                  reason: nodeStatuses[s.node.id]?.reason ?? 'unreachable',
-                };
-              }
-              return acc;
-            }, {});
+            .reduce<Record<number, { name: string; reason: string }>>(
+              (acc, s) => {
+                if (!acc[s.node.id]) {
+                  acc[s.node.id] = {
+                    name: s.node.name,
+                    reason: nodeStatuses[s.node.id]?.reason ?? "unreachable",
+                  };
+                }
+                return acc;
+              },
+              {},
+            );
 
-          return res.render('user/dashboard', {
+          return res.render("user/dashboard", {
             errorMessage: {
               message:
-                'One or more nodes are offline. Some server information may be unavailable.',
+                "One or more nodes are offline. Some server information may be unavailable.",
             },
             user,
             req,
@@ -334,16 +377,20 @@ const dashboardModule: Module = {
             ) {
               return {
                 ...server,
-                status: 'unknown',
+                status: "unknown",
                 dockerStatus: null,
-                ramUsage: '0',
-                cpuUsage: '0',
-                ramUsed: '0MB',
+                ramUsage: "0",
+                cpuUsage: "0",
+                ramUsed: "0MB",
                 nodeOffline: true,
               };
             }
 
-            const snapshot = await getServerSnapshot(server.node, server, revalidate);
+            const snapshot = await getServerSnapshot(
+              server.node,
+              server,
+              revalidate,
+            );
 
             return {
               ...server,
@@ -362,16 +409,22 @@ const dashboardModule: Module = {
         const folders = await prisma.serverFolder.findMany({
           where: { ownerId: user.id },
           include: { members: true },
-          orderBy: { createdAt: 'asc' },
+          orderBy: { createdAt: "asc" },
         });
 
-        const settings2 = await prisma.settings.findUnique({ where: { id: 1 } });
-        const userServerLimit = user.serverLimit !== null && user.serverLimit !== undefined
-          ? user.serverLimit
-          : (settings2?.defaultServerLimit ?? 0);
-        const canCreateServer = !user.isAdmin && (settings2?.allowUserCreateServer ?? false) && userServerLimit > 0;
+        const settings2 = await prisma.settings.findUnique({
+          where: { id: 1 },
+        });
+        const userServerLimit =
+          user.serverLimit !== null && user.serverLimit !== undefined
+            ? user.serverLimit
+            : (settings2?.defaultServerLimit ?? 0);
+        const canCreateServer =
+          !user.isAdmin &&
+          (settings2?.allowUserCreateServer ?? false) &&
+          userServerLimit > 0;
 
-        res.render('user/dashboard', {
+        res.render("user/dashboard", {
           errorMessage,
           user,
           req,
@@ -382,12 +435,12 @@ const dashboardModule: Module = {
           canCreateServer,
           currentPage: page,
           totalPages: Math.ceil(mergedServers.length / perPage),
-          title: 'Servers',
+          title: "Servers",
         });
       } catch (error) {
-        logger.error('Error fetching user:', error);
-        errorMessage.message = 'Error fetching user data.';
-        res.render('user/dashboard', {
+        logger.error("Error fetching user:", error);
+        errorMessage.message = "Error fetching user data.";
+        res.render("user/dashboard", {
           errorMessage,
           user: getUser(req),
           req,
@@ -399,6 +452,5 @@ const dashboardModule: Module = {
     return router;
   },
 };
-
 
 export default dashboardModule;
