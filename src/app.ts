@@ -401,10 +401,10 @@ app.use((_req, res, next) => {
   res.locals.airlinkVersion = airlinkVersion;
   res.locals.airlinkCodename = airlinkCodename;
   res.locals.icon = icon;
-  global.uiComponentStore = uiComponentStore;
-  global.appName = name;
-  global.airlinkVersion = airlinkVersion;
-  global.airlinkCodename = airlinkCodename;
+  globalThis.uiComponentStore = uiComponentStore;
+  globalThis.appName = name;
+  globalThis.airlinkVersion = airlinkVersion;
+  globalThis.airlinkCodename = airlinkCodename;
 
   res.locals.adminMenuItems = uiComponentStore.getSidebarItems(undefined, true);
   res.locals.regularMenuItems = uiComponentStore.getSidebarItems(
