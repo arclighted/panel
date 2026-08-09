@@ -48,29 +48,37 @@ describe('CSP configuration in app.ts', () => {
   });
 });
 
-describe('Security headers in daemon hmac.ts', () => {
-  const hmacSrc = fs.readFileSync(
-    path.join(ROOT, '..', 'daemon', 'src', 'security', 'hmac.ts'),
-    'utf8',
-  );
+// The daemon is a sibling repository. Skip these checks when it is not
+// checked out next to the panel (e.g. in CI, which only has the panel repo).
+const DAEMON_HMAC_PATH = path.join(ROOT, '..', 'daemon', 'src', 'security', 'hmac.ts');
 
-  it('sets X-Content-Type-Options to nosniff', () => {
-    expect(hmacSrc).toContain('\'X-Content-Type-Options\'');
-    expect(hmacSrc).toContain('\'nosniff\'');
-  });
+describe.skipIf(!fs.existsSync(DAEMON_HMAC_PATH))(
+  'Security headers in daemon hmac.ts',
+  () => {
+    // Skipped suites still run their callback during collection, so the
+    // read itself must be guarded (no throw when the daemon is absent).
+    const hmacSrc = fs.existsSync(DAEMON_HMAC_PATH)
+      ? fs.readFileSync(DAEMON_HMAC_PATH, 'utf8')
+      : '';
 
-  it('sets X-Frame-Options to DENY', () => {
-    expect(hmacSrc).toContain('\'X-Frame-Options\'');
-    expect(hmacSrc).toContain('\'DENY\'');
-  });
+    it('sets X-Content-Type-Options to nosniff', () => {
+      expect(hmacSrc).toContain('\'X-Content-Type-Options\'');
+      expect(hmacSrc).toContain('\'nosniff\'');
+    });
 
-  it('sets Referrer-Policy to no-referrer', () => {
-    expect(hmacSrc).toContain('\'Referrer-Policy\'');
-    expect(hmacSrc).toContain('\'no-referrer\'');
-  });
+    it('sets X-Frame-Options to DENY', () => {
+      expect(hmacSrc).toContain('\'X-Frame-Options\'');
+      expect(hmacSrc).toContain('\'DENY\'');
+    });
 
-  it('sets Cache-Control to no-store', () => {
-    expect(hmacSrc).toContain('\'Cache-Control\'');
-    expect(hmacSrc).toContain('\'no-store\'');
-  });
-});
+    it('sets Referrer-Policy to no-referrer', () => {
+      expect(hmacSrc).toContain('\'Referrer-Policy\'');
+      expect(hmacSrc).toContain('\'no-referrer\'');
+    });
+
+    it('sets Cache-Control to no-store', () => {
+      expect(hmacSrc).toContain('\'Cache-Control\'');
+      expect(hmacSrc).toContain('\'no-store\'');
+    });
+  },
+);
