@@ -35,13 +35,27 @@
  * page loader overlay.
  */
 (function () {
-  'use strict';
+  "use strict";
 
-  var T = (typeof window !== 'undefined' && window.Turbo) || null;
-
-  var raf = (typeof requestAnimationFrame === 'function')
-    ? requestAnimationFrame
-    : function (fn) { return setTimeout(fn, 0); };
+  var T = (typeof window !== "undefined" && window.Turbo) || null;
+  // ALMount must always exist (even if Turbo is absent), so page scripts can
+  // rely on it without splitting init paths.
+  if (typeof window.ALMount !== "function") {
+    window.ALMount = function (fn) {
+      if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", fn);
+      } else {
+        fn();
+      }
+      return fn;
+    };
+  }
+  var raf =
+    typeof requestAnimationFrame === "function"
+      ? requestAnimationFrame
+      : function (fn) {
+          return setTimeout(fn, 0);
+        };
 
   /* ------------------------------------------------------------------ *
    * ALMount — per-rendition mount queue (replaces DOMContentLoaded)
@@ -51,7 +65,7 @@
   var flushing = false;
 
   window.ALMount = function (fn) {
-    if (typeof fn === 'function') {
+    if (typeof fn === "function") {
       mounts.push(fn);
       scheduleFlush();
     }
@@ -71,7 +85,11 @@
     var pending = mounts;
     mounts = [];
     for (var i = 0; i < pending.length; i++) {
-      try { pending[i](); } catch (e) { /* a page must never kill the shell */ }
+      try {
+        pending[i]();
+      } catch (e) {
+        /* a page must never kill the shell */
+      }
     }
   }
 
@@ -80,19 +98,23 @@
      ------------------------------------------------------------------ */
 
   function dispatchNavigated() {
-    if (document.readyState === 'loading') return;
-    document.dispatchEvent(new CustomEvent('al:navigated'));
+    if (document.readyState === "loading") return;
+    document.dispatchEvent(new CustomEvent("al:navigated"));
   }
 
   var navHandlers = Object.create(null);
   window.alOnNavigated = function (key, fn) {
-    navHandlers[key] = fn;   // replaces, never stacks
+    navHandlers[key] = fn; // replaces, never stacks
     return fn;
   };
 
   function runNavHandlers() {
     for (var k in navHandlers) {
-      try { navHandlers[k](); } catch (e) { /* isolate */ }
+      try {
+        navHandlers[k]();
+      } catch (e) {
+        /* isolate */
+      }
     }
   }
 
@@ -104,23 +126,34 @@
 
   function box(target) {
     var owner = target;
-    var key = target === window ? 'window' : (target === document ? 'document' : target.id);
-    return listenerRegistry[key] || (listenerRegistry[key] = Object.create(null));
+    var key =
+      target === window
+        ? "window"
+        : target === document
+          ? "document"
+          : target.id;
+    return (
+      listenerRegistry[key] || (listenerRegistry[key] = Object.create(null))
+    );
   }
 
   window.alListener = function (target, event, key, fn) {
-    var invokerKey = '__alInvoker';
+    var invokerKey = "__alInvoker";
     var registr = box(target);
     var hand = registr[event] || (registr[event] = Object.create(null));
     hand[key] = fn;
     // Attach a single dispatcher per (target, event).
-    if (!target['__alInvoker' + event]) {
-      target['__alInvoker' + event] = true;
+    if (!target["__alInvoker" + event]) {
+      target["__alInvoker" + event] = true;
       target.addEventListener(event, function (e) {
         var current = box(target)[event];
         if (!current) return;
         for (var k in current) {
-          try { current[k](e); } catch (err) { /* isolate */ }
+          try {
+            current[k](e);
+          } catch (err) {
+            /* isolate */
+          }
         }
       });
     }
@@ -137,8 +170,8 @@
    *  Timing: initial document + every turbo:load
    * ------------------------------------------------------------------ */
 
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', function () {
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", function () {
       runMounts();
       dispatchNavigated();
       runNavHandlers();
@@ -149,8 +182,10 @@
     runNavHandlers();
   }
 
-  document.addEventListener('turbo:render', function () { scheduleFlush(); });
-  document.addEventListener('turbo:load', function () {
+  document.addEventListener("turbo:render", function () {
+    scheduleFlush();
+  });
+  document.addEventListener("turbo:load", function () {
     scheduleFlush();
     dispatchNavigated();
     runNavHandlers();
@@ -158,8 +193,10 @@
 
   // Before the refresh body arrives, drop the previous page's keyed listener
   // handlers so nothing leaks into the new rendition.
-  document.addEventListener('turbo:before-render', function () { dropPageKeyedListeners(); });
+  document.addEventListener("turbo:before-render", function () {
+    dropPageKeyedListeners();
+  });
 
-  window.ALTurboAvailable = !!(typeof window !== 'undefined' && window.Turbo);
+  window.ALTurboAvailable = !!(typeof window !== "undefined" && window.Turbo);
   window.ALTurboEnabled = !!(T && T.session && T.session.drive);
 })();
