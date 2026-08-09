@@ -1,11 +1,11 @@
-import { Database } from "bun:sqlite";
-import { existsSync, readFileSync, readdirSync, statfsSync, statSync, openSync, readSync, closeSync } from "node:fs";
-import crypto from "node:crypto";
+import { Database } from 'bun:sqlite';
+import { existsSync, readFileSync, readdirSync, statfsSync, statSync, openSync, readSync, closeSync } from 'node:fs';
+import crypto from 'node:crypto';
 
 const TUI_DIR = __dirname;
 const DB_PATH = process.env.AIRLINK_DB_PATH ?? `${TUI_DIR}/../../../storage/dev.db`;
 const LOG_DIR = process.env.AIRLINK_LOG_DIR ?? `${TUI_DIR}/../../logs`;
-export const PANEL_URL = process.env.AIRLINK_PANEL_URL ?? "http://127.0.0.1:3000";
+export const PANEL_URL = process.env.AIRLINK_PANEL_URL ?? 'http://127.0.0.1:3000';
 
 let db: Database | null | undefined;
 function openDb(): Database | null {
@@ -72,37 +72,37 @@ let prevCpu: CpuSample | null = null;
 let prevNet: { time: number; byIface: Map<string, { rx: number; tx: number }> } | null = null;
 
 function readCpu(): CpuSample {
-  const parts = (readFileSync("/proc/stat", "utf8").split("\n")[0] ?? "").split(/\s+/).slice(1).map(Number);
+  const parts = (readFileSync('/proc/stat', 'utf8').split('\n')[0] ?? '').split(/\s+/).slice(1).map(Number);
   const idle = (parts[3] ?? 0) + (parts[4] ?? 0);
   return { total: parts.reduce((a, b) => a + b, 0), idle };
 }
 
 function readMem(): { totalKb: number; availKb: number; swapTotalKb: number; swapFreeKb: number } {
-  const text = readFileSync("/proc/meminfo", "utf8");
+  const text = readFileSync('/proc/meminfo', 'utf8');
   const get = (key: string) => {
-    const m = text.match(new RegExp(`^${key}:\\s+(\\d+)`, "m"));
+    const m = text.match(new RegExp(`^${key}:\\s+(\\d+)`, 'm'));
     return m ? Number(m[1]) : 0;
   };
   return {
-    totalKb: get("MemTotal"),
-    availKb: get("MemAvailable"),
-    swapTotalKb: get("SwapTotal"),
-    swapFreeKb: get("SwapFree"),
+    totalKb: get('MemTotal'),
+    availKb: get('MemAvailable'),
+    swapTotalKb: get('SwapTotal'),
+    swapFreeKb: get('SwapFree'),
   };
 }
 
 function readNetDev(now: number): { iface: string; rxBps: number; txBps: number }[] {
-  let text = "";
+  let text = '';
   try {
-    text = readFileSync("/proc/net/dev", "utf8");
+    text = readFileSync('/proc/net/dev', 'utf8');
   } catch {
     return [];
   }
   const cur = new Map<string, { rx: number; tx: number }>();
-  for (const line of text.split("\n").slice(2)) {
-    const [head, rest] = line.split(":");
+  for (const line of text.split('\n').slice(2)) {
+    const [head, rest] = line.split(':');
     const iface = head?.trim();
-    if (!iface || iface === "lo") continue;
+    if (!iface || iface === 'lo') {continue;}
     const nums = rest?.trim().split(/\s+/).map(Number) ?? [];
     cur.set(iface, { rx: nums[0] ?? 0, tx: nums[8] ?? 0 });
   }
@@ -111,10 +111,10 @@ function readNetDev(now: number): { iface: string; rxBps: number; txBps: number 
     const dt = (now - prevNet.time) / 1000;
     for (const [iface, v] of cur) {
       const p = prevNet.byIface.get(iface);
-      if (!p || dt <= 0) continue;
+      if (!p || dt <= 0) {continue;}
       const rxBps = Math.max(0, (v.rx - p.rx) / dt);
       const txBps = Math.max(0, (v.tx - p.tx) / dt);
-      if (rxBps > 0 || txBps > 0) out.push({ iface, rxBps, txBps });
+      if (rxBps > 0 || txBps > 0) {out.push({ iface, rxBps, txBps });}
     }
   }
   prevNet = { time: now, byIface: cur };
@@ -125,7 +125,7 @@ function readNetDev(now: number): { iface: string; rxBps: number; txBps: number 
 export async function measureRtt(url: string, ms: number): Promise<number | null> {
   try {
     const started = Date.now();
-    await fetch(url, { method: "HEAD", signal: AbortSignal.timeout(ms) });
+    await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(ms) });
     return Date.now() - started;
   } catch {
     return null;
@@ -134,12 +134,12 @@ export async function measureRtt(url: string, ms: number): Promise<number | null
 
 function hmacSign(key: string, method: string, path: string, body: string, timestamp: number, nonce: string): string {
   const payload = `${timestamp}:${nonce}:${method.toUpperCase()}:${path}:${body}`;
-  return crypto.createHmac("sha256", key).update(payload).digest("hex");
+  return crypto.createHmac('sha256', key).update(payload).digest('hex');
 }
 
 export async function probe(url: string, ms: number): Promise<boolean> {
   try {
-    await fetch(url, { method: "HEAD", signal: AbortSignal.timeout(ms) });
+    await fetch(url, { method: 'HEAD', signal: AbortSignal.timeout(ms) });
     return true;
   } catch {
     return false;
@@ -147,14 +147,14 @@ export async function probe(url: string, ms: number): Promise<boolean> {
 }
 
 export function panelPid(): { pid: number | null; uptimeSec: number | null } {
-  const sysUptime = Number(readFileSync("/proc/uptime", "utf8").split(" ")[0]);
-  for (const entry of readdirSync("/proc")) {
-    if (!/^\d+$/.test(entry)) continue;
+  const sysUptime = Number(readFileSync('/proc/uptime', 'utf8').split(' ')[0]);
+  for (const entry of readdirSync('/proc')) {
+    if (!/^\d+$/.test(entry)) {continue;}
     try {
-      const cmdline = readFileSync(`/proc/${entry}/cmdline`, "utf8");
-      if (!cmdline.includes("dist/app.js")) continue;
-      const stat = readFileSync(`/proc/${entry}/stat`, "utf8");
-      const startJiffies = Number(stat.split(" ")[21]);
+      const cmdline = readFileSync(`/proc/${entry}/cmdline`, 'utf8');
+      if (!cmdline.includes('dist/app.js')) {continue;}
+      const stat = readFileSync(`/proc/${entry}/stat`, 'utf8');
+      const startJiffies = Number(stat.split(' ')[21]);
       return { pid: Number(entry), uptimeSec: Math.floor(sysUptime - startJiffies / 100) };
     } catch {
       /* process may have exited */
@@ -165,15 +165,15 @@ export function panelPid(): { pid: number | null; uptimeSec: number | null } {
 
 function countErrors24h(): number {
   const path = `${LOG_DIR}/combined.log`;
-  if (!existsSync(path)) return 0;
+  if (!existsSync(path)) {return 0;}
   const size = statSync(path).size;
   const chunk = size > 524288 ? 524288 : size;
-  const fd = openSync(path, "r");
-  let text = "";
+  const fd = openSync(path, 'r');
+  let text = '';
   try {
     const buf = Buffer.alloc(chunk);
     readSync(fd, buf, 0, chunk, size - chunk);
-    text = buf.toString("utf8");
+    text = buf.toString('utf8');
   } finally {
     closeSync(fd);
   }
@@ -183,11 +183,11 @@ function countErrors24h(): number {
   let m: RegExpExecArray | null;
   let lastIdx = 0;
   while ((m = re.exec(text)) !== null) {
-    const ts = Date.parse(m[1] + "Z");
-    if (Number.isNaN(ts)) continue;
+    const ts = Date.parse(`${m[1]  }Z`);
+    if (Number.isNaN(ts)) {continue;}
     if (ts >= cutoff) {
       const line = text.slice(lastIdx, m.index);
-      if (/ERROR|Error/.test(line)) count++;
+      if (/ERROR|Error/.test(line)) {count++;}
       lastIdx = m.index;
     }
   }
@@ -219,28 +219,28 @@ async function daemonStatus(): Promise<{
     nodeKeyPrefix: null,
     lastDaemonCheckAtMs: null,
   } as const;
-  if (!database) return { ...empty };
+  if (!database) {return { ...empty };}
   let node: NodeRow | undefined;
   try {
-    const row = database.query("SELECT name, address, port, key FROM Node LIMIT 1").get() as
+    const row = database.query('SELECT name, address, port, key FROM Node LIMIT 1').get() as
       | { name: unknown; address: unknown; port: unknown; key: unknown }
       | undefined;
-    if (!row) return { ...empty };
+    if (!row) {return { ...empty };}
     node = {
-      name: String(row.name ?? ""),
-      address: String(row.address ?? ""),
+      name: String(row.name ?? ''),
+      address: String(row.address ?? ''),
       port: Number(row.port ?? 0),
-      key: String(row.key ?? ""),
+      key: String(row.key ?? ''),
     };
   } catch {
     return { ...empty };
   }
-  if (!node) return { ...empty };
+  if (!node) {return { ...empty };}
   const checkedAt = Date.now();
   const rttPromise = node.address ? measureRtt(`http://${node.address}:${node.port}/healthz`, 1500) : Promise.resolve(null);
   let server: { name: unknown; UUID: unknown } | undefined;
   try {
-    server = database.query("SELECT name, UUID FROM Server LIMIT 1").get() as
+    server = database.query('SELECT name, UUID FROM Server LIMIT 1').get() as
       | { name: unknown; UUID: unknown }
       | undefined;
   } catch {
@@ -263,17 +263,17 @@ async function daemonStatus(): Promise<{
   }
   const path = `/container/status?id=${server.UUID}`;
   const timestamp = Math.floor(Date.now() / 1000);
-  const nonce = crypto.randomBytes(16).toString("hex");
-  const signature = hmacSign(node.key, "GET", path.split("?")[0] ?? "", "", timestamp, nonce);
+  const nonce = crypto.randomBytes(16).toString('hex');
+  const signature = hmacSign(node.key, 'GET', path.split('?')[0] ?? '', '', timestamp, nonce);
   try {
     const res = await fetch(`http://${node.address}:${node.port}${path}`, {
       signal: AbortSignal.timeout(2500),
       headers: {
-        "X-Airlink-Timestamp": String(timestamp),
-        "X-Airlink-Signature": signature,
-        "X-Airlink-Nonce": nonce,
-        "X-Airlink-Payload-Version": "1",
-        Authorization: "Basic " + Buffer.from(`Airlink:${node.key}`).toString("base64"),
+        'X-Airlink-Timestamp': String(timestamp),
+        'X-Airlink-Signature': signature,
+        'X-Airlink-Nonce': nonce,
+        'X-Airlink-Payload-Version': '1',
+        Authorization: `Basic ${  Buffer.from(`Airlink:${node.key}`).toString('base64')}`,
       },
     });
     const daemonRttMs = await rttPromise;
@@ -282,7 +282,7 @@ async function daemonStatus(): Promise<{
       return {
         online: true,
         name: node.name,
-        serverName: String(server.name ?? ""),
+        serverName: String(server.name ?? ''),
         serverOnline: data?.running === true,
         serverExists: data?.exists === true,
         daemonRttMs,
@@ -295,7 +295,7 @@ async function daemonStatus(): Promise<{
     return {
       online: true,
       name: node.name,
-      serverName: String(server.name ?? ""),
+      serverName: String(server.name ?? ''),
       serverOnline: null,
       serverExists: null,
       daemonRttMs,
@@ -309,7 +309,7 @@ async function daemonStatus(): Promise<{
     return {
       online: false,
       name: node.name,
-      serverName: String(server.name ?? ""),
+      serverName: String(server.name ?? ''),
       serverOnline: null,
       serverExists: null,
       daemonRttMs,
@@ -333,9 +333,9 @@ export async function collectStats(): Promise<Stats> {
   prevCpu = cpuNow;
 
   const mem = readMem();
-  const disk = statfsSync("/");
-  const load = readFileSync("/proc/loadavg", "utf8").split(" ").slice(0, 3).join(" ");
-  const sysUptimeSec = Math.floor(Number(readFileSync("/proc/uptime", "utf8").split(" ")[0]));
+  const disk = statfsSync('/');
+  const load = readFileSync('/proc/loadavg', 'utf8').split(' ').slice(0, 3).join(' ');
+  const sysUptimeSec = Math.floor(Number(readFileSync('/proc/uptime', 'utf8').split(' ')[0]));
 
   const [panelOnline, daemon, pid, panelRttMs] = await Promise.all([
     probe(PANEL_URL, 1500),
@@ -351,9 +351,9 @@ export async function collectStats(): Promise<Stats> {
   let dbBytes: number | null = null;
   if (database) {
     try {
-      users = (database.query("SELECT COUNT(*) AS c FROM Users").get() as any).c;
-      sessions = (database.query("SELECT COUNT(*) AS c FROM Session WHERE expires > datetime('now')").get() as any).c;
-      logins24h = (database.query("SELECT COUNT(*) AS c FROM LoginHistory WHERE timestamp > datetime('now', '-1 day')").get() as any).c;
+      users = (database.query('SELECT COUNT(*) AS c FROM Users').get() as any).c;
+      sessions = (database.query('SELECT COUNT(*) AS c FROM Session WHERE expires > datetime(\'now\')').get() as any).c;
+      logins24h = (database.query('SELECT COUNT(*) AS c FROM LoginHistory WHERE timestamp > datetime(\'now\', \'-1 day\')').get() as any).c;
     } catch {
       /* tables may not exist yet */
     }
@@ -365,7 +365,7 @@ export async function collectStats(): Promise<Stats> {
   }
 
   let logBytes = 0;
-  for (const name of ["combined.log", "error.log"]) {
+  for (const name of ['combined.log', 'error.log']) {
     try {
       logBytes += statSync(`${LOG_DIR}/${name}`).size;
     } catch {
@@ -377,7 +377,7 @@ export async function collectStats(): Promise<Stats> {
   let apiSuccessRate: number | null = null;
   if (logins24h !== null) {
     const total = logins24h + errors24h;
-    if (total > 0) apiSuccessRate = Math.round((logins24h / total) * 1000) / 10;
+    if (total > 0) {apiSuccessRate = Math.round((logins24h / total) * 1000) / 10;}
   }
 
   return {

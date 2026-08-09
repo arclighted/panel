@@ -1,18 +1,18 @@
-import type { Request, Response } from "express";
-import { Router } from "express";
-import prisma from "../../db";
-import type { Module } from "../../handlers/moduleInit";
-import { isAuthenticated } from "../../handlers/utils/auth/authUtil";
-import logger from "../../handlers/logger";
-import { getCatalogue, forceRefresh } from "../../handlers/eggCatalogueService";
+import type { Request, Response } from 'express';
+import { Router } from 'express';
+import prisma from '../../db';
+import type { Module } from '../../handlers/moduleInit';
+import { isAuthenticated } from '../../handlers/utils/auth/authUtil';
+import logger from '../../handlers/logger';
+import { getCatalogue, forceRefresh } from '../../handlers/eggCatalogueService';
 import {
   isPterodactylEgg,
   parseEgg,
   normalizeEggForDb,
   validateEggData,
   fetchEggFromUrl,
-} from "../../handlers/utils/egg/eggParser";
-import { logActivity } from "../../handlers/utils/activity/activityLogger";
+} from '../../handlers/utils/egg/eggParser';
+import { logActivity } from '../../handlers/utils/activity/activityLogger';
 
 function normalizeImageData(raw: Record<string, unknown>) {
   if (isPterodactylEgg(raw)) {
@@ -29,21 +29,21 @@ function normalizeImageData(raw: Record<string, unknown>) {
   const dockerImages = raw.docker_images || raw.dockerImages;
   const dockerImagesArray = Array.isArray(dockerImages)
     ? dockerImages
-    : typeof dockerImages === "object" && dockerImages !== null
+    : typeof dockerImages === 'object' && dockerImages !== null
       ? Object.entries(dockerImages as Record<string, string>).map(
-          ([k, v]) => ({ [k]: v }),
-        )
+        ([k, v]) => ({ [k]: v }),
+      )
       : [];
 
   return {
-    name: String(raw.name ?? ""),
-    description: String(raw.description ?? ""),
-    author: String(raw.author ?? ""),
-    authorName: String(raw.authorName ?? ""),
-    startup: String(raw.startup ?? ""),
-    stop: String(raw.stop ?? ""),
-    startup_done: String(raw.startup_done ?? ""),
-    config_files: String(raw.config_files ?? ""),
+    name: String(raw.name ?? ''),
+    description: String(raw.description ?? ''),
+    author: String(raw.author ?? ''),
+    authorName: String(raw.authorName ?? ''),
+    startup: String(raw.startup ?? ''),
+    stop: String(raw.stop ?? ''),
+    startup_done: String(raw.startup_done ?? ''),
+    config_files: String(raw.config_files ?? ''),
     meta: JSON.stringify(raw.meta ?? {}),
     dockerImages: JSON.stringify(dockerImagesArray),
     info: JSON.stringify(raw.info ?? {}),
@@ -57,32 +57,32 @@ function normalizeImageData(raw: Record<string, unknown>) {
 
 const adminModule: Module = {
   info: {
-    name: "Admin Module for Images",
-    description: "This file is for admin functionality.",
-    version: "2.0.0",
-    moduleVersion: "1.0.0",
-    author: "AirLinkLab",
-    license: "MIT",
+    name: 'Admin Module for Images',
+    description: 'This file is for admin functionality.',
+    version: '2.0.0',
+    moduleVersion: '1.0.0',
+    author: 'AirLinkLab',
+    license: 'MIT',
   },
 
   router: () => {
     const router = Router();
 
     router.get(
-      "/admin/images",
+      '/admin/images',
       isAuthenticated(true),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
           if (!user) {
-            return res.redirect("/login");
+            return res.redirect('/login');
           }
 
           const images = await prisma.images.findMany();
           const pending = await prisma.images.findMany({
-            where: { status: "pending" },
-            orderBy: { createdAt: "asc" },
+            where: { status: 'pending' },
+            orderBy: { createdAt: 'asc' },
           });
 
           const creatorIds = [
@@ -95,9 +95,9 @@ const adminModule: Module = {
           const creators =
             creatorIds.length > 0
               ? await prisma.users.findMany({
-                  where: { id: { in: creatorIds } },
-                  select: { id: true, username: true, email: true },
-                })
+                where: { id: { in: creatorIds } },
+                select: { id: true, username: true, email: true },
+              })
               : [];
           const creatorMap = new Map(creators.map((c) => [c.id, c]));
           const pendingWithCreators = pending.map((i) => ({
@@ -111,7 +111,7 @@ const adminModule: Module = {
           const settings = await prisma.settings.findUnique({
             where: { id: 1 },
           });
-          res.render("admin/images/images", {
+          res.render('admin/images/images', {
             user,
             req,
             settings,
@@ -119,20 +119,20 @@ const adminModule: Module = {
             pending: pendingWithCreators,
           });
         } catch (error: unknown) {
-          logger.error("Error fetching images:", error);
-          return res.redirect("/login");
+          logger.error('Error fetching images:', error);
+          return res.redirect('/login');
         }
       },
     );
 
     router.post(
-      "/admin/images/import-url",
+      '/admin/images/import-url',
       isAuthenticated(true),
       async (req: Request, res: Response) => {
         try {
-          const url = String(req.body?.url ?? "").trim();
+          const url = String(req.body?.url ?? '').trim();
           if (!url) {
-            res.status(400).json({ success: false, error: "URL is required" });
+            res.status(400).json({ success: false, error: 'URL is required' });
             return;
           }
 
@@ -149,7 +149,7 @@ const adminModule: Module = {
           if (!valid) {
             res.status(400).json({
               success: false,
-              error: "Invalid egg configuration",
+              error: 'Invalid egg configuration',
               details: errors,
             });
             return;
@@ -161,36 +161,36 @@ const adminModule: Module = {
           });
           if (existing) {
             await prisma.images.update({ where: { id: existing.id }, data });
-            await logActivity(req, "image:update", {
+            await logActivity(req, 'image:update', {
               metadata: { imageId: existing.id, name: data.name },
             });
             res.status(200).json({
               success: true,
-              message: "Image updated successfully",
+              message: 'Image updated successfully',
               id: existing.id,
             });
           } else {
             const created = await prisma.images.create({ data });
-            await logActivity(req, "image:create", {
+            await logActivity(req, 'image:create', {
               metadata: { imageId: created.id, name: data.name },
             });
             res.status(200).json({
               success: true,
-              message: "Image created successfully",
+              message: 'Image created successfully',
               id: created.id,
             });
           }
         } catch (error: unknown) {
-          logger.error("Error importing image from URL:", error);
+          logger.error('Error importing image from URL:', error);
           res
             .status(500)
-            .json({ success: false, error: "Failed to import egg from URL" });
+            .json({ success: false, error: 'Failed to import egg from URL' });
         }
       },
     );
 
     router.post(
-      "/admin/images/upload",
+      '/admin/images/upload',
       isAuthenticated(true),
       async (req: Request, res: Response) => {
         try {
@@ -199,7 +199,7 @@ const adminModule: Module = {
           if (!raw || Object.keys(raw).length === 0) {
             res
               .status(400)
-              .json({ success: false, error: "No image data provided" });
+              .json({ success: false, error: 'No image data provided' });
             return;
           }
 
@@ -207,7 +207,7 @@ const adminModule: Module = {
           if (!valid) {
             res.status(400).json({
               success: false,
-              error: "Invalid egg configuration",
+              error: 'Invalid egg configuration',
               details: errors,
             });
             return;
@@ -222,38 +222,38 @@ const adminModule: Module = {
           if (existing) {
             await prisma.images.update({ where: { id: existing.id }, data });
             logger.info(`Updated image: ${data.name}`);
-            await logActivity(req, "image:update", {
+            await logActivity(req, 'image:update', {
               metadata: { imageId: existing.id, name: data.name },
             });
             res.status(200).json({
               success: true,
-              message: "Image updated successfully",
+              message: 'Image updated successfully',
               id: existing.id,
             });
           } else {
             const created = await prisma.images.create({ data });
             logger.info(`Created image: ${data.name}`);
-            await logActivity(req, "image:create", {
+            await logActivity(req, 'image:create', {
               metadata: { imageId: created.id, name: data.name },
             });
             res.status(200).json({
               success: true,
-              message: "Image created successfully",
+              message: 'Image created successfully',
               id: created.id,
             });
           }
         } catch (error: unknown) {
-          logger.error("Error processing image upload:", error);
+          logger.error('Error processing image upload:', error);
           res.status(500).json({
             success: false,
-            error: "Failed to process the uploaded file",
+            error: 'Failed to process the uploaded file',
           });
         }
       },
     );
 
     router.post(
-      "/admin/images/create",
+      '/admin/images/create',
       isAuthenticated(true),
       async (req: Request, res: Response) => {
         try {
@@ -262,20 +262,20 @@ const adminModule: Module = {
           if (!name || !startup) {
             res
               .status(400)
-              .json({ error: "Name and startup command are required" });
+              .json({ error: 'Name and startup command are required' });
             return;
           }
 
           const data = {
             name,
-            description: description || "",
-            author: author || "",
-            authorName: authorName || "",
+            description: description || '',
+            author: author || '',
+            authorName: authorName || '',
             startup,
-            stop: "stop",
-            startup_done: "",
-            config_files: "",
-            meta: JSON.stringify({ version: "AL_V1" }),
+            stop: 'stop',
+            startup_done: '',
+            config_files: '',
+            meta: JSON.stringify({ version: 'AL_V1' }),
             dockerImages: JSON.stringify([]),
             info: JSON.stringify({ features: [] }),
             scripts: JSON.stringify({}),
@@ -285,33 +285,33 @@ const adminModule: Module = {
 
           const image = await prisma.images.create({ data });
           logger.info(`Created image: ${name}`);
-          await logActivity(req, "image:create", {
+          await logActivity(req, 'image:create', {
             metadata: { imageId: image.id, name },
           });
           res.redirect(`/admin/images/edit/${image.id}?success=true`);
         } catch (error: unknown) {
-          logger.error("Error creating image:", error);
-          res.status(500).send("Failed to create image.");
+          logger.error('Error creating image:', error);
+          res.status(500).send('Failed to create image.');
         }
       },
     );
 
     router.get(
-      "/admin/images/edit/:id",
+      '/admin/images/edit/:id',
       isAuthenticated(true),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
           if (!user) {
-            return res.redirect("/login");
+            return res.redirect('/login');
           }
 
           const image = await prisma.images.findUnique({
             where: { id: Number(req.params.id) },
           });
           if (!image) {
-            return res.redirect("/admin/images?error=Image+not+found");
+            return res.redirect('/admin/images?error=Image+not+found');
           }
 
           const settings = await prisma.settings.findUnique({
@@ -320,14 +320,14 @@ const adminModule: Module = {
 
           let dockerImages: Record<string, string> = {};
           try {
-            const parsed = JSON.parse(image.dockerImages || "[]");
+            const parsed = JSON.parse(image.dockerImages || '[]');
             if (Array.isArray(parsed)) {
               for (const obj of parsed) {
-                if (typeof obj === "object") {
+                if (typeof obj === 'object') {
                   Object.assign(dockerImages, obj);
                 }
               }
-            } else if (typeof parsed === "object") {
+            } else if (typeof parsed === 'object') {
               dockerImages = parsed;
             }
           } catch {
@@ -336,28 +336,28 @@ const adminModule: Module = {
 
           let variables: unknown[] = [];
           try {
-            variables = JSON.parse(image.variables || "[]");
+            variables = JSON.parse(image.variables || '[]');
           } catch {
             variables = [];
           }
 
           let scripts: Record<string, unknown> = {};
           try {
-            scripts = JSON.parse(image.scripts || "{}");
+            scripts = JSON.parse(image.scripts || '{}');
           } catch {
             scripts = {};
           }
 
           let info: Record<string, unknown> = {};
           try {
-            info = JSON.parse(image.info || "{}");
+            info = JSON.parse(image.info || '{}');
           } catch {
             info = {};
           }
 
           let portRequirements: unknown[] = [];
           try {
-            portRequirements = JSON.parse(image.portRequirements || "[]");
+            portRequirements = JSON.parse(image.portRequirements || '[]');
           } catch {
             portRequirements = [];
           }
@@ -371,7 +371,7 @@ const adminModule: Module = {
             portRequirements,
           };
 
-          res.render("admin/images/edit", {
+          res.render('admin/images/edit', {
             user,
             req,
             settings,
@@ -379,14 +379,14 @@ const adminModule: Module = {
             imageJson: JSON.stringify(parsedImage, null, 2),
           });
         } catch (error: unknown) {
-          logger.error("Error loading image for edit:", error);
-          return res.redirect("/admin/images?error=Failed+to+load+image");
+          logger.error('Error loading image for edit:', error);
+          return res.redirect('/admin/images?error=Failed+to+load+image');
         }
       },
     );
 
     router.post(
-      "/admin/images/edit/:id",
+      '/admin/images/edit/:id',
       isAuthenticated(true),
       async (req: Request, res: Response) => {
         try {
@@ -396,7 +396,7 @@ const adminModule: Module = {
           if (!valid) {
             res.status(400).json({
               success: false,
-              error: "Invalid image configuration",
+              error: 'Invalid image configuration',
               details: errors,
             });
             return;
@@ -410,24 +410,24 @@ const adminModule: Module = {
           });
 
           logger.info(`Updated image ${req.params.id}: ${data.name}`);
-          await logActivity(req, "image:update", {
+          await logActivity(req, 'image:update', {
             metadata: { imageId: Number(req.params.id), name: data.name },
           });
 
-          if (req.headers["content-type"]?.includes("application/json")) {
+          if (req.headers['content-type']?.includes('application/json')) {
             res.json({ success: true });
           } else {
             res.redirect(`/admin/images/edit/${req.params.id}?success=true`);
           }
         } catch (error: unknown) {
-          logger.error("Error updating image:", error);
-          res.status(500).json({ error: "Failed to update image" });
+          logger.error('Error updating image:', error);
+          res.status(500).json({ error: 'Failed to update image' });
         }
       },
     );
 
     router.get(
-      "/admin/images/export/:id",
+      '/admin/images/export/:id',
       isAuthenticated(true),
       async (req: Request, res: Response) => {
         try {
@@ -435,16 +435,16 @@ const adminModule: Module = {
             where: { id: Number(req.params.id) },
           });
           if (!image) {
-            res.status(404).json({ error: "Image not found" });
+            res.status(404).json({ error: 'Image not found' });
             return;
           }
 
           const dockerImagesRaw: Record<string, string> = {};
           try {
-            const parsed = JSON.parse(image.dockerImages || "[]");
+            const parsed = JSON.parse(image.dockerImages || '[]');
             if (Array.isArray(parsed)) {
               for (const obj of parsed) {
-                if (typeof obj === "object") {
+                if (typeof obj === 'object') {
                   Object.assign(dockerImagesRaw, obj);
                 }
               }
@@ -455,14 +455,14 @@ const adminModule: Module = {
 
           let meta: Record<string, unknown> = {};
           try {
-            meta = JSON.parse(image.meta || "{}");
+            meta = JSON.parse(image.meta || '{}');
           } catch {
             /* keep empty */
           }
 
           const exported = {
-            _comment: "DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY AIRLINK",
-            meta: { version: "PTDL_v2", ...meta },
+            _comment: 'DO NOT EDIT: FILE GENERATED AUTOMATICALLY BY AIRLINK',
+            meta: { version: 'PTDL_v2', ...meta },
             name: image.name,
             description: image.description,
             author: image.author,
@@ -470,19 +470,19 @@ const adminModule: Module = {
             config: {
               files: (() => {
                 try {
-                  return JSON.parse(image.config_files || "{}");
+                  return JSON.parse(image.config_files || '{}');
                 } catch {
                   return {};
                 }
               })(),
-              startup: { done: image.startup_done || "" },
+              startup: { done: image.startup_done || '' },
               logs: {},
-              stop: image.stop || "stop",
+              stop: image.stop || 'stop',
             },
             docker_images: dockerImagesRaw,
             variables: (() => {
               try {
-                return JSON.parse(image.variables || "[]");
+                return JSON.parse(image.variables || '[]');
               } catch {
                 return [];
               }
@@ -490,7 +490,7 @@ const adminModule: Module = {
             scripts: {
               installation: (() => {
                 try {
-                  const s = JSON.parse(image.scripts || "{}");
+                  const s = JSON.parse(image.scripts || '{}');
                   return s.installation || null;
                 } catch {
                   return null;
@@ -499,29 +499,29 @@ const adminModule: Module = {
             },
             portRequirements: (() => {
               try {
-                return JSON.parse(image.portRequirements || "[]");
+                return JSON.parse(image.portRequirements || '[]');
               } catch {
                 return [];
               }
             })(),
           };
 
-          const filename = `${(image.name || "image").replace(/[^a-z0-9]/gi, "_").toLowerCase()}.json`;
-          res.setHeader("Content-Type", "application/json");
+          const filename = `${(image.name || 'image').replace(/[^a-z0-9]/gi, '_').toLowerCase()}.json`;
+          res.setHeader('Content-Type', 'application/json');
           res.setHeader(
-            "Content-Disposition",
+            'Content-Disposition',
             `attachment; filename="${filename}"`,
           );
           res.send(JSON.stringify(exported, null, 2));
         } catch (error: unknown) {
-          logger.error("Error exporting image:", error);
-          res.status(500).json({ error: "Failed to export image" });
+          logger.error('Error exporting image:', error);
+          res.status(500).json({ error: 'Failed to export image' });
         }
       },
     );
 
     router.delete(
-      "/admin/images/delete/:id",
+      '/admin/images/delete/:id',
       isAuthenticated(true),
       async (req: Request, res: Response) => {
         try {
@@ -533,7 +533,7 @@ const adminModule: Module = {
           if (serverCount > 0) {
             res
               .status(400)
-              .send("This image is in use by one or more servers.");
+              .send('This image is in use by one or more servers.');
             return;
           }
 
@@ -542,39 +542,39 @@ const adminModule: Module = {
             select: { name: true },
           });
           if (!image) {
-            res.status(404).send("Image not found.");
+            res.status(404).send('Image not found.');
             return;
           }
 
           await prisma.images.delete({ where: { id } });
           logger.info(`Deleted image: ${image.name} (ID: ${id})`);
-          await logActivity(req, "image:delete", {
+          await logActivity(req, 'image:delete', {
             metadata: { imageId: id, name: image.name },
           });
-          res.status(200).send("Image deleted successfully.");
+          res.status(200).send('Image deleted successfully.');
         } catch (error: unknown) {
-          logger.error("Error deleting image:", error);
-          res.status(500).send("Failed to delete image.");
+          logger.error('Error deleting image:', error);
+          res.status(500).send('Failed to delete image.');
         }
       },
     );
 
     // JSON list for in-place table updates (Phase 1: no-reload image list)
     router.get(
-      "/admin/images/list",
+      '/admin/images/list',
       isAuthenticated(true),
       async (req: Request, res: Response) => {
         try {
           const images = await prisma.images.findMany({
             select: { id: true, name: true, author: true, createdAt: true },
-            orderBy: { createdAt: "desc" },
+            orderBy: { createdAt: 'desc' },
           });
           res.json({ success: true, images });
         } catch (error: unknown) {
-          logger.error("Error listing images:", error);
+          logger.error('Error listing images:', error);
           res
             .status(500)
-            .json({ success: false, error: "Failed to list images." });
+            .json({ success: false, error: 'Failed to list images.' });
         }
       },
     );
@@ -582,10 +582,10 @@ const adminModule: Module = {
     // Store page shell — just renders the HTML, all data comes from /catalogue.
     // Legacy entry: shared/bookmarked links land on the canonical #store tab.
     router.get(
-      "/admin/images/store",
+      '/admin/images/store',
       isAuthenticated(true),
       (_req: Request, res: Response) => {
-        res.redirect("/admin/images#store");
+        res.redirect('/admin/images#store');
       },
     );
 
@@ -593,14 +593,14 @@ const adminModule: Module = {
     // this via data-tab-src. Only the panel body is rendered; the host page
     // owns the sidebar/header/tablist.
     router.get(
-      "/admin/images/store/panel",
+      '/admin/images/store/panel',
       isAuthenticated(true),
       async (_req: Request, res: Response) => {
         try {
-          res.render("admin/images/store-panel");
+          res.render('admin/images/store-panel');
         } catch (error: unknown) {
-          logger.error("Error rendering store panel:", error);
-          res.status(500).json({ error: "Failed to load store panel." });
+          logger.error('Error rendering store panel:', error);
+          res.status(500).json({ error: 'Failed to load store panel.' });
         }
       },
     );
@@ -609,16 +609,16 @@ const adminModule: Module = {
     // eggCatalogueService (which cloned the repos on startup). Zero GitHub
     // calls at request time.
     router.get(
-      "/admin/images/store/catalogue",
+      '/admin/images/store/catalogue',
       isAuthenticated(true),
       async (_req: Request, res: Response) => {
         try {
           const data = getCatalogue();
-          res.setHeader("Cache-Control", "private, max-age=300");
+          res.setHeader('Cache-Control', 'private, max-age=300');
           res.status(200).json(data);
         } catch (error: unknown) {
-          logger.error("Error serving store catalogue:", error);
-          res.status(500).json({ error: "Failed to load store catalogue." });
+          logger.error('Error serving store catalogue:', error);
+          res.status(500).json({ error: 'Failed to load store catalogue.' });
         }
       },
     );
@@ -626,20 +626,20 @@ const adminModule: Module = {
     // Install an egg from the store — receives the egg data the browser already
     // has in memory from the catalogue response, normalizes and saves it.
     router.post(
-      "/admin/images/store/install",
+      '/admin/images/store/install',
       isAuthenticated(true),
       async (req: Request, res: Response) => {
         try {
           const raw = req.body as Record<string, unknown>;
-          if (!raw || typeof raw !== "object") {
-            res.status(400).json({ error: "Invalid egg data." });
+          if (!raw || typeof raw !== 'object') {
+            res.status(400).json({ error: 'Invalid egg data.' });
             return;
           }
 
           const validated = validateEggData(raw);
           if (!validated.valid) {
             res.status(400).json({
-              error: "Egg validation failed.",
+              error: 'Egg validation failed.',
               details: validated.errors,
             });
             return;
@@ -661,7 +661,7 @@ const adminModule: Module = {
           logger.info(
             `Installed image from store: ${image.name} (ID: ${image.id})`,
           );
-          await logActivity(req, "image:create", {
+          await logActivity(req, 'image:create', {
             metadata: { imageId: image.id, name: image.name },
           });
           res.status(200).json({
@@ -669,15 +669,15 @@ const adminModule: Module = {
             id: image.id,
           });
         } catch (error: unknown) {
-          logger.error("Error installing image from store:", error);
-          res.status(500).json({ error: "Failed to install image." });
+          logger.error('Error installing image from store:', error);
+          res.status(500).json({ error: 'Failed to install image.' });
         }
       },
     );
 
     // Force a git pull + catalogue rebuild
     router.post(
-      "/admin/images/store/refresh",
+      '/admin/images/store/refresh',
       isAuthenticated(true),
       async (_req: Request, res: Response) => {
         try {
@@ -687,11 +687,11 @@ const adminModule: Module = {
           );
           res.status(200).json({
             message:
-              "Refresh started. The catalogue will update in the background.",
+              'Refresh started. The catalogue will update in the background.',
           });
         } catch (error: unknown) {
-          logger.error("Failed to start image store refresh:", error);
-          res.status(500).json({ error: "Failed to start refresh." });
+          logger.error('Failed to start image store refresh:', error);
+          res.status(500).json({ error: 'Failed to start refresh.' });
         }
       },
     );
@@ -700,66 +700,66 @@ const adminModule: Module = {
 
     // Legacy entry: the queue lives as the #approvals tab on /admin/images.
     router.get(
-      "/admin/images/approvals",
+      '/admin/images/approvals',
       isAuthenticated(true),
       (_req: Request, res: Response) => {
-        res.redirect("/admin/images#approvals");
+        res.redirect('/admin/images#approvals');
       },
     );
 
     router.post(
-      "/admin/images/approve/:id",
+      '/admin/images/approve/:id',
       isAuthenticated(true),
       async (req: Request, res: Response) => {
         try {
           const id = Number(req.params.id);
           const image = await prisma.images.findUnique({ where: { id } });
           if (!image) {
-            res.status(404).json({ error: "Image not found." });
+            res.status(404).json({ error: 'Image not found.' });
             return;
           }
 
           await prisma.images.update({
             where: { id },
-            data: { status: "approved", rejectionReason: null },
+            data: { status: 'approved', rejectionReason: null },
           });
-          await logActivity(req, "image:approve", {
+          await logActivity(req, 'image:approve', {
             metadata: { imageId: image.id, name: image.name },
           });
           res.json({ success: true, message: `Approved "${image.name}".` });
         } catch (error: unknown) {
-          logger.error("Error approving image:", error);
-          res.status(500).json({ error: "Failed to approve image." });
+          logger.error('Error approving image:', error);
+          res.status(500).json({ error: 'Failed to approve image.' });
         }
       },
     );
 
     router.post(
-      "/admin/images/reject/:id",
+      '/admin/images/reject/:id',
       isAuthenticated(true),
       async (req: Request, res: Response) => {
         try {
           const id = Number(req.params.id);
-          const reason = String(req.body?.reason ?? "")
+          const reason = String(req.body?.reason ?? '')
             .trim()
             .slice(0, 500);
           const image = await prisma.images.findUnique({ where: { id } });
           if (!image) {
-            res.status(404).json({ error: "Image not found." });
+            res.status(404).json({ error: 'Image not found.' });
             return;
           }
 
           await prisma.images.update({
             where: { id },
-            data: { status: "rejected", rejectionReason: reason || null },
+            data: { status: 'rejected', rejectionReason: reason || null },
           });
-          await logActivity(req, "image:reject", {
+          await logActivity(req, 'image:reject', {
             metadata: { imageId: image.id, name: image.name },
           });
           res.json({ success: true, message: `Rejected "${image.name}".` });
         } catch (error: unknown) {
-          logger.error("Error rejecting image:", error);
-          res.status(500).json({ error: "Failed to reject image." });
+          logger.error('Error rejecting image:', error);
+          res.status(500).json({ error: 'Failed to reject image.' });
         }
       },
     );

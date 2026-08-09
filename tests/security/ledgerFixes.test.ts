@@ -35,7 +35,7 @@ interface FakeSession {
   destroy: (cb: (err?: Error | null) => void) => void;
 }
 
-type SessionUser = { id: number; isAdmin: boolean };
+interface SessionUser { id: number; isAdmin: boolean }
 
 function stripConnectSid(user: SessionUser | undefined) {
   return (req: express.Request, _res: express.Response, next: express.NextFunction) => {

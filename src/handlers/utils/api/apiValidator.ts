@@ -1,4 +1,4 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import prisma from '../../../db';
 import logger from '../../logger';
 import crypto from 'crypto';
@@ -54,9 +54,9 @@ export const apiValidator = (requiredPermission?: string) => {
         try {
           const permissions = JSON.parse(keyData.permissions || '[]');
           const hasPermission = permissions.some((perm: string) => {
-            if (perm === requiredPermission) return true;
+            if (perm === requiredPermission) {return true;}
             if (perm.endsWith('.*')) {
-              return requiredPermission.startsWith(perm.slice(0, -2) + '.');
+              return requiredPermission.startsWith(`${perm.slice(0, -2)  }.`);
             }
             return false;
           });

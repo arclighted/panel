@@ -12,9 +12,9 @@ function matchSelector(el, sel) {
     const segs = alt.match(/\[[^\]]+\]/g) || [];
     return segs.every((seg) => {
       const m = /^\[([a-zA-Z0-9-]+)(?:="([^"]*)")?\]$/.exec(seg);
-      if (!m) return false;
+      if (!m) {return false;}
       const [name, value] = [m[1], m[2]];
-      if (value !== undefined) return el.getAttribute(name) === value;
+      if (value !== undefined) {return el.getAttribute(name) === value;}
       return el.hasAttribute(name);
     });
   });
@@ -56,7 +56,7 @@ class FakeEl {
   querySelectorAll(sel) {
     const out = [];
     const walk = (el) => {
-      if (matchSelector(el, sel)) out.push(el);
+      if (matchSelector(el, sel)) {out.push(el);}
       el.children.forEach(walk);
     };
     this.children.forEach(walk);
@@ -65,7 +65,7 @@ class FakeEl {
   closest(sel) {
     let n = this;
     while (n) {
-      if (matchSelector(n, sel)) return n;
+      if (matchSelector(n, sel)) {return n;}
       n = n.parent;
     }
     return null;

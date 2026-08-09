@@ -1,19 +1,19 @@
-import { Router, Request, Response } from "express";
-import CronParser from "cron-parser";
+import type { Router, Request, Response } from 'express';
+import CronParser from 'cron-parser';
 import {
   isAuthenticatedForServer,
   requireSubUserPermission,
-} from "../../../handlers/utils/auth/serverAuthUtil";
-import logger from "../../../handlers/logger";
-import { getParamAsString } from "../../../utils/typeHelpers";
-import prisma from "../../../db";
-import { checkForServerInstallation } from "../../../handlers/checkForServerInstallation";
-import { serverPageInclude } from "./shared";
-import { runSchedule } from "../../../handlers/schedulerWorker";
-import { emitRealtime, serverEvent } from "../../../handlers/realtime/events";
+} from '../../../handlers/utils/auth/serverAuthUtil';
+import logger from '../../../handlers/logger';
+import { getParamAsString } from '../../../utils/typeHelpers';
+import prisma from '../../../db';
+import { checkForServerInstallation } from '../../../handlers/checkForServerInstallation';
+import { serverPageInclude } from './shared';
+import { runSchedule } from '../../../handlers/schedulerWorker';
+import { emitRealtime, serverEvent } from '../../../handlers/realtime/events';
 
-const POWER_ACTIONS = ["start", "stop", "restart", "kill"] as const;
-const TASK_ACTIONS = ["command", "power", "backup"] as const;
+const POWER_ACTIONS = ['start', 'stop', 'restart', 'kill'] as const;
+const TASK_ACTIONS = ['command', 'power', 'backup'] as const;
 
 function isValidCron(cron: string): boolean {
   try {
@@ -31,8 +31,8 @@ function nextRunFromCron(cron: string, timeOffset = 0): Date {
 
 function parsePayload(raw: string): Record<string, unknown> {
   try {
-    const parsed = JSON.parse(raw || "{}");
-    return parsed && typeof parsed === "object" ? parsed : {};
+    const parsed = JSON.parse(raw || '{}');
+    return parsed && typeof parsed === 'object' ? parsed : {};
   } catch {
     return {};
   }
@@ -47,20 +47,20 @@ async function loadServerForUser(
     where: { UUID: getParamAsString(serverId) },
     include: serverPageInclude,
   });
-  if (!server) return null;
+  if (!server) {return null;}
   if (server.ownerId === userId || (req.session?.user?.isAdmin ?? false))
-    return server;
+  {return server;}
   const subUser = req.subUser;
-  if (subUser) return server;
+  if (subUser) {return server;}
   return null;
 }
 
 export function registerScheduleRoutes(router: Router): void {
   // ── GET /server/:id/schedules ───────────────────────────────────────────
   router.get(
-    "/server/:id/schedules",
-    isAuthenticatedForServer("id"),
-    requireSubUserPermission("schedule.read"),
+    '/server/:id/schedules',
+    isAuthenticatedForServer('id'),
+    requireSubUserPermission('schedule.read'),
     async (req: Request, res: Response) => {
       const userId = req.session?.user?.id;
       const serverId = req.params?.id;
@@ -68,20 +68,20 @@ export function registerScheduleRoutes(router: Router): void {
       try {
         const user = await prisma.users.findUnique({ where: { id: userId } });
         if (!user) {
-          res.status(404).json({ error: "User not found" });
+          res.status(404).json({ error: 'User not found' });
           return;
         }
 
         const server = await loadServerForUser(String(serverId), user.id, req);
         if (!server) {
-          res.status(403).json({ error: "Server not found or access denied." });
+          res.status(403).json({ error: 'Server not found or access denied.' });
           return;
         }
 
         const schedules = await prisma.schedule.findMany({
           where: { serverId: server.UUID },
-          include: { tasks: { orderBy: { order: "asc" } } },
-          orderBy: { createdAt: "desc" },
+          include: { tasks: { orderBy: { order: 'asc' } } },
+          orderBy: { createdAt: 'desc' },
         });
 
         const schedulesWithTasks = schedules.map((schedule) => ({
@@ -94,29 +94,29 @@ export function registerScheduleRoutes(router: Router): void {
 
         const settings = await prisma.settings.findUnique({ where: { id: 1 } });
 
-        res.render("user/server/schedules", {
+        res.render('user/server/schedules', {
           user,
           req,
           server,
           settings,
           schedules: schedulesWithTasks,
-          features: JSON.parse(server.image.info || "{}").features || [],
+          features: JSON.parse(server.image.info || '{}').features || [],
           installed: await checkForServerInstallation(
             getParamAsString(serverId),
           ),
         });
       } catch (error) {
-        logger.error("Error fetching schedules:", error);
-        res.status(500).json({ error: "Failed to fetch schedules" });
+        logger.error('Error fetching schedules:', error);
+        res.status(500).json({ error: 'Failed to fetch schedules' });
       }
     },
   );
 
   // ── POST /server/:id/schedules ──────────────────────────────────────────
   router.post(
-    "/server/:id/schedules",
-    isAuthenticatedForServer("id"),
-    requireSubUserPermission("schedule.create"),
+    '/server/:id/schedules',
+    isAuthenticatedForServer('id'),
+    requireSubUserPermission('schedule.create'),
     async (req: Request, res: Response) => {
       const userId = req.session?.user?.id;
       const serverId = req.params?.id;
@@ -126,21 +126,21 @@ export function registerScheduleRoutes(router: Router): void {
         timeOffset?: unknown;
       };
 
-      if (!name || typeof name !== "string" || name.trim() === "") {
-        res.status(400).json({ error: "Schedule name is required" });
+      if (!name || typeof name !== 'string' || name.trim() === '') {
+        res.status(400).json({ error: 'Schedule name is required' });
         return;
       }
       if (name.trim().length > 60) {
         res
           .status(400)
-          .json({ error: "Schedule name must be 60 characters or less." });
+          .json({ error: 'Schedule name must be 60 characters or less.' });
         return;
       }
-      if (!cron || typeof cron !== "string" || !isValidCron(cron.trim())) {
-        res.status(400).json({ error: "Invalid cron expression." });
+      if (!cron || typeof cron !== 'string' || !isValidCron(cron.trim())) {
+        res.status(400).json({ error: 'Invalid cron expression.' });
         return;
       }
-      const parsedOffset = parseInt(String(timeOffset ?? "0"), 10);
+      const parsedOffset = parseInt(String(timeOffset ?? '0'), 10);
       const offset = Number.isNaN(parsedOffset)
         ? 0
         : Math.min(Math.max(parsedOffset, -1440), 1440);
@@ -148,13 +148,13 @@ export function registerScheduleRoutes(router: Router): void {
       try {
         const user = await prisma.users.findUnique({ where: { id: userId } });
         if (!user) {
-          res.status(404).json({ error: "User not found" });
+          res.status(404).json({ error: 'User not found' });
           return;
         }
 
         const server = await loadServerForUser(String(serverId), user.id, req);
         if (!server) {
-          res.status(403).json({ error: "Server not found or access denied." });
+          res.status(403).json({ error: 'Server not found or access denied.' });
           return;
         }
 
@@ -169,24 +169,24 @@ export function registerScheduleRoutes(router: Router): void {
           },
         });
         emitRealtime(
-          serverEvent("schedule.created", String(server.UUID), {
+          serverEvent('schedule.created', String(server.UUID), {
             state: { id: schedule.id, name: schedule.name },
           }),
         );
 
-        res.json({ success: true, message: "Schedule created.", schedule });
+        res.json({ success: true, message: 'Schedule created.', schedule });
       } catch (error) {
-        logger.error("Error creating schedule:", error);
-        res.status(500).json({ error: "Failed to create schedule" });
+        logger.error('Error creating schedule:', error);
+        res.status(500).json({ error: 'Failed to create schedule' });
       }
     },
   );
 
   // ── PATCH /server/:id/schedules/:scheduleId ─────────────────────────────
   router.patch(
-    "/server/:id/schedules/:scheduleId",
-    isAuthenticatedForServer("id"),
-    requireSubUserPermission("schedule.update"),
+    '/server/:id/schedules/:scheduleId',
+    isAuthenticatedForServer('id'),
+    requireSubUserPermission('schedule.update'),
     async (req: Request, res: Response) => {
       const userId = req.session?.user?.id;
       const serverId = req.params?.id;
@@ -197,20 +197,20 @@ export function registerScheduleRoutes(router: Router): void {
       };
 
       if (isNaN(scheduleId)) {
-        res.status(400).json({ error: "Invalid schedule id" });
+        res.status(400).json({ error: 'Invalid schedule id' });
         return;
       }
 
       try {
         const user = await prisma.users.findUnique({ where: { id: userId } });
         if (!user) {
-          res.status(404).json({ error: "User not found" });
+          res.status(404).json({ error: 'User not found' });
           return;
         }
 
         const server = await loadServerForUser(String(serverId), user.id, req);
         if (!server) {
-          res.status(403).json({ error: "Server not found or access denied." });
+          res.status(403).json({ error: 'Server not found or access denied.' });
           return;
         }
 
@@ -218,7 +218,7 @@ export function registerScheduleRoutes(router: Router): void {
           where: { id: scheduleId, serverId: server.UUID },
         });
         if (!schedule) {
-          res.status(404).json({ error: "Schedule not found" });
+          res.status(404).json({ error: 'Schedule not found' });
           return;
         }
 
@@ -230,7 +230,7 @@ export function registerScheduleRoutes(router: Router): void {
             : Math.min(Math.max(parsed, -1440), 1440);
         }
 
-        const wantEnabled = enabled === true || enabled === "true";
+        const wantEnabled = enabled === true || enabled === 'true';
         await prisma.schedule.update({
           where: { id: schedule.id },
           data: {
@@ -242,47 +242,47 @@ export function registerScheduleRoutes(router: Router): void {
           },
         });
         emitRealtime(
-          serverEvent("schedule.updated", String(server.UUID), {
+          serverEvent('schedule.updated', String(server.UUID), {
             state: { id: schedule.id, enabled: wantEnabled },
           }),
         );
 
         res.json({
           success: true,
-          message: wantEnabled ? "Schedule enabled." : "Schedule disabled.",
+          message: wantEnabled ? 'Schedule enabled.' : 'Schedule disabled.',
         });
       } catch (error) {
-        logger.error("Error toggling schedule:", error);
-        res.status(500).json({ error: "Failed to update schedule" });
+        logger.error('Error toggling schedule:', error);
+        res.status(500).json({ error: 'Failed to update schedule' });
       }
     },
   );
 
   // ── DELETE /server/:id/schedules/:scheduleId ────────────────────────────
   router.delete(
-    "/server/:id/schedules/:scheduleId",
-    isAuthenticatedForServer("id"),
-    requireSubUserPermission("schedule.delete"),
+    '/server/:id/schedules/:scheduleId',
+    isAuthenticatedForServer('id'),
+    requireSubUserPermission('schedule.delete'),
     async (req: Request, res: Response) => {
       const userId = req.session?.user?.id;
       const serverId = req.params?.id;
       const scheduleId = parseInt(getParamAsString(req.params?.scheduleId), 10);
 
       if (isNaN(scheduleId)) {
-        res.status(400).json({ error: "Invalid schedule id" });
+        res.status(400).json({ error: 'Invalid schedule id' });
         return;
       }
 
       try {
         const user = await prisma.users.findUnique({ where: { id: userId } });
         if (!user) {
-          res.status(404).json({ error: "User not found" });
+          res.status(404).json({ error: 'User not found' });
           return;
         }
 
         const server = await loadServerForUser(String(serverId), user.id, req);
         if (!server) {
-          res.status(403).json({ error: "Server not found or access denied." });
+          res.status(403).json({ error: 'Server not found or access denied.' });
           return;
         }
 
@@ -290,29 +290,29 @@ export function registerScheduleRoutes(router: Router): void {
           where: { id: scheduleId, serverId: server.UUID },
         });
         if (!schedule) {
-          res.status(404).json({ error: "Schedule not found" });
+          res.status(404).json({ error: 'Schedule not found' });
           return;
         }
 
         await prisma.schedule.delete({ where: { id: schedule.id } });
         emitRealtime(
-          serverEvent("schedule.deleted", String(server.UUID), {
+          serverEvent('schedule.deleted', String(server.UUID), {
             state: { id: schedule.id, name: schedule.name },
           }),
         );
-        res.json({ success: true, message: "Schedule deleted." });
+        res.json({ success: true, message: 'Schedule deleted.' });
       } catch (error) {
-        logger.error("Error deleting schedule:", error);
-        res.status(500).json({ error: "Failed to delete schedule" });
+        logger.error('Error deleting schedule:', error);
+        res.status(500).json({ error: 'Failed to delete schedule' });
       }
     },
   );
 
   // ── POST /server/:id/schedules/:scheduleId/tasks ────────────────────────
   router.post(
-    "/server/:id/schedules/:scheduleId/tasks",
-    isAuthenticatedForServer("id"),
-    requireSubUserPermission("schedule.update"),
+    '/server/:id/schedules/:scheduleId/tasks',
+    isAuthenticatedForServer('id'),
+    requireSubUserPermission('schedule.update'),
     async (req: Request, res: Response) => {
       const userId = req.session?.user?.id;
       const serverId = req.params?.id;
@@ -328,53 +328,53 @@ export function registerScheduleRoutes(router: Router): void {
       };
 
       if (isNaN(scheduleId)) {
-        res.status(400).json({ error: "Invalid schedule id" });
+        res.status(400).json({ error: 'Invalid schedule id' });
         return;
       }
       if (!action || !(TASK_ACTIONS as readonly string[]).includes(action)) {
         res
           .status(400)
           .json({
-            error: "Task action must be one of: command, power, backup.",
+            error: 'Task action must be one of: command, power, backup.',
           });
         return;
       }
-      if (!payload || typeof payload !== "object") {
-        res.status(400).json({ error: "Task payload is required." });
+      if (!payload || typeof payload !== 'object') {
+        res.status(400).json({ error: 'Task payload is required.' });
         return;
       }
-      if (action === "command" && !String(payload.command ?? "").trim()) {
-        res.status(400).json({ error: "Command is required." });
+      if (action === 'command' && !String(payload.command ?? '').trim()) {
+        res.status(400).json({ error: 'Command is required.' });
         return;
       }
       if (
-        action === "power" &&
+        action === 'power' &&
         !(POWER_ACTIONS as readonly string[]).includes(
-          String(payload.action ?? ""),
+          String(payload.action ?? ''),
         )
       ) {
         res
           .status(400)
           .json({
-            error: "Power action must be one of: start, stop, restart, kill.",
+            error: 'Power action must be one of: start, stop, restart, kill.',
           });
         return;
       }
-      if (action === "backup" && !String(payload.name ?? "").trim()) {
-        res.status(400).json({ error: "Backup name is required." });
+      if (action === 'backup' && !String(payload.name ?? '').trim()) {
+        res.status(400).json({ error: 'Backup name is required.' });
         return;
       }
 
       try {
         const user = await prisma.users.findUnique({ where: { id: userId } });
         if (!user) {
-          res.status(404).json({ error: "User not found" });
+          res.status(404).json({ error: 'User not found' });
           return;
         }
 
         const server = await loadServerForUser(String(serverId), user.id, req);
         if (!server) {
-          res.status(403).json({ error: "Server not found or access denied." });
+          res.status(403).json({ error: 'Server not found or access denied.' });
           return;
         }
 
@@ -382,7 +382,7 @@ export function registerScheduleRoutes(router: Router): void {
           where: { id: scheduleId, serverId: server.UUID },
         });
         if (!schedule) {
-          res.status(404).json({ error: "Schedule not found" });
+          res.status(404).json({ error: 'Schedule not found' });
           return;
         }
 
@@ -400,19 +400,19 @@ export function registerScheduleRoutes(router: Router): void {
           },
         });
 
-        res.json({ success: true, message: "Task added.", task });
+        res.json({ success: true, message: 'Task added.', task });
       } catch (error) {
-        logger.error("Error adding schedule task:", error);
-        res.status(500).json({ error: "Failed to add task" });
+        logger.error('Error adding schedule task:', error);
+        res.status(500).json({ error: 'Failed to add task' });
       }
     },
   );
 
   // ── DELETE /server/:id/schedules/:scheduleId/tasks/:taskId ──────────────
   router.delete(
-    "/server/:id/schedules/:scheduleId/tasks/:taskId",
-    isAuthenticatedForServer("id"),
-    requireSubUserPermission("schedule.update"),
+    '/server/:id/schedules/:scheduleId/tasks/:taskId',
+    isAuthenticatedForServer('id'),
+    requireSubUserPermission('schedule.update'),
     async (req: Request, res: Response) => {
       const userId = req.session?.user?.id;
       const serverId = req.params?.id;
@@ -420,20 +420,20 @@ export function registerScheduleRoutes(router: Router): void {
       const taskId = parseInt(getParamAsString(req.params?.taskId), 10);
 
       if (isNaN(scheduleId) || isNaN(taskId)) {
-        res.status(400).json({ error: "Invalid ids" });
+        res.status(400).json({ error: 'Invalid ids' });
         return;
       }
 
       try {
         const user = await prisma.users.findUnique({ where: { id: userId } });
         if (!user) {
-          res.status(404).json({ error: "User not found" });
+          res.status(404).json({ error: 'User not found' });
           return;
         }
 
         const server = await loadServerForUser(String(serverId), user.id, req);
         if (!server) {
-          res.status(403).json({ error: "Server not found or access denied." });
+          res.status(403).json({ error: 'Server not found or access denied.' });
           return;
         }
 
@@ -441,7 +441,7 @@ export function registerScheduleRoutes(router: Router): void {
           where: { id: scheduleId, serverId: server.UUID },
         });
         if (!schedule) {
-          res.status(404).json({ error: "Schedule not found" });
+          res.status(404).json({ error: 'Schedule not found' });
           return;
         }
 
@@ -449,63 +449,63 @@ export function registerScheduleRoutes(router: Router): void {
           where: { id: taskId, scheduleId: schedule.id },
         });
         if (!task) {
-          res.status(404).json({ error: "Task not found" });
+          res.status(404).json({ error: 'Task not found' });
           return;
         }
 
         await prisma.scheduleTask.delete({ where: { id: task.id } });
-        res.json({ success: true, message: "Task removed." });
+        res.json({ success: true, message: 'Task removed.' });
       } catch (error) {
-        logger.error("Error removing schedule task:", error);
-        res.status(500).json({ error: "Failed to remove task" });
+        logger.error('Error removing schedule task:', error);
+        res.status(500).json({ error: 'Failed to remove task' });
       }
     },
   );
 
   // ── POST /server/:id/schedules/:scheduleId/run ──────────────────────────
   router.post(
-    "/server/:id/schedules/:scheduleId/run",
-    isAuthenticatedForServer("id"),
-    requireSubUserPermission("schedule.update"),
+    '/server/:id/schedules/:scheduleId/run',
+    isAuthenticatedForServer('id'),
+    requireSubUserPermission('schedule.update'),
     async (req: Request, res: Response) => {
       const userId = req.session?.user?.id;
       const serverId = req.params?.id;
       const scheduleId = parseInt(getParamAsString(req.params?.scheduleId), 10);
 
       if (isNaN(scheduleId)) {
-        res.status(400).json({ error: "Invalid schedule id" });
+        res.status(400).json({ error: 'Invalid schedule id' });
         return;
       }
 
       try {
         const user = await prisma.users.findUnique({ where: { id: userId } });
         if (!user) {
-          res.status(404).json({ error: "User not found" });
+          res.status(404).json({ error: 'User not found' });
           return;
         }
 
         const server = await loadServerForUser(String(serverId), user.id, req);
         if (!server) {
-          res.status(403).json({ error: "Server not found or access denied." });
+          res.status(403).json({ error: 'Server not found or access denied.' });
           return;
         }
 
         const schedule = await prisma.schedule.findFirst({
           where: { id: scheduleId, serverId: server.UUID },
           include: {
-            tasks: { orderBy: { order: "asc" } },
+            tasks: { orderBy: { order: 'asc' } },
             server: { include: { node: true, image: true } },
           },
         });
         if (!schedule) {
-          res.status(404).json({ error: "Schedule not found" });
+          res.status(404).json({ error: 'Schedule not found' });
           return;
         }
 
         if (schedule.tasks.length === 0) {
           res
             .status(400)
-            .json({ error: "This schedule has no tasks. Add a task first." });
+            .json({ error: 'This schedule has no tasks. Add a task first.' });
           return;
         }
 
@@ -514,7 +514,7 @@ export function registerScheduleRoutes(router: Router): void {
           res
             .status(500)
             .json({
-              error: "One or more schedule tasks failed.",
+              error: 'One or more schedule tasks failed.',
               errors: result.errors,
             });
           return;
@@ -528,10 +528,10 @@ export function registerScheduleRoutes(router: Router): void {
           },
         });
 
-        res.json({ success: true, message: "Schedule run triggered." });
+        res.json({ success: true, message: 'Schedule run triggered.' });
       } catch (error) {
-        logger.error("Error running schedule:", error);
-        res.status(500).json({ error: "Failed to run schedule" });
+        logger.error('Error running schedule:', error);
+        res.status(500).json({ error: 'Failed to run schedule' });
       }
     },
   );

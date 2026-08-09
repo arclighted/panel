@@ -10,8 +10,8 @@
  * Callers are also responsible for limiting payload size and timeouts.
  */
 
-import dns from "dns";
-import net from "net";
+import dns from 'dns';
+import net from 'net';
 
 const LOOKUP_TIMEOUT_MS = 5_000;
 const MAX_REDIRECTS = 5;
@@ -37,7 +37,7 @@ const dnsLookupAll = (hostname: string): Promise<dns.LookupAddress[]> =>
   });
 
 function isPrivateIpv4(ip: string): boolean {
-  const parts = ip.split(".").map(Number);
+  const parts = ip.split('.').map(Number);
   if (parts.length !== 4 || parts.some((p) => Number.isNaN(p))) {
     return false;
   }
@@ -86,26 +86,26 @@ function isPrivateIpv4(ip: string): boolean {
 
 function isPrivateIpv6(ip: string): boolean {
   const lower = ip.toLowerCase();
-  if (lower === "::1") {
+  if (lower === '::1') {
     return true;
   } // loopback
-  if (lower === "::") {
+  if (lower === '::') {
     return true;
   } // unspecified
   if (
-    lower.startsWith("fe8") ||
-    lower.startsWith("fe9") ||
-    lower.startsWith("fea") ||
-    lower.startsWith("feb")
+    lower.startsWith('fe8') ||
+    lower.startsWith('fe9') ||
+    lower.startsWith('fea') ||
+    lower.startsWith('feb')
   ) {
     return true; // fe80::/10 link-local
   }
-  if (lower.startsWith("fc") || lower.startsWith("fd")) {
+  if (lower.startsWith('fc') || lower.startsWith('fd')) {
     return true;
   } // fc00::/7 ULA
-  if (lower.startsWith("::ffff:")) {
+  if (lower.startsWith('::ffff:')) {
     // IPv4-mapped IPv6 — check the embedded IPv4.
-    const embedded = lower.slice("::ffff:".length);
+    const embedded = lower.slice('::ffff:'.length);
     return isPrivateIpv4(embedded);
   }
   return false;
@@ -128,13 +128,13 @@ export function isPrivateHostname(hostname: string): boolean {
     return true;
   }
   const lower = hostname.toLowerCase();
-  if (lower === "localhost" || lower.endsWith(".localhost")) {
+  if (lower === 'localhost' || lower.endsWith('.localhost')) {
     return true;
   }
-  if (lower === "local" || lower.endsWith(".local")) {
+  if (lower === 'local' || lower.endsWith('.local')) {
     return true;
   }
-  if (lower === "metadata.google.internal" || lower.endsWith(".internal")) {
+  if (lower === 'metadata.google.internal' || lower.endsWith('.internal')) {
     return true;
   }
   return false;
@@ -159,24 +159,24 @@ export async function assertSafePublicUrl(
   try {
     parsed = new URL(rawUrl);
   } catch {
-    return { ok: false, error: "Invalid URL" };
+    return { ok: false, error: 'Invalid URL' };
   }
-  if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
-    return { ok: false, error: "Only http(s) URLs are allowed" };
+  if (parsed.protocol !== 'http:' && parsed.protocol !== 'https:') {
+    return { ok: false, error: 'Only http(s) URLs are allowed' };
   }
-  if (parsed.protocol === "http:" && !opts.allowHttp) {
-    return { ok: false, error: "Only https URLs are allowed" };
+  if (parsed.protocol === 'http:' && !opts.allowHttp) {
+    return { ok: false, error: 'Only https URLs are allowed' };
   }
 
   const hostname = parsed.hostname;
   if (!hostname) {
-    return { ok: false, error: "URL has no hostname" };
+    return { ok: false, error: 'URL has no hostname' };
   }
 
   if (isPrivateHostname(hostname)) {
     return {
       ok: false,
-      error: "Private/internal network hosts are not allowed",
+      error: 'Private/internal network hosts are not allowed',
     };
   }
 
@@ -186,7 +186,7 @@ export async function assertSafePublicUrl(
   if (addresses.length > 0 && addresses.some((a) => isPrivateIp(a.address))) {
     return {
       ok: false,
-      error: "Hostname resolves to a private/internal address",
+      error: 'Hostname resolves to a private/internal address',
     };
   }
 
@@ -240,18 +240,18 @@ export async function fetchPublic(
   try {
     for (let hop = 0; hop <= MAX_REDIRECTS; hop++) {
       const response = await fetch(current, {
-        redirect: "manual",
+        redirect: 'manual',
         signal: controller.signal,
-        headers: { "user-agent": "AirlinkPanel/1.0" },
+        headers: { 'user-agent': 'AirlinkPanel/1.0' },
       });
 
       if (response.status >= 300 && response.status < 400) {
         const next = await resolveRedirect(
-          response.headers.get("location"),
+          response.headers.get('location'),
           current,
         );
         if (!next) {
-          return { ok: false, error: "Unsafe or malformed redirect" };
+          return { ok: false, error: 'Unsafe or malformed redirect' };
         }
         current = next.toString();
         continue;
@@ -263,16 +263,16 @@ export async function fetchPublic(
 
       const body = await response.text();
       if (opts.maxBytes && Buffer.byteLength(body) > opts.maxBytes) {
-        return { ok: false, error: "Remote response is too large" };
+        return { ok: false, error: 'Remote response is too large' };
       }
       return { ok: true, body, status: response.status };
     }
     return { ok: false, error: `Too many redirects (${MAX_REDIRECTS})` };
   } catch (error) {
-    const aborted = error instanceof Error && error.name === "AbortError";
+    const aborted = error instanceof Error && error.name === 'AbortError';
     return {
       ok: false,
-      error: aborted ? "Request timed out" : "Failed to fetch URL",
+      error: aborted ? 'Request timed out' : 'Failed to fetch URL',
     };
   } finally {
     clearTimeout(timer);

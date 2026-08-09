@@ -1,5 +1,6 @@
-import { Router, Request, Response } from 'express';
-import { Module } from '../../handlers/moduleInit';
+import type { Request, Response } from 'express';
+import { Router } from 'express';
+import type { Module } from '../../handlers/moduleInit';
 import prisma from '../../db';
 import { isAuthenticated } from '../../handlers/utils/auth/authUtil';
 import logger from '../../handlers/logger';
@@ -24,7 +25,7 @@ const adminMenuModule: Module = {
         try {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
-          if (!user) return res.redirect('/login');
+          if (!user) {return res.redirect('/login');}
           const settings = await prisma.settings.findUnique({ where: { id: 1 } });
           res.render('admin/menu/menu', { user, req, settings });
         } catch (error: unknown) {
@@ -41,7 +42,7 @@ const adminMenuModule: Module = {
         try {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
-          if (!user) return res.redirect('/login');
+          if (!user) {return res.redirect('/login');}
           const settings = await prisma.settings.findUnique({ where: { id: 1 } });
           res.render('admin/menu/menu', { user, req, settings });
         } catch (error: unknown) {

@@ -14,17 +14,17 @@
  * No global `ejs.renderFile` monkey-patch is used anywhere.
  */
 
-import type { Request, Response, NextFunction } from "express";
-import fs from "fs";
-import path from "path";
-import ejs from "ejs";
-import logger from "./logger";
-import { isProductionPosture } from "../utils/errors";
+import type { Request, Response, NextFunction } from 'express';
+import fs from 'fs';
+import path from 'path';
+import ejs from 'ejs';
+import logger from './logger';
+import { isProductionPosture } from '../utils/errors';
 import {
   resolveAddonViewPath,
   isValidAddonSlug,
   getAddonDirs,
-} from "./addonViewResolver";
+} from './addonViewResolver';
 
 type RenderCallback = (err: Error | null, html?: string) => void;
 type RenderOverrides = object | RenderCallback;
@@ -40,8 +40,8 @@ function renderFileDirect(
       if (callback) {
         return callback(err);
       }
-      logger.error("View render error:", err);
-      return res.status(500).send("View render error");
+      logger.error('View render error:', err);
+      return res.status(500).send('View render error');
     }
     if (callback) {
       return callback(null, html);
@@ -77,7 +77,7 @@ export function installRenderResolver(options: RenderResolverOptions) {
       callback?: RenderCallback,
     ): void {
       let opts: object;
-      if (typeof options === "function") {
+      if (typeof options === 'function') {
         callback = options as RenderCallback;
         opts = {};
       } else {
@@ -88,8 +88,8 @@ export function installRenderResolver(options: RenderResolverOptions) {
 
       const isAbsolutePath = path.isAbsolute(view);
       const isAddonView =
-        view.includes("/storage/addons/") ||
-        view.includes("\\storage\\addons\\");
+        view.includes('/storage/addons/') ||
+        view.includes('\\storage\\addons\\');
 
       if (isAbsolutePath || isAddonView) {
         renderFileDirect(res, view, data, callback);
@@ -120,7 +120,7 @@ export function installRenderResolver(options: RenderResolverOptions) {
                   .status(500)
                   .send(
                     isProductionPosture()
-                      ? "View render error"
+                      ? 'View render error'
                       : `View render error: ${err.message}`,
                   );
               }

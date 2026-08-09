@@ -13,13 +13,13 @@ function matchSelector(el, sel) {
   return alts.some((alt) => {
     const segs = alt.match(/\[[^\]]+\]/g) || [];
     const idM = /^#([a-zA-Z0-9-]+)$/.exec(alt);
-    if (idM) return el.getAttribute && el.getAttribute('id') === idM[1];
-    if (!segs.length) return false;
+    if (idM) {return el.getAttribute && el.getAttribute('id') === idM[1];}
+    if (!segs.length) {return false;}
     return segs.every((seg) => {
       const m = /^\[([a-zA-Z0-9-]+)(?:="([^"]*)")?\]$/.exec(seg);
-      if (!m) return false;
+      if (!m) {return false;}
       const [name, value] = [m[1], m[2]];
-      if (value !== undefined) return el.getAttribute(name) === value;
+      if (value !== undefined) {return el.getAttribute(name) === value;}
       return el.hasAttribute(name);
     });
   });
@@ -47,18 +47,18 @@ class FakeDialog {
     this.classList = new FakeClassList(this);
     this.returnValue = '';
   }
-  setAttribute(k, v) { this.attrs.set(k, String(v)); if (k === 'open') this.open = true; }
+  setAttribute(k, v) { this.attrs.set(k, String(v)); if (k === 'open') {this.open = true;} }
   getAttribute(k) { return this.attrs.has(k) ? this.attrs.get(k) : null; }
-  removeAttribute(k) { this.attrs.delete(k); if (k === 'open') this.open = false; }
+  removeAttribute(k) { this.attrs.delete(k); if (k === 'open') {this.open = false;} }
   hasAttribute(k) { return this.attrs.has(k); }
-  contains(el) { let n = el; while (n) { if (n === this) return true; n = n.parent; } return false; }
+  contains(el) { let n = el; while (n) { if (n === this) {return true;} n = n.parent; } return false; }
   appendChild(el) { el.parent = this; el.parentElement = this; el.parentNode = this; this.children.push(el); return el; }
-  focus() { this.focused = true; if (this.ownerDoc) this.ownerDoc.activeElement = this; }
+  focus() { this.focused = true; if (this.ownerDoc) {this.ownerDoc.activeElement = this;} }
   querySelector(sel) { return this.querySelectorAll(sel)[0] || null; }
   querySelectorAll(sel) {
     const out = [];
     const walk = (el) => {
-      if (matchSelector(el, sel)) out.push(el);
+      if (matchSelector(el, sel)) {out.push(el);}
       el.children.forEach(walk);
     };
     this.children.forEach(walk);
@@ -67,7 +67,7 @@ class FakeDialog {
   closest(sel) {
     let n = this;
     while (n) {
-      if (matchSelector(n, sel)) return n;
+      if (matchSelector(n, sel)) {return n;}
       n = n.parent;
     }
     return null;

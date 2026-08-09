@@ -125,7 +125,7 @@ describe('assertNodeCapacity', () => {
     // A stopped 4 GB server no longer consumes capacity, so a new 4 GB server
     // fits on the 4 GB node.
     mockPrisma.server.findMany.mockImplementation(({ where }: any) => {
-      if (where?.Running === true) return Promise.resolve([]);
+      if (where?.Running === true) {return Promise.resolve([]);}
       return Promise.resolve([{ Memory: 4096, Cpu: 100, Storage: 51200, Running: false }]);
     });
 
@@ -137,7 +137,7 @@ describe('assertNodeCapacity', () => {
   it('runningOnly counts running servers against capacity', async () => {
     // A running 8 GB server holds the node — adding another 4 GB is blocked.
     mockPrisma.server.findMany.mockImplementation(({ where }: any) => {
-      if (where?.Running === true) return Promise.resolve([{ Memory: 8193, Cpu: 100, Storage: 51200, Running: true }]);
+      if (where?.Running === true) {return Promise.resolve([{ Memory: 8193, Cpu: 100, Storage: 51200, Running: true }]);}
       return Promise.resolve([{ Memory: 8193, Cpu: 100, Storage: 51200, Running: true }]);
     });
 

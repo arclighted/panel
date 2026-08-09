@@ -12,8 +12,8 @@ function globEjs(dir: string): string[] {
   const out: string[] = [];
   const walk = (d: string) => {
     for (const entry of readdirSync(d, { withFileTypes: true })) {
-      if (entry.isDirectory()) walk(join(d, entry.name));
-      else if (entry.name.endsWith('.ejs')) out.push(join(d, entry.name));
+      if (entry.isDirectory()) {walk(join(d, entry.name));}
+      else if (entry.name.endsWith('.ejs')) {out.push(join(d, entry.name));}
     }
   };
   walk(join(root, dir));
@@ -37,19 +37,19 @@ describe('ARIA: tabs', () => {
   });
 
   it('manages aria-selected on tab activation', () => {
-    expect(tabSrc).toContain("'aria-selected'");
+    expect(tabSrc).toContain('\'aria-selected\'');
   });
 
   it('manages tabindex for roving focus', () => {
-    expect(tabSrc).toContain("'tabindex'");
+    expect(tabSrc).toContain('\'tabindex\'');
   });
 
   it('hides inactive panels with hidden attribute', () => {
-    expect(tabSrc).toContain("'hidden'");
+    expect(tabSrc).toContain('\'hidden\'');
   });
 
   it('supports arrow key navigation', () => {
-    expect(tabSrc).toContain("'ArrowRight'") || expect(tabSrc).toContain("'ArrowLeft'");
+    expect(['ArrowRight', 'ArrowLeft'].some((key) => tabSrc.includes(key))).toBe(true);
   });
 });
 
@@ -61,11 +61,11 @@ describe('ARIA: dialog', () => {
   });
 
   it('listens for cancel event (Escape key)', () => {
-    expect(dialogSrc).toContain("'cancel'");
+    expect(dialogSrc).toContain('\'cancel\'');
   });
 
   it('listens for click event (backdrop close)', () => {
-    expect(dialogSrc).toContain("'click'");
+    expect(dialogSrc).toContain('\'click\'');
   });
 });
 
@@ -73,15 +73,15 @@ describe('ARIA: toast', () => {
   const toastEjs = readFile('views/components/toast.ejs');
 
   it('toast container has aria-live="polite"', () => {
-    expect(toastEjs).toContain("setAttribute('aria-live', 'polite')");
+    expect(toastEjs).toContain('setAttribute(\'aria-live\', \'polite\')');
   });
 
   it('toast container has role="status"', () => {
-    expect(toastEjs).toContain("setAttribute('role', 'status')");
+    expect(toastEjs).toContain('setAttribute(\'role\', \'status\')');
   });
 
   it('dismiss button has aria-label', () => {
-    expect(toastEjs).toContain("setAttribute('aria-label', 'Dismiss notification')");
+    expect(toastEjs).toContain('setAttribute(\'aria-label\', \'Dismiss notification\')');
   });
 });
 

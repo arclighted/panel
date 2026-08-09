@@ -9,16 +9,16 @@
  * never does. Run it once after deploying, then start the panel.
  */
 
-import crypto from "crypto";
-import fs from "fs";
-import path from "path";
+import crypto from 'crypto';
+import fs from 'fs';
+import path from 'path';
 
-const PANEL_ROOT = path.resolve(__dirname, "../..");
-const ENV_PATH = path.join(PANEL_ROOT, ".env");
-const EXAMPLE_PATH = path.join(PANEL_ROOT, "example.env");
+const PANEL_ROOT = path.resolve(__dirname, '../..');
+const ENV_PATH = path.join(PANEL_ROOT, '.env');
+const EXAMPLE_PATH = path.join(PANEL_ROOT, 'example.env');
 
 function generateSecret(): string {
-  return crypto.randomBytes(32).toString("hex");
+  return crypto.randomBytes(32).toString('hex');
 }
 
 function ensureEnvFile(): void {
@@ -30,12 +30,12 @@ function ensureEnvFile(): void {
     console.log(`Created .env from example.env (${ENV_PATH})`);
     return;
   }
-  fs.writeFileSync(ENV_PATH, "");
+  fs.writeFileSync(ENV_PATH, '');
   console.log(`Created empty .env (${ENV_PATH})`);
 }
 
 function setSecret(envPath: string, secret: string): void {
-  const lines = fs.readFileSync(envPath, "utf8").split("\n");
+  const lines = fs.readFileSync(envPath, 'utf8').split('\n');
   const keyRegex = /^SESSION_SECRET=.*/;
   let found = false;
 
@@ -51,7 +51,7 @@ function setSecret(envPath: string, secret: string): void {
     out.push(`SESSION_SECRET="${secret}"`);
   }
 
-  fs.writeFileSync(envPath, `${out.join("\n").replace(/\n+$/, "\n")}\n`);
+  fs.writeFileSync(envPath, `${out.join('\n').replace(/\n+$/, '\n')}\n`);
 }
 
 function main(): void {
@@ -66,9 +66,9 @@ function main(): void {
     // chmod may fail on some filesystems; not fatal.
   }
 
-  console.log("Generated a new SESSION_SECRET and wrote it to .env");
+  console.log('Generated a new SESSION_SECRET and wrote it to .env');
   console.log(`  .env  -> ${ENV_PATH}`);
-  console.log("Restart the panel for the new secret to take effect.");
+  console.log('Restart the panel for the new secret to take effect.');
 }
 
 main();

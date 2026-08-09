@@ -12,9 +12,9 @@ function matchSelector(el, sel) {
   const segs = sel.match(/\[[^\]]+\]/g) || [];
   return segs.every((seg) => {
     const m = /^\[([a-zA-Z0-9-]+)(?:="([^"]*)")?\]$/.exec(seg);
-    if (!m) return false;
+    if (!m) {return false;}
     const [name, value] = [m[1], m[2]];
-    if (value !== undefined) return el.getAttribute(name) === value;
+    if (value !== undefined) {return el.getAttribute(name) === value;}
     return el.hasAttribute(name);
   });
 }
@@ -33,7 +33,7 @@ class FakeEl {
   getAttribute(k) { return this.attrs.has(k) ? this.attrs.get(k) : null; }
   removeAttribute(k) { this.attrs.delete(k); }
   hasAttribute(k) { return this.attrs.has(k); }
-  contains(el) { let n = el; while (n) { if (n === this) return true; n = n.parent; } return false; }
+  contains(el) { let n = el; while (n) { if (n === this) {return true;} n = n.parent; } return false; }
   appendChild(el) { el.parent = this; el.parentElement = this; el.parentNode = this; this.children.push(el); return el; }
   focus() { this.focused = true; }
   dispatchEvent() { return true; }
@@ -41,7 +41,7 @@ class FakeEl {
   querySelectorAll(sel) {
     const out = [];
     const walk = (el) => {
-      if (matchSelector(el, sel)) out.push(el);
+      if (matchSelector(el, sel)) {out.push(el);}
       el.children.forEach(walk);
     };
     this.children.forEach(walk);
@@ -50,7 +50,7 @@ class FakeEl {
   closest(sel) {
     let n = this;
     while (n) {
-      if (matchSelector(n, sel)) return n;
+      if (matchSelector(n, sel)) {return n;}
       n = n.parent;
     }
     return null;
@@ -76,8 +76,8 @@ function panel(attrs) {
 
 function makeRoot({ defaultName, hash = false } = {}) {
   const root = new FakeEl('div', { 'data-al-tabs': '' });
-  if (defaultName) root.attrs.set('data-tabs-default', defaultName);
-  if (hash) root.attrs.set('data-tabs-hash', '');
+  if (defaultName) {root.attrs.set('data-tabs-default', defaultName);}
+  if (hash) {root.attrs.set('data-tabs-hash', '');}
   const list = new FakeEl('div', { role: 'tablist' });
   root.appendChild(list);
   return { root, list };
@@ -102,8 +102,8 @@ function makeScope(initialHash = '') {
     CustomEvent: class CustomEvent {
       constructor(type, init) { this.type = type; this.detail = init?.detail; }
     },
-    addEventListener(t, fn) { if (t === 'hashchange') hashListeners.add(fn); },
-    removeEventListener(t, fn) { if (t === 'hashchange') hashListeners.delete(fn); },
+    addEventListener(t, fn) { if (t === 'hashchange') {hashListeners.add(fn);} },
+    removeEventListener(t, fn) { if (t === 'hashchange') {hashListeners.delete(fn);} },
     document: documentEl,
     fireHashChange() { hashListeners.forEach((fn) => fn()); },
   };

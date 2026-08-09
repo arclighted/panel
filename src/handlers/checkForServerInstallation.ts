@@ -1,18 +1,18 @@
-import { isHttpError } from "../utils/http";
-import prisma from "../db";
+import { isHttpError } from '../utils/http';
+import prisma from '../db';
 import {
   daemonStateSchema,
   parseDaemonResponse,
-} from "../platform/daemon/dtos";
-import { checkNodeStatus } from "./utils/node/nodeStatus";
-import { daemonRequest } from "./utils/core/daemonRequest";
+} from '../platform/daemon/dtos';
+import { checkNodeStatus } from './utils/node/nodeStatus';
+import { daemonRequest } from './utils/core/daemonRequest';
 
-type CheckInstallationResult = {
+interface CheckInstallationResult {
   installed: boolean;
   state?: string;
   failed?: boolean;
   error?: string;
-};
+}
 
 // In-memory cache so repeated calls within the same request cycle or across
 // rapid page navigations don't all hit the daemon independently.
@@ -32,36 +32,36 @@ export async function checkForServerInstallation(
     });
 
     if (!server) {
-      return { installed: false, error: "Server not found." };
+      return { installed: false, error: 'Server not found.' };
     }
 
     // Fast path: if the DB says it's not installing and not queued, trust it.
     // Avoids an HTTP call to the daemon on every page render for already-running servers.
     if (!server.Installing && !server.Queued) {
-      return { installed: true, state: "installed" };
+      return { installed: true, state: 'installed' };
     }
 
     const now = Date.now();
     const cached = cache.get(serverId);
     if (cached && now - cached.timestamp < CACHE_TTL_MS) {
       return {
-        installed: cached.state === "installed",
+        installed: cached.state === 'installed',
         state: cached.state,
-        failed: cached.state === "failed",
+        failed: cached.state === 'failed',
         error: cached.error,
       };
     }
 
     const nodeStatus = await checkNodeStatus(server.node);
-    if (nodeStatus.status === "Offline") {
-      return { installed: false, state: "offline" };
+    if (nodeStatus.status === 'Offline') {
+      return { installed: false, state: 'offline' };
     }
 
     const response = await daemonRequest<unknown>({
       nodeAddress: server.node.address,
       nodePort: server.node.port,
       nodeKey: server.node.key,
-      method: "GET",
+      method: 'GET',
       path: `/container/status/${server.UUID}`,
       timeout: 4000,
     });
@@ -69,10 +69,10 @@ export async function checkForServerInstallation(
     const data = parseDaemonResponse(daemonStateSchema, response.data) ?? {};
     const state = data.state;
     const installError = data.error;
-    const isInstalled = state === "installed";
+    const isInstalled = state === 'installed';
 
     cache.set(serverId, {
-      state: state ?? "",
+      state: state ?? '',
       error: installError,
       timestamp: now,
     });
@@ -86,13 +86,13 @@ export async function checkForServerInstallation(
     return {
       installed: isInstalled,
       state,
-      failed: state === "failed",
+      failed: state === 'failed',
       error: installError,
     };
   } catch (error: any) {
     if (isHttpError(error) && error.status === 404) {
-      return { installed: false, state: "not_found" };
+      return { installed: false, state: 'not_found' };
     }
-    return { installed: false, error: "Could not reach daemon." };
+    return { installed: false, error: 'Could not reach daemon.' };
   }
 }

@@ -1,15 +1,16 @@
-import bcrypt from "bcryptjs";
-import prisma from "../../db";
-import { Router, Request, Response } from "express";
-import { Module } from "../../handlers/moduleInit";
-import logger from "../../handlers/logger";
-import rateLimit from "express-rate-limit";
-import { getClientIp } from "../../utils/ip";
+import bcrypt from 'bcryptjs';
+import prisma from '../../db';
+import type { Request, Response } from 'express';
+import { Router } from 'express';
+import type { Module } from '../../handlers/moduleInit';
+import logger from '../../handlers/logger';
+import rateLimit from 'express-rate-limit';
+import { getClientIp } from '../../utils/ip';
 import {
   loginSchema,
   registerSchema,
   authValidationErrorCode,
-} from "./schemas";
+} from './schemas';
 
 // Tight rate limit applied only to auth routes — separate from the global limit.
 // 10 attempts per minute per IP before they get a 429.
@@ -18,7 +19,7 @@ const authRateLimit = rateLimit({
   max: 10,
   standardHeaders: true,
   legacyHeaders: false,
-  message: { error: "Too many attempts. Try again in a minute." },
+  message: { error: 'Too many attempts. Try again in a minute.' },
   keyGenerator: (req) => getClientIp(req),
   validate: false,
 });
@@ -37,12 +38,12 @@ async function getSecuritySettings() {
 
 const authServiceModule: Module = {
   info: {
-    name: "Auth System Module",
-    description: "Authentication and authorisation for users.",
-    version: "2.0.0",
-    moduleVersion: "2.0.0",
-    author: "AirlinkLab",
-    license: "MIT",
+    name: 'Auth System Module',
+    description: 'Authentication and authorisation for users.',
+    version: '2.0.0',
+    moduleVersion: '2.0.0',
+    author: 'AirlinkLab',
+    license: 'MIT',
   },
 
   router: () => {
@@ -50,13 +51,13 @@ const authServiceModule: Module = {
 
     // ── POST /login ─────────────────────────────────────────────────────────
     router.post(
-      "/login",
+      '/login',
       authRateLimit,
       async (req: Request, res: Response) => {
         const parsed = loginSchema.safeParse(req.body);
 
         if (!parsed.success) {
-          return res.redirect("/login?err=invalid_credentials");
+          return res.redirect('/login?err=invalid_credentials');
         }
 
         const { identifier, password } = parsed.data;
@@ -69,7 +70,7 @@ const authServiceModule: Module = {
           });
 
           // Always run bcrypt to prevent timing-based user enumeration.
-          const hash = user?.password ?? "$2b$10$" + "x".repeat(53);
+          const hash = user?.password ?? `$2b$10$${  'x'.repeat(53)}`;
           const isPasswordValid = await bcrypt.compare(password, hash);
 
           // Check lockout (only meaningful if the user exists).
@@ -98,7 +99,7 @@ const authServiceModule: Module = {
               });
             }
             // Single generic error — never reveal whether the username exists.
-            return res.redirect("/login?err=invalid_credentials");
+            return res.redirect('/login?err=invalid_credentials');
           }
 
           // Successful login: reset counters.
@@ -115,7 +116,7 @@ const authServiceModule: Module = {
           // until the user verifies their TOTP code on /2fa.
           if (user.totpEnabled) {
             req.session.pendingUserId = user.id;
-            res.redirect("/2fa");
+            res.redirect('/2fa');
             return;
           }
 
@@ -123,8 +124,8 @@ const authServiceModule: Module = {
             id: user.id,
             email: user.email,
             isAdmin: user.isAdmin,
-            description: user.description ?? "",
-            username: user.username ?? "",
+            description: user.description ?? '',
+            username: user.username ?? '',
             role: user.role,
             onboardingCompleted: user.onboardingCompleted,
             onboardingSkipped: user.onboardingSkipped,
@@ -134,34 +135,34 @@ const authServiceModule: Module = {
             data: {
               userId: user.id,
               ipAddress: getClientIp(req),
-              userAgent: req.headers["user-agent"] || null,
+              userAgent: req.headers['user-agent'] || null,
             },
           });
 
-          res.redirect("/");
+          res.redirect('/');
         } catch (error) {
-          logger.error("Login error:", error);
-          res.redirect("/login?err=invalid_credentials");
+          logger.error('Login error:', error);
+          res.redirect('/login?err=invalid_credentials');
         }
       },
     );
 
     // ── POST /register ───────────────────────────────────────────────────────
     router.post(
-      "/register",
+      '/register',
       authRateLimit,
       async (req: Request, res: Response) => {
         const parsed = registerSchema.safeParse(req.body);
 
         if (!parsed.success) {
           const code = authValidationErrorCode(parsed.error.issues);
-          if (code === "missing") {
-            return res.redirect("/register?err=missing_credentials");
+          if (code === 'missing') {
+            return res.redirect('/register?err=missing_credentials');
           }
-          if (code === "invalid_username") {
-            return res.redirect("/register?err=invalid_username");
+          if (code === 'invalid_username') {
+            return res.redirect('/register?err=invalid_username');
           }
-          return res.redirect("/register?err=invalid_input");
+          return res.redirect('/register?err=invalid_input');
         }
 
         const { email, username, password } = parsed.data;
@@ -175,7 +176,7 @@ const authServiceModule: Module = {
               where: { id: 1 },
             });
             if (!settings?.allowRegistration) {
-              return res.redirect("/login?err=registration_disabled");
+              return res.redirect('/login?err=registration_disabled');
             }
           }
 
@@ -183,25 +184,25 @@ const authServiceModule: Module = {
             where: { OR: [{ email }, { username }] },
           });
           if (existing)
-            return res.redirect("/register?err=user_already_exists");
+          {return res.redirect('/register?err=user_already_exists');}
 
           await prisma.users.create({
             data: {
               email,
               username,
               password: await bcrypt.hash(password, 12),
-              description: "No About Me",
+              description: 'No About Me',
               // The first user to register owns the panel; everyone else starts
               // as a normal user.
-              role: isFirstUser ? "owner" : "user",
+              role: isFirstUser ? 'owner' : 'user',
               isAdmin: isFirstUser,
             },
           });
 
-          res.redirect("/login");
+          res.redirect('/login');
         } catch (error) {
-          logger.error("Register error:", error);
-          res.redirect("/register?err=missing_credentials");
+          logger.error('Register error:', error);
+          res.redirect('/register?err=missing_credentials');
         }
       },
     );
@@ -210,18 +211,18 @@ const authServiceModule: Module = {
     // Canonical logout route. The browser initiates logout via a plain GET link
     // (<a href="/logout"> in template.ejs / bottomNav.ejs), so only GET is kept;
     // the duplicate POST handler previously lived in auth.ts and is removed.
-    router.get("/logout", (req: Request, res: Response) => {
+    router.get('/logout', (req: Request, res: Response) => {
       if (req.session) {
         req.session.destroy((err) => {
           if (err) {
-            logger.error("Session destruction error", err);
+            logger.error('Session destruction error', err);
           }
-          res.clearCookie("connect.sid");
-          res.redirect("/login");
+          res.clearCookie('connect.sid');
+          res.redirect('/login');
         });
       } else {
-        res.clearCookie("connect.sid");
-        res.redirect("/login");
+        res.clearCookie('connect.sid');
+        res.redirect('/login');
       }
     });
 

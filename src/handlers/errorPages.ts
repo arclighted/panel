@@ -1,12 +1,12 @@
-import { Request, Response, NextFunction } from 'express';
+import type { Request, Response, NextFunction } from 'express';
 import prisma from '../db';
 import logger from './logger';
 import { isProductionPosture } from '../utils/errors';
 
-type ErrorPageInfo = {
+interface ErrorPageInfo {
   title: string;
   message: string;
-};
+}
 
 const DEFAULT_SETTINGS = {
   title: 'Airlink',

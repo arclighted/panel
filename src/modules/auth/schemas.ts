@@ -7,7 +7,7 @@
  * behavior changes. Zod guarantees a single, normalized error path.
  */
 
-import { z } from "zod";
+import { z } from 'zod';
 
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const USERNAME_REGEX = /^[a-zA-Z0-9]{3,20}$/;
@@ -18,8 +18,8 @@ const PASSWORD_REGEX = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
  * Both fields are required; empty values fail with `missing`.
  */
 export const loginSchema = z.object({
-  identifier: z.string({ error: "missing" }).min(1, { error: "missing" }),
-  password: z.string({ error: "missing" }).min(1, { error: "missing" }),
+  identifier: z.string({ error: 'missing' }).min(1, { error: 'missing' }),
+  password: z.string({ error: 'missing' }).min(1, { error: 'missing' }),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
@@ -31,9 +31,9 @@ export type LoginInput = z.infer<typeof loginSchema>;
  */
 export const registerSchema = z
   .object({
-    email: z.string({ error: "missing" }).min(1, { error: "missing" }),
-    username: z.string({ error: "missing" }).min(1, { error: "missing" }),
-    password: z.string({ error: "missing" }).min(1, { error: "missing" }),
+    email: z.string({ error: 'missing' }).min(1, { error: 'missing' }),
+    username: z.string({ error: 'missing' }).min(1, { error: 'missing' }),
+    password: z.string({ error: 'missing' }).min(1, { error: 'missing' }),
   })
   .superRefine((value, ctx) => {
     if (
@@ -42,15 +42,15 @@ export const registerSchema = z
     ) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "invalid_input",
-        path: ["email"],
+        message: 'invalid_input',
+        path: ['email'],
       });
     }
     if (!USERNAME_REGEX.test(value.username)) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "invalid_username",
-        path: ["username"],
+        message: 'invalid_username',
+        path: ['username'],
       });
     }
   });
@@ -58,7 +58,7 @@ export const registerSchema = z
 export type RegisterInput = z.infer<typeof registerSchema>;
 
 export type AuthValidationError =
-  "missing" | "invalid_input" | "invalid_username";
+  'missing' | 'invalid_input' | 'invalid_username';
 
 /**
  * Normalizes a schema failure into the panel's redirect error parameter.
@@ -68,21 +68,21 @@ export type AuthValidationError =
 export function authValidationErrorCode(
   issues: z.ZodIssue[],
 ): AuthValidationError {
-  const missing = issues.some((issue) => issue.message === "missing");
+  const missing = issues.some((issue) => issue.message === 'missing');
   if (missing) {
-    return "missing";
+    return 'missing';
   }
   const invalidInput = issues.some(
-    (issue) => issue.message === "invalid_input",
+    (issue) => issue.message === 'invalid_input',
   );
   const invalidUsername = issues.some(
-    (issue) => issue.message === "invalid_username",
+    (issue) => issue.message === 'invalid_username',
   );
   if (invalidInput) {
-    return "invalid_input";
+    return 'invalid_input';
   }
   if (invalidUsername) {
-    return "invalid_username";
+    return 'invalid_username';
   }
-  return "invalid_input";
+  return 'invalid_input';
 }

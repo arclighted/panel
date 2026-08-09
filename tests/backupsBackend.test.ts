@@ -87,9 +87,9 @@ const defaultLocalSettings = {
 
 function defaultDaemon() {
   mockDaemonRequest.mockImplementation((opts: any) => {
-    if (opts.method === 'DELETE') return Promise.resolve({ status: 200, data: {} });
+    if (opts.method === 'DELETE') {return Promise.resolve({ status: 200, data: {} });}
     if (opts.path === '/container/backup/download')
-      return Promise.resolve({ status: 200, data: {} });
+    {return Promise.resolve({ status: 200, data: {} });}
     return Promise.resolve({ status: 200, data: daemonBackupResult });
   });
 }

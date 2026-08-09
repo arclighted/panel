@@ -11,14 +11,14 @@
  *      (defence in depth against any future caller passing a dotted name).
  */
 
-import path from "path";
-import fs from "fs";
+import path from 'path';
+import fs from 'fs';
 
 /** Pattern shared with addon identifiers: lowercase alnum, dash, ≤48 chars. */
 export const ADDON_SLUG_REGEX = /^[a-z0-9][a-z0-9-]{0,47}$/;
 
 export function isValidAddonSlug(slug: unknown): slug is string {
-  return typeof slug === "string" && ADDON_SLUG_REGEX.test(slug);
+  return typeof slug === 'string' && ADDON_SLUG_REGEX.test(slug);
 }
 
 /**
@@ -34,17 +34,17 @@ export function resolveAddonViewPath(
   if (!isValidAddonSlug(slug)) {
     return null;
   }
-  if (typeof viewName !== "string" || viewName.length === 0) {
+  if (typeof viewName !== 'string' || viewName.length === 0) {
     return null;
   }
   if (
-    viewName.includes("\0") ||
-    viewName.split(/[\\/]/).some((seg) => seg === "..")
+    viewName.includes('\0') ||
+    viewName.split(/[\\/]/).some((seg) => seg === '..')
   ) {
     return null;
   }
 
-  const viewsBase = path.resolve(addonsRoot, slug, "views");
+  const viewsBase = path.resolve(addonsRoot, slug, 'views');
   const target = path.resolve(viewsBase, viewName);
 
   if (target !== viewsBase && !target.startsWith(viewsBase + path.sep)) {

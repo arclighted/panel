@@ -1,5 +1,6 @@
-import { Router, Request, Response } from 'express';
-import { Module } from '../../handlers/moduleInit';
+import type { Request, Response } from 'express';
+import { Router } from 'express';
+import type { Module } from '../../handlers/moduleInit';
 import prisma from '../../db';
 import { isAuthenticated } from '../../handlers/utils/auth/authUtil';
 import logger from '../../handlers/logger';
@@ -32,7 +33,7 @@ interface ClientPort {
 // request is rejected; the create flow falls back to the image's requirements
 // when no ports are supplied at all.
 function parseClientPorts(raw: unknown): ClientPort[] | null {
-  if (!Array.isArray(raw) || raw.length === 0) return null;
+  if (!Array.isArray(raw) || raw.length === 0) {return null;}
   const out: ClientPort[] = [];
   for (const item of raw) {
     const obj = item && typeof item === 'object' ? (item as Record<string, unknown>) : {};
@@ -67,12 +68,12 @@ async function resolveUserServerLimit(
     allowPrivilegedServerLimit?: number | null;
   } | null,
 ): Promise<number> {
-const user = await prisma.users.findUnique({ where: { id: userId } });
-  if (!user) return 0;
+  const user = await prisma.users.findUnique({ where: { id: userId } });
+  if (!user) {return 0;}
   // Owner and admins are not subject to per-user server limits.
-  if (user.role === 'owner' || user.role === 'admin') return Number.MAX_SAFE_INTEGER;
-  if (user.serverLimit !== null && user.serverLimit !== undefined) return user.serverLimit;
-  if (user.role === 'privileged') return settings?.allowPrivilegedServerLimit ?? 5;
+  if (user.role === 'owner' || user.role === 'admin') {return Number.MAX_SAFE_INTEGER;}
+  if (user.serverLimit !== null && user.serverLimit !== undefined) {return user.serverLimit;}
+  if (user.role === 'privileged') {return settings?.allowPrivilegedServerLimit ?? 5;}
   return settings?.defaultServerLimit ?? 0;
 }
 
@@ -113,7 +114,7 @@ const userCreateServerModule: Module = {
       try {
         const userId = req.session?.user?.id;
         const user = await prisma.users.findUnique({ where: { id: userId } });
-        if (!user) return res.redirect('/login');
+        if (!user) {return res.redirect('/login');}
 
         const settings = await prisma.settings.findUnique({ where: { id: 1 } });
 
@@ -209,7 +210,7 @@ const userCreateServerModule: Module = {
       try {
         const userId = req.session?.user?.id;
         const user = await prisma.users.findUnique({ where: { id: userId } });
-        if (!user) return res.status(401).json({ error: 'Unauthorized' });
+        if (!user) {return res.status(401).json({ error: 'Unauthorized' });}
 
         const settings = await prisma.settings.findUnique({ where: { id: 1 } });
 
@@ -278,7 +279,7 @@ const userCreateServerModule: Module = {
         }
 
         const node = await prisma.node.findUnique({ where: { id: parseInt(nodeId) } });
-        if (!node) return res.status(400).json({ error: 'Node not found.' });
+        if (!node) {return res.status(400).json({ error: 'Node not found.' });}
 
         try {
           await assertNodeCapacity(node, memory, cpu, storage);
@@ -287,7 +288,7 @@ const userCreateServerModule: Module = {
         }
 
         const image = await prisma.images.findUnique({ where: { id: parseInt(imageId) } });
-        if (!image) return res.status(400).json({ error: 'Image not found.' });
+        if (!image) {return res.status(400).json({ error: 'Image not found.' });}
         if (image.status !== 'approved') {
           return res.status(400).json({ error: 'This image is not approved yet.' });
         }
@@ -321,10 +322,10 @@ const userCreateServerModule: Module = {
         }
 
         const imageDocker = dockerImages.find((img) => Object.keys(img).includes(dockerImage));
-        if (!imageDocker) return res.status(400).json({ error: 'Docker image variant not found.' });
+        if (!imageDocker) {return res.status(400).json({ error: 'Docker image variant not found.' });}
 
         const startCommand = image.startup;
-        if (!startCommand) return res.status(500).json({ error: 'Image has no startup command.' });
+        if (!startCommand) {return res.status(500).json({ error: 'Image has no startup command.' });}
 
         let imageVariables: ServerVariable[] = [];
         try {
@@ -397,7 +398,7 @@ const userCreateServerModule: Module = {
       try {
         const userId = req.session?.user?.id;
         const user = await prisma.users.findUnique({ where: { id: userId } });
-        if (!user) return res.status(401).json({ error: 'Unauthorized' });
+        if (!user) {return res.status(401).json({ error: 'Unauthorized' });}
 
         const settings = await prisma.settings.findUnique({ where: { id: 1 } });
         if (!settings?.allowUserDeleteServer) {
@@ -409,8 +410,8 @@ const userCreateServerModule: Module = {
           include: { node: true },
         });
 
-        if (!server) return res.status(404).json({ error: 'Server not found.' });
-        if (server.ownerId !== userId) return res.status(403).json({ error: 'This is not your server.' });
+        if (!server) {return res.status(404).json({ error: 'Server not found.' });}
+        if (server.ownerId !== userId) {return res.status(403).json({ error: 'This is not your server.' });}
 
         const force = req.query.force === 'true';
 

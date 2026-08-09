@@ -1,49 +1,49 @@
-import type { Request, Response, NextFunction } from "express";
-import express from "express";
-import prisma from "./db";
-import path from "path";
-import session from "express-session";
-import { loadEnv } from "./handlers/envLoader";
-import { databaseLoader } from "./handlers/databaseLoader";
-import { loadModules } from "./handlers/modulesLoader";
-import logger from "./handlers/logger";
-import config from "../storage/config.json";
-import cookieParser from "cookie-parser";
-import expressWs from "express-ws";
-import compression from "compression";
-import { translationMiddleware } from "./handlers/utils/core/translation";
-import PrismaSessionStore from "./handlers/sessionStore";
-import { settingsLoader } from "./handlers/settingsLoader";
-import { loadAddons, setAppInstance } from "./handlers/addonHandler";
+import type { Request, Response, NextFunction } from 'express';
+import express from 'express';
+import prisma from './db';
+import path from 'path';
+import session from 'express-session';
+import { loadEnv } from './handlers/envLoader';
+import { databaseLoader } from './handlers/databaseLoader';
+import { loadModules } from './handlers/modulesLoader';
+import logger from './handlers/logger';
+import config from '../storage/config.json';
+import cookieParser from 'cookie-parser';
+import expressWs from 'express-ws';
+import compression from 'compression';
+import { translationMiddleware } from './handlers/utils/core/translation';
+import PrismaSessionStore from './handlers/sessionStore';
+import { settingsLoader } from './handlers/settingsLoader';
+import { loadAddons, setAppInstance } from './handlers/addonHandler';
 import {
   initializeDefaultUIComponents,
   uiComponentStore,
-} from "./handlers/uiComponentHandler";
-import { startPlayerStatsCollection } from "./handlers/playerStatsCollector";
-import { startScheduler } from "./handlers/schedulerWorker";
-import { initEggCatalogue } from "./handlers/eggCatalogueService";
-import { reenqueueQueuedInstalls } from "./handlers/installQueue";
-import crypto from "crypto";
-import helmet from "helmet";
-import rateLimit from "express-rate-limit";
-import icon from "./utils/icon";
-import { getClientIp } from "./utils/ip";
+} from './handlers/uiComponentHandler';
+import { startPlayerStatsCollection } from './handlers/playerStatsCollector';
+import { startScheduler } from './handlers/schedulerWorker';
+import { initEggCatalogue } from './handlers/eggCatalogueService';
+import { reenqueueQueuedInstalls } from './handlers/installQueue';
+import crypto from 'crypto';
+import helmet from 'helmet';
+import rateLimit from 'express-rate-limit';
+import icon from './utils/icon';
+import { getClientIp } from './utils/ip';
 // hpp removed: Express 5's req.query parsing (qs with arrayLimit: 0) already
 // prevents HTTP Parameter Pollution. No replacement needed.
 import csrfProtection, {
   handleCsrfError,
   addCsrfTokenToLocals,
-} from "./handlers/utils/security/csrfProtection";
-import { isCsrfExempt } from "./handlers/utils/security/csrfRouting";
+} from './handlers/utils/security/csrfProtection';
+import { isCsrfExempt } from './handlers/utils/security/csrfRouting';
 import {
   errorPageHandler,
   notFoundHandler,
   renderErrorPage,
-} from "./handlers/errorPages";
+} from './handlers/errorPages';
 
-import { getConfig } from "./config";
-import { installRenderResolver } from "./handlers/renderResolver";
-import { validationErrorBoundary } from "./utils/validation";
+import { getConfig } from './config';
+import { installRenderResolver } from './handlers/renderResolver';
+import { validationErrorBoundary } from './utils/validation';
 
 loadEnv();
 
@@ -76,7 +76,7 @@ const airlinkCodename = config.meta.codename;
   try {
     const s = await prisma.settings.findUnique({ where: { id: 1 } });
     if (s?.behindReverseProxy) {
-      app.set("trust proxy", 1);
+      app.set('trust proxy', 1);
     }
   } catch {
     // DB not ready yet — leave default (no trust proxy)
@@ -87,65 +87,65 @@ const airlinkCodename = config.meta.codename;
 const expressWsInstance = expressWs(app);
 
 // Load static files
-app.use(express.static(path.join(__dirname, "../public")));
+app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(
-  "/monaco",
-  express.static(path.join(__dirname, "../node_modules", "monaco-editor/min")),
+  '/monaco',
+  express.static(path.join(__dirname, '../node_modules', 'monaco-editor/min')),
 );
 
 app.use(
-  "/vendor",
+  '/vendor',
   express.static(
-    path.join(__dirname, "../node_modules", "@formkit/auto-animate"),
+    path.join(__dirname, '../node_modules', '@formkit/auto-animate'),
   ),
 );
 
 app.use(
-  "/vendor/xterm",
-  express.static(path.join(__dirname, "../node_modules", "@xterm/xterm/css")),
+  '/vendor/xterm',
+  express.static(path.join(__dirname, '../node_modules', '@xterm/xterm/css')),
 );
 
 app.use(
-  "/vendor/xterm/lib",
-  express.static(path.join(__dirname, "../node_modules", "@xterm/xterm/lib")),
+  '/vendor/xterm/lib',
+  express.static(path.join(__dirname, '../node_modules', '@xterm/xterm/lib')),
 );
 
 app.use(
-  "/vendor/marked",
-  express.static(path.join(__dirname, "../node_modules", "marked/lib")),
+  '/vendor/marked',
+  express.static(path.join(__dirname, '../node_modules', 'marked/lib')),
 );
 
 app.use(
-  "/vendor/xterm-addon-fit",
+  '/vendor/xterm-addon-fit',
   express.static(
-    path.join(__dirname, "../node_modules", "@xterm/addon-fit/lib"),
+    path.join(__dirname, '../node_modules', '@xterm/addon-fit/lib'),
   ),
 );
 
 app.use(
-  "/vendor/xterm-addon-web-links",
+  '/vendor/xterm-addon-web-links',
   express.static(
-    path.join(__dirname, "../node_modules", "@xterm/addon-web-links/lib"),
+    path.join(__dirname, '../node_modules', '@xterm/addon-web-links/lib'),
   ),
 );
 
 app.use(
-  "/vendor/chartjs",
-  express.static(path.join(__dirname, "../node_modules", "chart.js/dist")),
+  '/vendor/chartjs',
+  express.static(path.join(__dirname, '../node_modules', 'chart.js/dist')),
 );
 
 // Load views
-const viewsPath = path.join(__dirname, "../views");
-app.set("views", viewsPath);
-app.set("view engine", "ejs");
+const viewsPath = path.join(__dirname, '../views');
+app.set('views', viewsPath);
+app.set('view engine', 'ejs');
 
 // The global ejs.renderFile monkey-patch used to live here, falling back to
 // addon views for any missing template. It has been replaced by the explicit
 // addon view resolver (src/handlers/addonViewResolver.ts), which validates
 // addon slugs and keeps every resolved path inside the addon's views dir.
 
-const addonViewsDir = path.join(__dirname, "../../storage/addons");
+const addonViewsDir = path.join(__dirname, '../../storage/addons');
 
 // Load compression
 app.use(compression());
@@ -167,7 +167,7 @@ const isProduction = panelConfig.isProduction;
 // are served from 'self', which is exactly the XSS protection we want.
 // ---------------------------------------------------------------------------
 app.use((req: Request, res: Response, next: NextFunction) => {
-  const nonce = crypto.randomBytes(16).toString("base64");
+  const nonce = crypto.randomBytes(16).toString('base64');
   res.locals.nonce = nonce;
   req.nonce = nonce;
   next();
@@ -179,11 +179,11 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 // one we honor it; otherwise we generate a new UUID.
 // ---------------------------------------------------------------------------
 app.use((req: Request, res: Response, next: NextFunction) => {
-  const incoming = req.headers["x-request-id"];
+  const incoming = req.headers['x-request-id'];
   const requestId =
-    (typeof incoming === "string" && incoming.trim()) || crypto.randomUUID();
-  req.headers["x-request-id"] = requestId;
-  res.setHeader("X-Request-Id", requestId);
+    (typeof incoming === 'string' && incoming.trim()) || crypto.randomUUID();
+  req.headers['x-request-id'] = requestId;
+  res.setHeader('X-Request-Id', requestId);
   next();
 });
 
@@ -203,7 +203,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
     // X-Frame-Options is superseded by frame-ancestors in the CSP below,
     // but we keep it for legacy browsers that don't understand CSP.
-    frameguard: { action: "deny" },
+    frameguard: { action: 'deny' },
 
     // HSTS — only sent over HTTPS. Sending it on HTTP is meaningless and
     // causes browsers to refuse future HTTP connections to the same host.
@@ -213,70 +213,70 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 
     // Cross-Origin-Opener-Policy and Origin-Agent-Cluster are only meaningful
     // (and only safe from a browser-warning perspective) on HTTPS origins.
-    crossOriginOpenerPolicy: isHttps ? { policy: "same-origin" } : false,
+    crossOriginOpenerPolicy: isHttps ? { policy: 'same-origin' } : false,
     originAgentCluster: isHttps ? undefined : false,
 
     // Referrer-Policy — don't leak the full URL to third-party CDNs.
-    referrerPolicy: { policy: "strict-origin-when-cross-origin" },
+    referrerPolicy: { policy: 'strict-origin-when-cross-origin' },
 
     // Permissions-Policy — deny all sensitive browser APIs we don't use.
-    permittedCrossDomainPolicies: { permittedPolicies: "none" },
+    permittedCrossDomainPolicies: { permittedPolicies: 'none' },
 
     contentSecurityPolicy: isProduction
       ? {
-          directives: {
-            // Fallback for any directive not listed explicitly.
-            defaultSrc: ["'self'"],
+        directives: {
+          // Fallback for any directive not listed explicitly.
+          defaultSrc: ['\'self\''],
 
-            // Scripts:
-            //   'nonce-{nonce}' — allows only <script nonce="…"> blocks that
-            //                     carry the per-request nonce. Blocks all other
-            //                     inline scripts and eval().
-            //   'strict-dynamic' — lets nonce-carrying scripts load further
-            //                     scripts dynamically (needed by Monaco loader).
-            scriptSrc: ["'self'", `'nonce-${nonce}'`, "'strict-dynamic'"],
+          // Scripts:
+          //   'nonce-{nonce}' — allows only <script nonce="…"> blocks that
+          //                     carry the per-request nonce. Blocks all other
+          //                     inline scripts and eval().
+          //   'strict-dynamic' — lets nonce-carrying scripts load further
+          //                     scripts dynamically (needed by Monaco loader).
+          scriptSrc: ['\'self\'', `'nonce-${nonce}'`, '\'strict-dynamic\''],
 
-            // Inline event handlers (onclick, onchange, etc.) cannot carry nonces.
-            // 'unsafe-inline' here is scoped only to attributes, not to <script>
-            // blocks (which are governed by scriptSrc above).
-            // This is the minimum needed to avoid rewriting 126+ EJS event handlers.
-            scriptSrcAttr: ["'unsafe-inline'"],
+          // Inline event handlers (onclick, onchange, etc.) cannot carry nonces.
+          // 'unsafe-inline' here is scoped only to attributes, not to <script>
+          // blocks (which are governed by scriptSrc above).
+          // This is the minimum needed to avoid rewriting 126+ EJS event handlers.
+          scriptSrcAttr: ['\'unsafe-inline\''],
 
-            // Styles — allow inline (Tailwind utility classes are inline by nature)
-            // plus the exact external stylesheet CDNs used.
-            styleSrc: ["'self'", "'unsafe-inline'"],
+          // Styles — allow inline (Tailwind utility classes are inline by nature)
+          // plus the exact external stylesheet CDNs used.
+          styleSrc: ['\'self\'', '\'unsafe-inline\''],
 
-            fontSrc: ["'self'", "data:"],
+          fontSrc: ['\'self\'', 'data:'],
 
-            // Images — self + data URIs (avatars/favicons) + https for remote images.
-            // http: is intentionally excluded; image URLs served by the daemon
-            // should be proxied through the panel rather than loaded directly.
-            imgSrc: ["'self'", "data:", "blob:", "https:"],
+          // Images — self + data URIs (avatars/favicons) + https for remote images.
+          // http: is intentionally excluded; image URLs served by the daemon
+          // should be proxied through the panel rather than loaded directly.
+          imgSrc: ['\'self\'', 'data:', 'blob:', 'https:'],
 
-            // WebSocket connections for the server console + same-origin API calls.
-            connectSrc: ["'self'", ...(isHttps ? ["wss:"] : ["ws:", "wss:"])],
+          // WebSocket connections for the server console + same-origin API calls.
+          connectSrc: ['\'self\'', ...(isHttps ? ['wss:'] : ['ws:', 'wss:'])],
 
-            // Prevent the panel from being embedded in any frame anywhere.
-            // Supersedes X-Frame-Options for modern browsers.
-            frameAncestors: ["'none'"],
+          // Prevent the panel from being embedded in any frame anywhere.
+          // Supersedes X-Frame-Options for modern browsers.
+          frameAncestors: ['\'none\''],
 
-            // Prevent any plugins (Flash, PDF, etc.) from being embedded.
-            objectSrc: ["'none'"],
+          // Prevent any plugins (Flash, PDF, etc.) from being embedded.
+          objectSrc: ['\'none\''],
 
-            // Lock down <base> tags — prevents base-tag hijacking attacks.
-            baseUri: ["'self'"],
+          // Lock down <base> tags — prevents base-tag hijacking attacks.
+          baseUri: ['\'self\''],
 
-            // All form submissions must go to same origin.
-            formAction: ["'self'"],
+          // All form submissions must go to same origin.
+          formAction: ['\'self\''],
 
-            // Only upgrade to HTTPS when we are actually serving HTTPS.
-            // Without this guard, helmet's default adds upgrade-insecure-requests
-            // which rewrites every asset URL to https://, breaking HTTP installs.
-            ...(isHttps
-              ? { upgradeInsecureRequests: [] }
-              : { upgradeInsecureRequests: null }),
-          },
-        }
+          // Only upgrade to HTTPS when we are actually serving HTTPS.
+          // Without this guard, helmet's default adds upgrade-insecure-requests
+          // which rewrites every asset URL to https://, breaking HTTP installs.
+          ...(isHttps
+            ? { upgradeInsecureRequests: [] }
+            : { upgradeInsecureRequests: null }),
+        },
+      }
       : false,
   })(req, res, next);
 });
@@ -286,7 +286,7 @@ app.use((req: Request, res: Response, next: NextFunction) => {
 import {
   refreshSecurityCache,
   getSecurityCache,
-} from "./handlers/securityCache";
+} from './handlers/securityCache';
 
 // Initial load + refresh every 30 seconds
 refreshSecurityCache();
@@ -300,7 +300,7 @@ app.use((req, res, next) => {
       req,
       res,
       403,
-      "Your IP address is blocked from this panel.",
+      'Your IP address is blocked from this panel.',
     );
     return;
   }
@@ -340,7 +340,7 @@ app.use(
     cookie: {
       secure: useSecureCookie,
       httpOnly: true,
-      sameSite: "strict",
+      sameSite: 'strict',
       maxAge: 7 * 24 * 60 * 60 * 1000,
     },
   }),
@@ -348,24 +348,24 @@ app.use(
 
 app.use(
   express.json({
-    limit: "512kb",
+    limit: '512kb',
   }),
 );
 app.use(
   express.urlencoded({
     extended: false,
-    limit: "512kb",
+    limit: '512kb',
     parameterLimit: 1000,
   }),
 );
 app.use(
   express.raw({
-    limit: "1mb",
+    limit: '1mb',
   }),
 );
 app.use(
   express.text({
-    limit: "512kb",
+    limit: '512kb',
   }),
 );
 
@@ -474,21 +474,21 @@ app.use(errorPageHandler);
         } catch {
           // best effort
         }
-        logger.info("Server closed");
+        logger.info('Server closed');
         process.exit(0);
       });
 
       // If server.close() doesn't finish within 10s, force exit
       setTimeout(() => {
-        logger.warn("Forced exit after timeout");
+        logger.warn('Forced exit after timeout');
         process.exit(1);
       }, 10_000).unref();
     }
 
-    process.on("SIGINT", () => shutdown("SIGINT"));
-    process.on("SIGTERM", () => shutdown("SIGTERM"));
+    process.on('SIGINT', () => shutdown('SIGINT'));
+    process.on('SIGTERM', () => shutdown('SIGTERM'));
   } catch (err) {
-    logger.error("Failed to load modules or database:", err);
+    logger.error('Failed to load modules or database:', err);
   }
 })();
 

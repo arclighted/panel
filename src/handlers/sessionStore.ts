@@ -1,5 +1,5 @@
-import session from "express-session";
-import prisma from "../db";
+import session from 'express-session';
+import prisma from '../db';
 
 // Use the express-session SessionData type directly
 type SessionData = session.SessionData;

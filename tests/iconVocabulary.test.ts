@@ -13,10 +13,10 @@ function toPascalCase(name: string): string {
 
 function walk(dir: string, acc: string[] = []): string[] {
   for (const entry of readdirSync(dir, { withFileTypes: true })) {
-    if (entry.name === 'node_modules' || entry.name === '.tmp-ejs-lint') continue;
+    if (entry.name === 'node_modules' || entry.name === '.tmp-ejs-lint') {continue;}
     const full = join(dir, entry.name);
-    if (entry.isDirectory()) walk(full, acc);
-    else if (/\.(ejs|ts|js)$/.test(entry.name)) acc.push(full);
+    if (entry.isDirectory()) {walk(full, acc);}
+    else if (/\.(ejs|ts|js)$/.test(entry.name)) {acc.push(full);}
   }
   return acc;
 }
@@ -26,7 +26,7 @@ function serverIconNames(): string[] {
   const names = new Set<string>();
   for (const file of files) {
     const content = readFileSync(file, 'utf8');
-    for (const m of content.matchAll(/icon\(\s*'([a-z0-9-]+)'/g)) names.add(m[1]);
+    for (const m of content.matchAll(/icon\(\s*'([a-z0-9-]+)'/g)) {names.add(m[1]);}
   }
   return [...names];
 }
@@ -36,7 +36,7 @@ function clientIconNames(): string[] {
   const names = new Set<string>();
   for (const file of files) {
     const content = readFileSync(file, 'utf8');
-    for (const m of content.matchAll(/alIcon\(\s*'([a-zA-Z0-9.-]+)'/g)) names.add(m[1]);
+    for (const m of content.matchAll(/alIcon\(\s*'([a-zA-Z0-9.-]+)'/g)) {names.add(m[1]);}
   }
   return [...names];
 }
@@ -64,10 +64,10 @@ describe('icon vocabulary', () => {
       const content = readFileSync(file, 'utf8');
       for (const m of content.matchAll(/<svg[^>]*>/g)) {
         const tag = m[0];
-        if (tag.includes('icon(')) continue;
-        if (!tag.includes('viewBox')) continue;
+        if (tag.includes('icon(')) {continue;}
+        if (!tag.includes('viewBox')) {continue;}
         const vb = (tag.match(/viewBox="([^"]+)"/) || [])[1];
-        if (vb && BRAND_VIEWBOXES.has(vb)) continue;
+        if (vb && BRAND_VIEWBOXES.has(vb)) {continue;}
         offenders.push(`${file}: ${tag.slice(0, 80)}`);
       }
     }

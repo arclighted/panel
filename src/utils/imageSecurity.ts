@@ -9,7 +9,7 @@
  * content can never be served as HTML/JS even if a payload slips through.
  */
 
-export type ImageKind = "png" | "jpeg" | "gif" | "webp";
+export type ImageKind = 'png' | 'jpeg' | 'gif' | 'webp';
 
 export interface ImageInspection {
   ok: boolean;
@@ -27,30 +27,30 @@ const IMAGE_SIGNATURES: {
   verify?: (buf: Buffer) => boolean;
 }[] = [
   {
-    kind: "png",
-    mime: "image/png",
-    ext: ".png",
+    kind: 'png',
+    mime: 'image/png',
+    ext: '.png',
     signature: [0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a],
   },
   {
-    kind: "jpeg",
-    mime: "image/jpeg",
-    ext: ".jpg",
+    kind: 'jpeg',
+    mime: 'image/jpeg',
+    ext: '.jpg',
     signature: [0xff, 0xd8, 0xff],
   },
   {
-    kind: "gif",
-    mime: "image/gif",
-    ext: ".gif",
+    kind: 'gif',
+    mime: 'image/gif',
+    ext: '.gif',
     signature: [0x47, 0x49, 0x46, 0x38], // "GIF8"
   },
   {
-    kind: "webp",
-    mime: "image/webp",
-    ext: ".webp",
+    kind: 'webp',
+    mime: 'image/webp',
+    ext: '.webp',
     signature: [0x52, 0x49, 0x46, 0x46], // "RIFF" — shared with WAV/AVI
     verify: (buf) =>
-      buf.length >= 12 && buf.toString("latin1", 8, 12) === "WEBP",
+      buf.length >= 12 && buf.toString('latin1', 8, 12) === 'WEBP',
   },
 ];
 
@@ -60,19 +60,19 @@ const IMAGE_SIGNATURES: {
  * vanishingly unlikely.
  */
 const POLYGLOT_MARKERS = [
-  "<script",
-  "</script",
-  "<?php",
-  "<?xml",
-  "<svg",
-  "<!--",
-  "<%",
-  "javascript:",
+  '<script',
+  '</script',
+  '<?php',
+  '<?xml',
+  '<svg',
+  '<!--',
+  '<%',
+  'javascript:',
 ];
 
 export function inspectImage(buffer: Buffer): ImageInspection {
   if (!Buffer.isBuffer(buffer) || buffer.length === 0) {
-    return { ok: false, reason: "Empty file" };
+    return { ok: false, reason: 'Empty file' };
   }
 
   let match: ImageInspection | undefined;
@@ -91,15 +91,15 @@ export function inspectImage(buffer: Buffer): ImageInspection {
   }
 
   if (!match) {
-    return { ok: false, reason: "Unsupported or invalid image type" };
+    return { ok: false, reason: 'Unsupported or invalid image type' };
   }
 
-  const haystack = buffer.toString("latin1").toLowerCase();
+  const haystack = buffer.toString('latin1').toLowerCase();
   for (const marker of POLYGLOT_MARKERS) {
     if (haystack.includes(marker)) {
       return {
         ok: false,
-        reason: "File contains embedded markup or script content",
+        reason: 'File contains embedded markup or script content',
       };
     }
   }
@@ -109,10 +109,10 @@ export function inspectImage(buffer: Buffer): ImageInspection {
 
 /** Safe single-path segment for per-user upload directories. */
 export function isSafeUserDirName(name: string): boolean {
-  if (typeof name !== "string" || name.length === 0 || name.length > 64) {
+  if (typeof name !== 'string' || name.length === 0 || name.length > 64) {
     return false;
   }
-  if (name === "." || name === "..") {
+  if (name === '.' || name === '..') {
     return false;
   }
   return /^[a-zA-Z0-9._-]+$/.test(name);
@@ -124,8 +124,8 @@ export function isSafeUserDirName(name: string): boolean {
  * formatting/escape sequences into rendered output.
  */
 export function normalizeUserText(value: unknown, maxLength: number): string {
-  const raw = typeof value === "string" ? value : "";
-  let stripped = "";
+  const raw = typeof value === 'string' ? value : '';
+  let stripped = '';
   for (const ch of raw) {
     const code = ch.charCodeAt(0);
     if (code < 0x20 || code === 0x7f) {

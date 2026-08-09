@@ -12,9 +12,9 @@ function matchSelector(el, sel) {
     const segs = alt.match(/\[[^\]]+\]/g) || [];
     return segs.every((seg) => {
       const m = /^\[([a-zA-Z0-9-]+)(?:="([^"]*)")?\]$/.exec(seg);
-      if (!m) return false;
+      if (!m) {return false;}
       const [name, value] = [m[1], m[2]];
-      if (value !== undefined) return el.getAttribute(name) === value;
+      if (value !== undefined) {return el.getAttribute(name) === value;}
       return el.hasAttribute(name);
     });
   });
@@ -46,14 +46,14 @@ class FakeEl {
   getAttribute(k) { return this.attrs.has(k) ? this.attrs.get(k) : null; }
   removeAttribute(k) { this.attrs.delete(k); }
   hasAttribute(k) { return this.attrs.has(k); }
-  contains(el) { let n = el; while (n) { if (n === this) return true; n = n.parent; } return false; }
+  contains(el) { let n = el; while (n) { if (n === this) {return true;} n = n.parent; } return false; }
   appendChild(el) { el.parent = this; el.parentElement = this; this.children.push(el); return el; }
   focus() { this.focused = true; }
   querySelector(sel) { return this.querySelectorAll(sel)[0] || null; }
   querySelectorAll(sel) {
     const out = [];
     const walk = (el) => {
-      if (matchSelector(el, sel)) out.push(el);
+      if (matchSelector(el, sel)) {out.push(el);}
       el.children.forEach(walk);
     };
     this.children.forEach(walk);
@@ -62,7 +62,7 @@ class FakeEl {
   closest(sel) {
     let n = this;
     while (n) {
-      if (matchSelector(n, sel)) return n;
+      if (matchSelector(n, sel)) {return n;}
       n = n.parent;
     }
     return null;
@@ -90,7 +90,7 @@ class FakeEl {
 
 function panel(name, extra = {}) {
   const el = new FakeEl('div', Object.assign({ 'data-al-state-panel': name }, extra));
-  if (name !== 'loading') el.setAttribute('hidden', '');
+  if (name !== 'loading') {el.setAttribute('hidden', '');}
   return el;
 }
 

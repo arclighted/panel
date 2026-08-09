@@ -1,18 +1,20 @@
-import { Router, Request, Response } from "express";
-import { Module } from "../../handlers/moduleInit";
-import prisma from "../../db";
-import { isAuthenticated } from "../../handlers/utils/auth/authUtil";
-import { registerPermission, Permission } from "../../handlers/permissions";
-import { checkNodeStatus } from "../../handlers/utils/node/nodeStatus";
-import logger from "../../handlers/logger";
-import { getParamAsNumber } from "../../utils/typeHelpers";
-import { daemonRequest } from "../../handlers/utils/core/daemonRequest";
-import { syncNodeAllocations } from "../../handlers/utils/server/allocations";
-import { generateApiKey } from "../../utils/apiKey";
-import { logActivity } from "../../handlers/utils/activity/activityLogger";
-import { emitRealtime } from "../../handlers/realtime/events";
+import type { Request, Response } from 'express';
+import { Router } from 'express';
+import type { Module } from '../../handlers/moduleInit';
+import prisma from '../../db';
+import { isAuthenticated } from '../../handlers/utils/auth/authUtil';
+import type { Permission } from '../../handlers/permissions';
+import { registerPermission } from '../../handlers/permissions';
+import { checkNodeStatus } from '../../handlers/utils/node/nodeStatus';
+import logger from '../../handlers/logger';
+import { getParamAsNumber } from '../../utils/typeHelpers';
+import { daemonRequest } from '../../handlers/utils/core/daemonRequest';
+import { syncNodeAllocations } from '../../handlers/utils/server/allocations';
+import { generateApiKey } from '../../utils/apiKey';
+import { logActivity } from '../../handlers/utils/activity/activityLogger';
+import { emitRealtime } from '../../handlers/realtime/events';
 
-const UNLIMITED_RESOURCE = "all";
+const UNLIMITED_RESOURCE = 'all';
 const MIN_PORT_NUMBER = 1024;
 const MAX_PORT_NUMBER = 65535;
 const MIN_NODE_PORT = 1025;
@@ -23,12 +25,12 @@ const NODE_KEY_LENGTH = 32;
 const NODE_ADDRESS_REGEX =
   /^(localhost|(?:\d{1,3}\.){3}\d{1,3}|(?:[a-zA-Z0-9-]+\.)+[a-zA-Z]{2,})$/;
 
-registerPermission("airlink.admin.nodes.view" as Permission);
-registerPermission("airlink.admin.nodes.create" as Permission);
-registerPermission("airlink.admin.nodes.update" as Permission);
-registerPermission("airlink.admin.nodes.delete" as Permission);
+registerPermission('airlink.admin.nodes.view' as Permission);
+registerPermission('airlink.admin.nodes.create' as Permission);
+registerPermission('airlink.admin.nodes.update' as Permission);
+registerPermission('airlink.admin.nodes.delete' as Permission);
 
-type NodeWithInstances = {
+interface NodeWithInstances {
   id: number;
   name: string;
   ram: number;
@@ -52,7 +54,7 @@ type NodeWithInstances = {
     disk: number;
     overallocatedMemory: number;
   };
-};
+}
 
 async function listNodes(res: Response, includeServers = false) {
   try {
@@ -94,10 +96,10 @@ async function listNodes(res: Response, includeServers = false) {
           overallocatedMemory:
             node.ram > 0
               ? Math.round(
-                  (usedMemory /
+                (usedMemory /
                     (node.ram * 1024 * (1 + node.overallocateMemory / 100))) *
                     100,
-                )
+              )
               : 0,
         },
       };
@@ -107,48 +109,48 @@ async function listNodes(res: Response, includeServers = false) {
 
     return nodesWithStatus;
   } catch (error: unknown) {
-    logger.error("Error fetching nodes:", error);
-    res.status(500).json({ message: "Error fetching nodes." });
+    logger.error('Error fetching nodes:', error);
+    res.status(500).json({ message: 'Error fetching nodes.' });
     return;
   }
 }
 
 const adminModule: Module = {
   info: {
-    name: "Admin Nodes Module",
-    description: "This file is for admin functionality of the Nodes.",
-    version: "2.0.0",
-    moduleVersion: "1.0.0",
-    author: "AirLinkLab",
-    license: "MIT",
+    name: 'Admin Nodes Module',
+    description: 'This file is for admin functionality of the Nodes.',
+    version: '2.0.0',
+    moduleVersion: '1.0.0',
+    author: 'AirLinkLab',
+    license: 'MIT',
   },
 
   router: () => {
     const router = Router();
 
     router.get(
-      "/admin/nodes",
-      isAuthenticated(true, "airlink.admin.nodes.view"),
+      '/admin/nodes',
+      isAuthenticated(true, 'airlink.admin.nodes.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
           if (!user) {
-            return res.redirect("/login");
+            return res.redirect('/login');
           }
 
           const nodes = await listNodes(res);
 
           const locations = await prisma.location.findMany({
             include: { _count: { select: { nodes: true } } },
-            orderBy: { name: "asc" },
+            orderBy: { name: 'asc' },
           });
 
           const settings = await prisma.settings.findUnique({
             where: { id: 1 },
           });
 
-          res.render("admin/nodes/nodes", {
+          res.render('admin/nodes/nodes', {
             user,
             req,
             settings,
@@ -156,21 +158,21 @@ const adminModule: Module = {
             locations,
           });
         } catch (error: unknown) {
-          logger.error("Error fetching user:", error);
-          return res.redirect("/login");
+          logger.error('Error fetching user:', error);
+          return res.redirect('/login');
         }
       },
     );
 
     router.get(
-      "/admin/nodes/create",
-      isAuthenticated(true, "airlink.admin.nodes.view"),
+      '/admin/nodes/create',
+      isAuthenticated(true, 'airlink.admin.nodes.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
           if (!user) {
-            return res.redirect("/login");
+            return res.redirect('/login');
           }
 
           const nodes = await listNodes(res);
@@ -179,7 +181,7 @@ const adminModule: Module = {
             where: { id: 1 },
           });
           const locations = await prisma.location.findMany();
-          res.render("admin/nodes/create", {
+          res.render('admin/nodes/create', {
             user,
             req,
             settings,
@@ -187,15 +189,15 @@ const adminModule: Module = {
             locations,
           });
         } catch (error: unknown) {
-          logger.error("Error fetching user:", error);
-          return res.redirect("/login");
+          logger.error('Error fetching user:', error);
+          return res.redirect('/login');
         }
       },
     );
 
     router.get(
-      "/admin/nodes/list",
-      isAuthenticated(true, "airlink.admin.nodes.view"),
+      '/admin/nodes/list',
+      isAuthenticated(true, 'airlink.admin.nodes.view'),
       async (_req: Request, res: Response) => {
         // Include servers data for port allocation UI
         const listNode = await listNodes(res, true);
@@ -204,8 +206,8 @@ const adminModule: Module = {
     );
 
     router.post(
-      "/admin/nodes/create",
-      isAuthenticated(true, "airlink.admin.nodes.create"),
+      '/admin/nodes/create',
+      isAuthenticated(true, 'airlink.admin.nodes.create'),
       async (req: Request, res: Response) => {
         const { name, ram, cpu, disk, address, port } = req.body;
         const locationId = req.body.locationId
@@ -214,7 +216,7 @@ const adminModule: Module = {
 
         // 'all' from the UI means unlimited → store 0
         const parseLimit = (v: unknown): number =>
-          v === UNLIMITED_RESOURCE ? 0 : parseFloat(String(v ?? ""));
+          v === UNLIMITED_RESOURCE ? 0 : parseFloat(String(v ?? ''));
 
         // Fall back to the global defaults (set in admin settings) when the form
         // leaves overallocation empty or the field isn't sent.
@@ -225,7 +227,7 @@ const adminModule: Module = {
         const rawOv = (v: unknown, d: number): number =>
           v === undefined ||
           v === null ||
-          String(v).trim() === "" ||
+          String(v).trim() === '' ||
           String(v) === UNLIMITED_RESOURCE
             ? d
             : parseFloat(String(v));
@@ -240,26 +242,26 @@ const adminModule: Module = {
         ) {
           res
             .status(400)
-            .json({ message: "Overallocation percentages must be >= 0." });
+            .json({ message: 'Overallocation percentages must be >= 0.' });
           return;
         }
 
         if (locationId !== null) {
           if (isNaN(locationId)) {
-            res.status(400).json({ message: "Selected location is invalid." });
+            res.status(400).json({ message: 'Selected location is invalid.' });
             return;
           }
           const location = await prisma.location.findUnique({
             where: { id: locationId },
           });
           if (!location) {
-            res.status(400).json({ message: "Selected location not found." });
+            res.status(400).json({ message: 'Selected location not found.' });
             return;
           }
         }
 
-        if (!name || typeof name !== "string") {
-          res.status(400).json({ message: "Name must be a string." });
+        if (!name || typeof name !== 'string') {
+          res.status(400).json({ message: 'Name must be a string.' });
           return;
         } else if (
           name.length < NAME_MIN_LENGTH ||
@@ -272,45 +274,45 @@ const adminModule: Module = {
         }
 
         if (
-          ram !== "all" &&
+          ram !== 'all' &&
           (!ram ||
             isNaN(parseFloat(ram)) ||
             parseFloat(ram) <= 0 ||
             !Number.isInteger(parseFloat(ram)))
         ) {
-          res.status(400).json({ message: "RAM must be a positive number." });
+          res.status(400).json({ message: 'RAM must be a positive number.' });
           return;
         }
 
         if (
-          cpu !== "all" &&
+          cpu !== 'all' &&
           (!cpu ||
             isNaN(parseFloat(cpu)) ||
             parseFloat(cpu) <= 0 ||
             !Number.isInteger(parseFloat(cpu)))
         ) {
-          res.status(400).json({ message: "CPU must be a positive number." });
+          res.status(400).json({ message: 'CPU must be a positive number.' });
           return;
         }
 
         if (
-          disk !== "all" &&
+          disk !== 'all' &&
           (!disk ||
             isNaN(parseFloat(disk)) ||
             parseFloat(disk) <= 0 ||
             !Number.isInteger(parseFloat(disk)))
         ) {
-          res.status(400).json({ message: "Disk must be a positive number." });
+          res.status(400).json({ message: 'Disk must be a positive number.' });
           return;
         }
 
         if (
           !address ||
-          typeof address !== "string" ||
+          typeof address !== 'string' ||
           !NODE_ADDRESS_REGEX.test(address)
         ) {
           res.status(400).json({
-            message: "Address must be a valid IPv4, domain, or localhost.",
+            message: 'Address must be a valid IPv4, domain, or localhost.',
           });
           return;
         }
@@ -329,16 +331,16 @@ const adminModule: Module = {
           return;
         }
 
-        const allocatedPorts = req.body.allocatedPorts || "[]";
+        const allocatedPorts = req.body.allocatedPorts || '[]';
         let parsedPorts: number[] = [];
         try {
           parsedPorts = JSON.parse(allocatedPorts);
           if (!Array.isArray(parsedPorts)) {
-            throw new Error("Allocated ports must be an array");
+            throw new Error('Allocated ports must be an array');
           }
           for (const p of parsedPorts) {
             if (
-              typeof p !== "number" ||
+              typeof p !== 'number' ||
               p < MIN_PORT_NUMBER ||
               p > MAX_PORT_NUMBER
             ) {
@@ -349,9 +351,9 @@ const adminModule: Module = {
           }
         } catch (error: unknown) {
           const message =
-            error instanceof Error ? error.message : "Unknown error";
+            error instanceof Error ? error.message : 'Unknown error';
           res.status(400).json({
-            message: "Invalid allocated ports format: " + message,
+            message: `Invalid allocated ports format: ${  message}`,
           });
           return;
         }
@@ -360,7 +362,7 @@ const adminModule: Module = {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
           if (!user) {
-            res.status(403).json({ message: "Unauthorized access." });
+            res.status(403).json({ message: 'Unauthorized access.' });
             return;
           }
 
@@ -391,43 +393,43 @@ const adminModule: Module = {
 
           await syncNodeAllocations(node.id, parsedPorts).catch(() => {});
 
-          await logActivity(req, "node:create", {
+          await logActivity(req, 'node:create', {
             metadata: { nodeId: node.id, name },
           });
           emitRealtime({
-            type: "node.created",
+            type: 'node.created',
             scope: { admin: true },
-            resource: { type: "node", id: node.id },
+            resource: { type: 'node', id: node.id },
             state: { id: node.id, name },
           });
 
-          res.status(200).json({ message: "Node created successfully.", node });
+          res.status(200).json({ message: 'Node created successfully.', node });
           return;
         } catch (error: unknown) {
-          logger.error("Error when creating the node:", error);
-          res.status(500).json({ message: "Error when creating the node." });
+          logger.error('Error when creating the node:', error);
+          res.status(500).json({ message: 'Error when creating the node.' });
           return;
         }
       },
     );
 
     router.delete(
-      "/admin/node/:id",
-      isAuthenticated(true, "airlink.admin.nodes.delete"),
+      '/admin/node/:id',
+      isAuthenticated(true, 'airlink.admin.nodes.delete'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
           if (!user) {
-            return res.redirect("/login");
+            return res.redirect('/login');
           }
 
           const nodeId = getParamAsNumber(req.params.id);
           if (isNaN(nodeId)) {
-            res.status(400).json({ message: "Invalid node ID." });
+            res.status(400).json({ message: 'Invalid node ID.' });
             return;
           }
-          const deleteInstances = req.query.deleteInstance === "true";
+          const deleteInstances = req.query.deleteInstance === 'true';
 
           try {
             const nodeExists = await prisma.node.findUnique({
@@ -435,12 +437,12 @@ const adminModule: Module = {
               select: { id: true },
             });
             if (!nodeExists) {
-              res.status(404).json({ message: "Node not found." });
+              res.status(404).json({ message: 'Node not found.' });
               return;
             }
 
             const serverCount = await prisma.server.count({
-              where: { nodeId: nodeId },
+              where: { nodeId },
             });
 
             if (serverCount > 0 && !deleteInstances) {
@@ -463,8 +465,8 @@ const adminModule: Module = {
                       nodeAddress: node.address,
                       nodePort: node.port,
                       nodeKey: node.key,
-                      method: "DELETE",
-                      path: "/container",
+                      method: 'DELETE',
+                      path: '/container',
                       body: { id: server.UUID },
                       timeout: 8000,
                     }),
@@ -473,79 +475,79 @@ const adminModule: Module = {
               }
 
               await prisma.server.deleteMany({
-                where: { nodeId: nodeId },
+                where: { nodeId },
               });
             }
 
             await prisma.node.delete({ where: { id: nodeId } });
 
-            await logActivity(req, "node:delete", { metadata: { nodeId } });
+            await logActivity(req, 'node:delete', { metadata: { nodeId } });
             emitRealtime({
-              type: "node.deleted",
+              type: 'node.deleted',
               scope: { admin: true },
-              resource: { type: "node", id: nodeId },
+              resource: { type: 'node', id: nodeId },
               state: { id: nodeId },
             });
 
             res.status(200).json({
               message: deleteInstances
-                ? "Node and associated instances deleted successfully."
-                : "Node deleted successfully.",
+                ? 'Node and associated instances deleted successfully.'
+                : 'Node deleted successfully.',
             });
           } catch (error: unknown) {
-            logger.error("Error when deleting the node:", error);
-            res.status(500).json({ message: "Error when deleting the node." });
+            logger.error('Error when deleting the node:', error);
+            res.status(500).json({ message: 'Error when deleting the node.' });
           }
         } catch (error: unknown) {
-          logger.error("Error fetching user:", error);
-          return res.redirect("/login");
+          logger.error('Error fetching user:', error);
+          return res.redirect('/login');
         }
       },
     );
 
     router.get(
-      "/admin/node/:id/configure",
-      isAuthenticated(true, "airlink.admin.nodes.view"),
+      '/admin/node/:id/configure',
+      isAuthenticated(true, 'airlink.admin.nodes.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
           if (!user) {
-            return res.redirect("/login");
+            return res.redirect('/login');
           }
 
           const nodeId = getParamAsNumber(req.params.id);
 
           const node = await prisma.node.findUnique({ where: { id: nodeId } });
           if (!node) {
-            res.status(404).json({ message: "Node not found." });
+            res.status(404).json({ message: 'Node not found.' });
             return;
           }
 
           res
             .status(200)
             .json(
-              'configure -- -- --panel "' +
-                process.env.URL +
-                '" --key "$(cat /path/to/daemon/.env | grep ^key= | cut -d= -f2)"',
+              `configure -- -- --panel "${ 
+                process.env.URL 
+              }" --key "$(cat /path/to/daemon/.env | grep ^key= | cut -d= -f2)"`,
             );
           return;
         } catch (error: unknown) {
-          logger.error("Error fetching user:", error);
-          return res.redirect("/login");
+          logger.error('Error fetching user:', error);
+          return res.redirect('/login');
         }
       },
     );
 
     router.post(
-      "/admin/node/:id/verify",
-      isAuthenticated(true, "airlink.admin.nodes.view"),
+      '/admin/node/:id/verify',
+      isAuthenticated(true, 'airlink.admin.nodes.view'),
       async (req: Request, res: Response) => {
         try {
           const nodeId = getParamAsNumber(req.params.id);
           const node = await prisma.node.findUnique({ where: { id: nodeId } });
           if (!node) {
-            res.status(404).json({ message: "Node not found." });
+            res.status(404).json({ message: 'Node not found.' });
             return;
           }
 
@@ -558,8 +560,8 @@ const adminModule: Module = {
             nodeAddress: node.address,
             nodePort: node.port,
             nodeKey: node.key,
-            method: "GET",
-            path: "/",
+            method: 'GET',
+            path: '/',
             timeout: 10000,
           });
 
@@ -576,29 +578,29 @@ const adminModule: Module = {
             (errObj?.cause as Record<string, unknown>)?.code ||
               errObj?.code ||
               errObj?.message ||
-              "",
+              '',
           );
-          const friendly = cause.includes("ECONNREFUSED")
-            ? "No daemon is listening on that address and port yet. Start the daemon, then try again."
-            : cause.includes("ENOTFOUND") || cause.includes("EAI_AGAIN")
-              ? "That address does not resolve. Check the hostname or IP you entered."
-              : cause.includes("timed out")
-                ? "The daemon did not answer in time. Check the address, port, and firewall."
-                : "Could not reach the daemon. Check the address, port, and firewall.";
+          const friendly = cause.includes('ECONNREFUSED')
+            ? 'No daemon is listening on that address and port yet. Start the daemon, then try again.'
+            : cause.includes('ENOTFOUND') || cause.includes('EAI_AGAIN')
+              ? 'That address does not resolve. Check the hostname or IP you entered.'
+              : cause.includes('timed out')
+                ? 'The daemon did not answer in time. Check the address, port, and firewall.'
+                : 'Could not reach the daemon. Check the address, port, and firewall.';
           res.status(200).json({ connected: false, error: friendly });
         }
       },
     );
 
     router.get(
-      "/admin/node/:id",
-      isAuthenticated(true, "airlink.admin.nodes.view"),
+      '/admin/node/:id',
+      isAuthenticated(true, 'airlink.admin.nodes.view'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
           if (!user) {
-            return res.redirect("/login");
+            return res.redirect('/login');
           }
 
           const nodeId = getParamAsNumber(req.params.id);
@@ -613,7 +615,7 @@ const adminModule: Module = {
           });
 
           if (!node) {
-            res.status(404).json({ message: "Node not found." });
+            res.status(404).json({ message: 'Node not found.' });
             return;
           }
 
@@ -622,7 +624,7 @@ const adminModule: Module = {
           });
           const locations = await prisma.location.findMany();
 
-          res.render("admin/nodes/edit", {
+          res.render('admin/nodes/edit', {
             node,
             user,
             req,
@@ -630,29 +632,29 @@ const adminModule: Module = {
             locations,
           });
         } catch (error: unknown) {
-          logger.error("Error fetching user:", error);
-          return res.redirect("/login");
+          logger.error('Error fetching user:', error);
+          return res.redirect('/login');
         }
       },
     );
 
     router.put(
-      "/admin/node/:id/edit",
-      isAuthenticated(true, "airlink.admin.nodes.update"),
+      '/admin/node/:id/edit',
+      isAuthenticated(true, 'airlink.admin.nodes.update'),
       async (req: Request, res: Response) => {
         try {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
           if (!user) {
-            return res.redirect("/login");
+            return res.redirect('/login');
           }
 
           const nodeId = getParamAsNumber(req.params.id);
 
           const parseEditLimit = (v: unknown): number =>
-            v === UNLIMITED_RESOURCE || v === "all"
+            v === UNLIMITED_RESOURCE || v === 'all'
               ? 0
-              : parseFloat(String(v ?? ""));
+              : parseFloat(String(v ?? ''));
 
           const name = req.body.name;
           const ram = parseEditLimit(req.body.ram);
@@ -660,7 +662,7 @@ const adminModule: Module = {
           const disk = parseEditLimit(req.body.disk);
           const address = req.body.address;
           const port = parseInt(req.body.port);
-          const allocatedPorts = req.body.allocatedPorts || "[]";
+          const allocatedPorts = req.body.allocatedPorts || '[]';
           const overallocateMemory = parseInt(req.body.overallocateMemory);
           const overallocateDisk = parseInt(req.body.overallocateDisk);
           const overallocateCpu = parseInt(req.body.overallocateCpu);
@@ -676,7 +678,7 @@ const adminModule: Module = {
           ) {
             res
               .status(400)
-              .json({ message: "Overallocation percentages must be >= 0." });
+              .json({ message: 'Overallocation percentages must be >= 0.' });
             return;
           }
 
@@ -684,14 +686,14 @@ const adminModule: Module = {
             if (isNaN(locationId)) {
               res
                 .status(400)
-                .json({ message: "Selected location is invalid." });
+                .json({ message: 'Selected location is invalid.' });
               return;
             }
             const location = await prisma.location.findUnique({
               where: { id: locationId },
             });
             if (!location) {
-              res.status(400).json({ message: "Selected location not found." });
+              res.status(400).json({ message: 'Selected location not found.' });
               return;
             }
           }
@@ -720,11 +722,11 @@ const adminModule: Module = {
           }
 
           if (
-            typeof address !== "string" ||
+            typeof address !== 'string' ||
             !NODE_ADDRESS_REGEX.test(address)
           ) {
             res.status(400).json({
-              message: "Address must be a valid IPv4, domain, or localhost.",
+              message: 'Address must be a valid IPv4, domain, or localhost.',
             });
             return;
           }
@@ -744,7 +746,7 @@ const adminModule: Module = {
             where: { id: nodeId },
           });
           if (!existingNode) {
-            res.status(404).json({ message: "Node not found." });
+            res.status(404).json({ message: 'Node not found.' });
             return;
           }
 
@@ -752,13 +754,13 @@ const adminModule: Module = {
           try {
             parsedPorts = JSON.parse(allocatedPorts);
             if (!Array.isArray(parsedPorts)) {
-              throw new Error("Allocated ports must be an array");
+              throw new Error('Allocated ports must be an array');
             }
 
             // Validate each port
             for (const port of parsedPorts) {
               if (
-                typeof port !== "number" ||
+                typeof port !== 'number' ||
                 port < MIN_PORT_NUMBER ||
                 port > MAX_PORT_NUMBER
               ) {
@@ -769,9 +771,9 @@ const adminModule: Module = {
             }
           } catch (error: unknown) {
             const message =
-              error instanceof Error ? error.message : "Unknown error";
+              error instanceof Error ? error.message : 'Unknown error';
             res.status(400).json({
-              message: "Invalid allocated ports format: " + message,
+              message: `Invalid allocated ports format: ${  message}`,
             });
             return;
           }
@@ -795,71 +797,71 @@ const adminModule: Module = {
 
           await syncNodeAllocations(nodeId, parsedPorts).catch(() => {});
 
-          await logActivity(req, "node:update", { metadata: { nodeId, name } });
+          await logActivity(req, 'node:update', { metadata: { nodeId, name } });
           emitRealtime({
-            type: "node.updated",
+            type: 'node.updated',
             scope: { admin: true },
-            resource: { type: "node", id: nodeId },
+            resource: { type: 'node', id: nodeId },
             state: { id: nodeId, name },
           });
 
-          res.status(200).json({ message: "Node updated successfully.", node });
+          res.status(200).json({ message: 'Node updated successfully.', node });
           return;
         } catch (error: unknown) {
-          logger.error("Error when updating the node:", error);
-          res.status(500).json({ message: "Error when updating the node." });
+          logger.error('Error when updating the node:', error);
+          res.status(500).json({ message: 'Error when updating the node.' });
           return;
         }
       },
     );
 
     router.post(
-      "/admin/node/:id/maintenance",
-      isAuthenticated(true, "airlink.admin.nodes.update"),
+      '/admin/node/:id/maintenance',
+      isAuthenticated(true, 'airlink.admin.nodes.update'),
       async (req: Request, res: Response) => {
         try {
           const nodeId = getParamAsNumber(req.params.id);
           const node = await prisma.node.findUnique({ where: { id: nodeId } });
           if (!node) {
-            res.status(404).json({ message: "Node not found." });
+            res.status(404).json({ message: 'Node not found.' });
             return;
           }
           const maintenanceMode =
             req.body.maintenanceMode === true ||
-            req.body.maintenanceMode === "true";
+            req.body.maintenanceMode === 'true';
           const updated = await prisma.node.update({
             where: { id: nodeId },
             data: { maintenanceMode },
           });
           res
             .status(200)
-            .json({ message: "Node maintenance mode updated.", node: updated });
+            .json({ message: 'Node maintenance mode updated.', node: updated });
           return;
         } catch (error: unknown) {
-          logger.error("Error toggling node maintenance mode:", error);
+          logger.error('Error toggling node maintenance mode:', error);
           res
             .status(500)
-            .json({ message: "Error toggling node maintenance mode." });
+            .json({ message: 'Error toggling node maintenance mode.' });
           return;
         }
       },
     );
 
     router.get(
-      "/admin/node/:id/stats",
-      isAuthenticated(true, "airlink.admin.nodes.view"),
+      '/admin/node/:id/stats',
+      isAuthenticated(true, 'airlink.admin.nodes.view'),
       async (req: Request, res: Response) => {
         const userId = req.session?.user?.id;
         const user = await prisma.users.findUnique({ where: { id: userId } });
         if (!user) {
-          return res.redirect("/login");
+          return res.redirect('/login');
         }
 
         const nodeId = getParamAsNumber(req.params.id);
 
         const node = await prisma.node.findUnique({ where: { id: nodeId } });
         if (!node) {
-          res.status(404).json({ message: "Node not found." });
+          res.status(404).json({ message: 'Node not found.' });
           return;
         }
 
@@ -874,15 +876,15 @@ const adminModule: Module = {
             nodeAddress: node.address,
             nodePort: node.port,
             nodeKey: node.key,
-            method: "GET",
-            path: "/stats",
+            method: 'GET',
+            path: '/stats',
           });
 
           stats = (response.data ?? {}) as Record<string, unknown>;
         } catch {
-          stats = { error: "Unable to fetch stats from the node." };
+          stats = { error: 'Unable to fetch stats from the node.' };
         }
-        res.render("admin/nodes/stats", { node, user, req, settings, stats });
+        res.render('admin/nodes/stats', { node, user, req, settings, stats });
       },
     );
 

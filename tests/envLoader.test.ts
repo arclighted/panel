@@ -11,7 +11,7 @@ describe('parseEnv', () => {
   });
 
   it('strips surrounding single quotes from values', () => {
-    expect(parseEnv("FOO='bar'")).toEqual({ FOO: 'bar' });
+    expect(parseEnv('FOO=\'bar\'')).toEqual({ FOO: 'bar' });
   });
 
   it('strips surrounding double quotes from values', () => {

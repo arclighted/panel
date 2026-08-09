@@ -1,37 +1,38 @@
-import { Router, Request, Response } from "express";
-import { Module } from "../../handlers/moduleInit";
-import prisma from "../../db";
-import { isAuthenticated } from "../../handlers/utils/auth/authUtil";
-import logger from "../../handlers/logger";
-import { registerPermission } from "../../handlers/permissions";
-import { collectPlayerStats } from "../../handlers/playerStatsCollector";
-import { daemonRequest } from "../../handlers/utils/core/daemonRequest";
+import type { Request, Response } from 'express';
+import { Router } from 'express';
+import type { Module } from '../../handlers/moduleInit';
+import prisma from '../../db';
+import { isAuthenticated } from '../../handlers/utils/auth/authUtil';
+import logger from '../../handlers/logger';
+import { registerPermission } from '../../handlers/permissions';
+import { collectPlayerStats } from '../../handlers/playerStatsCollector';
+import { daemonRequest } from '../../handlers/utils/core/daemonRequest';
 import {
   daemonPlayerListSchema,
   parseDaemonResponse,
-} from "../../platform/daemon/dtos";
-import { getPrimaryExternalPort } from "../../handlers/utils/server/ports";
+} from '../../platform/daemon/dtos';
+import { getPrimaryExternalPort } from '../../handlers/utils/server/ports';
 
-registerPermission("airlink.admin.playerstats.view");
+registerPermission('airlink.admin.playerstats.view');
 
-type ErrorMessage = { message?: string };
+interface ErrorMessage { message?: string }
 
 const adminModule: Module = {
   info: {
-    name: "Admin Player Stats Module",
-    description: "This file provides player statistics for the admin panel.",
-    version: "2.0.0",
-    moduleVersion: "1.0.0",
-    author: "AirLinkLab",
-    license: "MIT",
+    name: 'Admin Player Stats Module',
+    description: 'This file provides player statistics for the admin panel.',
+    version: '2.0.0',
+    moduleVersion: '1.0.0',
+    author: 'AirLinkLab',
+    license: 'MIT',
   },
 
   router: () => {
     const router = Router();
 
     router.get(
-      "/admin/playerstats",
-      isAuthenticated(true, "airlink.admin.playerstats.view"),
+      '/admin/playerstats',
+      isAuthenticated(true, 'airlink.admin.playerstats.view'),
       async (req: Request, res: Response) => {
         const errorMessage: ErrorMessage = {};
         const settings = await prisma.settings.findUnique({ where: { id: 1 } });
@@ -40,14 +41,14 @@ const adminModule: Module = {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
           if (!user) {
-            return res.redirect("/login");
+            return res.redirect('/login');
           }
 
           const servers = await prisma.server.findMany({
             include: { node: true },
           });
 
-          res.render("admin/playerstats/playerstats", {
+          res.render('admin/playerstats/playerstats', {
             errorMessage,
             user,
             servers,
@@ -55,9 +56,9 @@ const adminModule: Module = {
             settings,
           });
         } catch (error: unknown) {
-          logger.error("Error fetching player stats:", error);
-          errorMessage.message = "Error fetching player statistics.";
-          return res.render("admin/playerstats/playerstats", {
+          logger.error('Error fetching player stats:', error);
+          errorMessage.message = 'Error fetching player statistics.';
+          return res.render('admin/playerstats/playerstats', {
             errorMessage,
             user: req.session?.user,
             servers: [],
@@ -69,8 +70,8 @@ const adminModule: Module = {
     );
 
     router.get(
-      "/api/admin/playerstats",
-      isAuthenticated(true, "airlink.admin.playerstats.view"),
+      '/api/admin/playerstats',
+      isAuthenticated(true, 'airlink.admin.playerstats.view'),
       async (req: Request, res: Response) => {
         try {
           const servers = await prisma.server.findMany({
@@ -92,7 +93,7 @@ const adminModule: Module = {
                     playerCount: 0,
                     maxPlayers: 0,
                     online: false,
-                    error: "No primary port found",
+                    error: 'No primary port found',
                   };
                 }
 
@@ -100,8 +101,8 @@ const adminModule: Module = {
                   nodeAddress: server.node.address,
                   nodePort: server.node.port,
                   nodeKey: server.node.key,
-                  method: "GET",
-                  path: "/minecraft/players",
+                  method: 'GET',
+                  path: '/minecraft/players',
                   params: {
                     id: server.UUID,
                     host: server.node.address,
@@ -120,7 +121,7 @@ const adminModule: Module = {
                   playerCount: playersData.onlinePlayers || 0,
                   maxPlayers: playersData.maxPlayers || 0,
                   online: playersData.online || false,
-                  version: playersData.version || "Unknown",
+                  version: playersData.version || 'Unknown',
                 };
               } catch {
                 return {
@@ -129,7 +130,7 @@ const adminModule: Module = {
                   playerCount: 0,
                   maxPlayers: 0,
                   online: false,
-                  error: "Failed to fetch player data",
+                  error: 'Failed to fetch player data',
                 };
               }
             }),
@@ -149,7 +150,7 @@ const adminModule: Module = {
 
           const historicalData = await prisma.playerStats.findMany({
             orderBy: {
-              timestamp: "asc",
+              timestamp: 'asc',
             },
             take: 576, // 48 hours of data at 5-minute intervals (12 data points per hour * 48 hours)
           });
@@ -163,27 +164,27 @@ const adminModule: Module = {
             historicalData,
           });
         } catch (error: unknown) {
-          logger.error("Failed to fetch player statistics:", error);
-          res.status(500).json({ error: "Failed to fetch player statistics" });
+          logger.error('Failed to fetch player statistics:', error);
+          res.status(500).json({ error: 'Failed to fetch player statistics' });
         }
       },
     );
 
     router.post(
-      "/api/admin/playerstats/collect",
-      isAuthenticated(true, "airlink.admin.playerstats.view"),
+      '/api/admin/playerstats/collect',
+      isAuthenticated(true, 'airlink.admin.playerstats.view'),
       async (req: Request, res: Response) => {
         try {
           await collectPlayerStats();
           res.json({
             success: true,
-            message: "Player statistics collected successfully",
+            message: 'Player statistics collected successfully',
           });
         } catch (error: unknown) {
-          logger.error("Failed to collect player statistics:", error);
+          logger.error('Failed to collect player statistics:', error);
           res
             .status(500)
-            .json({ error: "Failed to collect player statistics" });
+            .json({ error: 'Failed to collect player statistics' });
         }
       },
     );

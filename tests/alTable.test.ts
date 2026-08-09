@@ -10,9 +10,9 @@ function matchSelector(el, sel) {
   let node = el;
   for (let i = segments.length - 1; i >= 0; i--) {
     const seg = segments[i];
-    if (!node) return false;
-    if (!matchCompound(node, seg)) return false;
-    if (i === 0) return true;
+    if (!node) {return false;}
+    if (!matchCompound(node, seg)) {return false;}
+    if (i === 0) {return true;}
     node = node.parent;
   }
   return false;
@@ -20,16 +20,16 @@ function matchSelector(el, sel) {
 
 function matchCompound(el, seg) {
   const tagMatch = /^[a-zA-Z][a-zA-Z0-9]*/.exec(seg);
-  if (tagMatch && el.tag !== tagMatch[0]) return false;
+  if (tagMatch && el.tag !== tagMatch[0]) {return false;}
   const rest = tagMatch ? seg.slice(tagMatch[0].length) : seg;
   const attrs = rest.match(/\[[^\]]+\]/g) || [];
   const classNames = (rest.match(/\.([a-zA-Z0-9_-]+)/g) || []).map((c) => c.slice(1));
-  if (classNames.some((c) => !el.classList.has(c))) return false;
+  if (classNames.some((c) => !el.classList.has(c))) {return false;}
   return attrs.every((a) => {
     const m = /^\[([a-zA-Z0-9-]+)(?:="([^"]*)")?\]$/.exec(a);
-    if (!m) return false;
+    if (!m) {return false;}
     const [name, value] = [m[1], m[2]];
-    if (value !== undefined) return el.getAttribute(name) === value;
+    if (value !== undefined) {return el.getAttribute(name) === value;}
     return el.hasAttribute(name);
   });
 }
@@ -45,12 +45,12 @@ class FakeEl {
     this._text = '';
     this._innerHTML = '';
     this._classListSet = new Set();
-    if (attrs.class) String(attrs.class).split(/\s+/).filter(Boolean).forEach((c) => this._classListSet.add(c));
+    if (attrs.class) {String(attrs.class).split(/\s+/).filter(Boolean).forEach((c) => this._classListSet.add(c));}
   }
   get dataset() {
     const out = {};
     this.attrs.forEach((v, k) => {
-      if (!k.startsWith('data-')) return;
+      if (!k.startsWith('data-')) {return;}
       out[k.slice(5).replace(/-([a-z])/g, (_, c) => c.toUpperCase())] = v;
     });
     return out;
@@ -75,14 +75,14 @@ class FakeEl {
   }
   removeChild(el) {
     const i = this.children.indexOf(el);
-    if (i >= 0) this.children.splice(i, 1);
+    if (i >= 0) {this.children.splice(i, 1);}
     return el;
   }
   querySelector(sel) { return this.querySelectorAll(sel)[0] || null; }
   querySelectorAll(sel) {
     const out = [];
     const walk = (el) => {
-      if (matchSelector(el, sel)) out.push(el);
+      if (matchSelector(el, sel)) {out.push(el);}
       el.children.forEach(walk);
     };
     this.children.forEach(walk);

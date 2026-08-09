@@ -37,11 +37,11 @@ function makeRes() {
   const res: any = {
     statusCode: 0,
     body: undefined,
-    status: function (code: number) {
+    status (code: number) {
       this.statusCode = code;
       return this;
     },
-    json: function (body: unknown) {
+    json (body: unknown) {
       this.body = body;
       return this;
     },

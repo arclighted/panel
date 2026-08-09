@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import type { Router, Request, Response } from 'express';
 import { isAuthenticatedForServer, requireSubUserPermission } from '../../../handlers/utils/auth/serverAuthUtil';
 import logger from '../../../handlers/logger';
 import { checkForServerInstallation } from '../../../handlers/checkForServerInstallation';
@@ -96,8 +96,8 @@ export function registerSettingsRoutes(router: Router): void {
         await prisma.server.update({
           where: { UUID: getParamAsString(serverId) },
           data: {
-            name: name,
-            description: description,
+            name,
+            description,
           },
         });
 

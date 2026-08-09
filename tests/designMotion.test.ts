@@ -6,7 +6,7 @@ const root = join(__dirname, '..');
 const css = readFileSync(join(root, 'public', 'tw.css'), 'utf8');
 const motionBlock = (() => {
   const start = css.indexOf('@media (prefers-reduced-motion: reduce)');
-  if (start === -1) return '';
+  if (start === -1) {return '';}
   const end = css.indexOf('@media', start + 8);
   return end === -1 ? css.slice(start) : css.slice(start, end);
 })();
@@ -19,7 +19,7 @@ const motionBlock = (() => {
 describe('motion tokens', () => {
   it('defines duration and easing tokens centrally', () => {
     for (const token of ['--dur-quick', '--dur-enter', '--dur-exit', '--ease-out']) {
-      expect(css.includes(token + ':') || css.includes('--' + token)).toBe(true);
+      expect(css.includes(`${token  }:`) || css.includes(`--${  token}`)).toBe(true);
     }
   });
 });
@@ -59,7 +59,7 @@ describe('theme token contrast', () => {
 
   function hexToRgb(hex) {
     const m = /^#([0-9a-f]{6})$/i.exec(hex.trim());
-    if (!m) return null;
+    if (!m) {return null;}
     const v = parseInt(m[1], 16);
     return [(v >> 16) & 255, (v >> 8) & 255, v & 255];
   }

@@ -49,7 +49,7 @@ function normalizeImageData(raw: Record<string, unknown>) {
 }
 
 async function canSubmitImages(user: { id: number; isAdmin: boolean }): Promise<boolean> {
-  if (user.isAdmin) return true;
+  if (user.isAdmin) {return true;}
   const settings = await prisma.settings.findUnique({ where: { id: 1 } });
   return settings?.allowUserCreateImages === true;
 }
@@ -74,7 +74,7 @@ const userImagesModule: Module = {
         try {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
-          if (!user) return res.redirect('/login');
+          if (!user) {return res.redirect('/login');}
 
           const allowed = await canSubmitImages(user);
           const settings = await prisma.settings.findUnique({ where: { id: 1 } });
@@ -104,10 +104,10 @@ const userImagesModule: Module = {
         try {
           const userId = req.session?.user?.id;
           const user = await prisma.users.findUnique({ where: { id: userId } });
-          if (!user) return res.redirect('/login');
+          if (!user) {return res.redirect('/login');}
 
           const allowed = await canSubmitImages(user);
-          if (!allowed) return res.redirect('/my-images');
+          if (!allowed) {return res.redirect('/my-images');}
 
           res.redirect('/account#submit-image');
         } catch (error: unknown) {
@@ -264,7 +264,7 @@ const userImagesModule: Module = {
             prisma.users.findUnique({ where: { id: userId } }),
             prisma.images.findUnique({ where: { id: Number(req.params.id) } }),
           ]);
-          if (!user) return res.redirect('/login');
+          if (!user) {return res.redirect('/login');}
           if (!image || image.createdById !== user.id) {
             return res.redirect('/my-images');
           }

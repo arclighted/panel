@@ -1,100 +1,100 @@
-import { z } from "zod";
-import fs from "fs";
-import path from "path";
-import logger from "./logger";
-import { isValidAddonSlug } from "./addonViewResolver";
+import { z } from 'zod';
+import fs from 'fs';
+import path from 'path';
+import logger from './logger';
+import { isValidAddonSlug } from './addonViewResolver';
 
 const RESERVED_IDENTIFIER_WORDS = [
-  "admin",
-  "api",
-  "auth",
-  "login",
-  "logout",
-  "static",
-  "assets",
-  "core",
-  "panel",
-  "server",
-  "servers",
-  "node",
-  "nodes",
-  "user",
-  "users",
-  "settings",
-  "config",
-  "system",
-  "status",
-  "health",
-  "ws",
-  "socket",
-  "daemon",
-  "backup",
-  "backups",
-  "image",
-  "images",
-  "store",
-  "addon",
-  "addons",
-  "plugin",
-  "plugins",
-  "extension",
-  "dashboard",
-  "account",
-  "files",
-  "console",
-  "terminal",
-  "player",
-  "players",
-  "world",
-  "worlds",
-  "startup",
-  "schedules",
-  "schedule",
+  'admin',
+  'api',
+  'auth',
+  'login',
+  'logout',
+  'static',
+  'assets',
+  'core',
+  'panel',
+  'server',
+  'servers',
+  'node',
+  'nodes',
+  'user',
+  'users',
+  'settings',
+  'config',
+  'system',
+  'status',
+  'health',
+  'ws',
+  'socket',
+  'daemon',
+  'backup',
+  'backups',
+  'image',
+  'images',
+  'store',
+  'addon',
+  'addons',
+  'plugin',
+  'plugins',
+  'extension',
+  'dashboard',
+  'account',
+  'files',
+  'console',
+  'terminal',
+  'player',
+  'players',
+  'world',
+  'worlds',
+  'startup',
+  'schedules',
+  'schedule',
 ];
 
 const RESERVED_ROUTE_PREFIXES = [
-  "/admin",
-  "/api",
-  "/auth",
-  "/login",
-  "/logout",
-  "/static",
-  "/assets",
-  "/ws",
-  "/socket",
-  "/daemon",
-  "/server",
-  "/servers",
-  "/node",
-  "/nodes",
-  "/user",
-  "/users",
-  "/settings",
-  "/config",
-  "/system",
-  "/status",
-  "/health",
-  "/backup",
-  "/backups",
-  "/image",
-  "/images",
-  "/store",
-  "/dashboard",
-  "/account",
-  "/files",
-  "/console",
-  "/terminal",
-  "/player",
-  "/players",
-  "/world",
-  "/worlds",
-  "/startup",
-  "/schedule",
+  '/admin',
+  '/api',
+  '/auth',
+  '/login',
+  '/logout',
+  '/static',
+  '/assets',
+  '/ws',
+  '/socket',
+  '/daemon',
+  '/server',
+  '/servers',
+  '/node',
+  '/nodes',
+  '/user',
+  '/users',
+  '/settings',
+  '/config',
+  '/system',
+  '/status',
+  '/health',
+  '/backup',
+  '/backups',
+  '/image',
+  '/images',
+  '/store',
+  '/dashboard',
+  '/account',
+  '/files',
+  '/console',
+  '/terminal',
+  '/player',
+  '/players',
+  '/world',
+  '/worlds',
+  '/startup',
+  '/schedule',
 ];
 
 /** True when a route prefix collides with a reserved panel namespace. */
 export function isReservedRoutePrefix(routePrefix: string): boolean {
-  const routerPath = routePrefix.startsWith("/")
+  const routerPath = routePrefix.startsWith('/')
     ? routePrefix
     : `/${routePrefix}`;
   return RESERVED_ROUTE_PREFIXES.some(
@@ -133,7 +133,7 @@ export const addonManifestSchema = z.object({
     .array(
       z.object({
         key: z.string().min(1),
-        type: z.enum(["string", "number", "boolean"]),
+        type: z.enum(['string', 'number', 'boolean']),
         label: z.string().min(1),
         default: z.union([z.string(), z.number(), z.boolean()]).optional(),
         description: z.string().optional(),
@@ -180,7 +180,7 @@ export function parseAddonManifest(
       };
     }
 
-    const raw = fs.readFileSync(filePath, "utf-8");
+    const raw = fs.readFileSync(filePath, 'utf-8');
     let parsed: unknown;
     try {
       parsed = JSON.parse(raw);
@@ -195,8 +195,8 @@ export function parseAddonManifest(
     const result = addonManifestSchema.safeParse(parsed);
     if (!result.success) {
       const issues = result.error.issues
-        .map((i) => `${i.path.join(".")}: ${i.message}`)
-        .join("; ");
+        .map((i) => `${i.path.join('.')}: ${i.message}`)
+        .join('; ');
       return {
         success: false,
         error: `Manifest validation failed for addon "${displayName}": ${issues}`,
@@ -262,10 +262,10 @@ export function parseAddonManifest(
 
     return { success: true, manifest, filePath };
   } catch (error: any) {
-    logger.error("Failed to parse manifest:", error);
+    logger.error('Failed to parse manifest:', error);
     return {
       success: false,
-      error: "Failed to parse manifest",
+      error: 'Failed to parse manifest',
       filePath,
     };
   }
@@ -279,15 +279,15 @@ export function getManifestIdentifier(
 }
 
 export function isVersionInRange(version: string, range: string): boolean {
-  if (!range || range === "*") {
+  if (!range || range === '*') {
     return true;
   }
 
-  const cleanVersion = version.replace(/^[^\d]*/, "");
-  const parts = cleanVersion.split(".").map(Number);
-  const rangeParts = range.split(".").map((p) => {
-    const clean = p.replace(/^[^\d]*/, "");
-    return clean === "" ? null : Number(clean);
+  const cleanVersion = version.replace(/^[^\d]*/, '');
+  const parts = cleanVersion.split('.').map(Number);
+  const rangeParts = range.split('.').map((p) => {
+    const clean = p.replace(/^[^\d]*/, '');
+    return clean === '' ? null : Number(clean);
   });
 
   while (parts.length < 3) {
@@ -299,38 +299,38 @@ export function isVersionInRange(version: string, range: string): boolean {
 
   const cleanRangeParts = rangeParts.filter((x): x is number => x !== null);
 
-  if (range.startsWith(">=")) {
+  if (range.startsWith('>=')) {
     return compareVersions(parts, cleanRangeParts.slice(1)) >= 0;
   }
-  if (range.startsWith(">")) {
+  if (range.startsWith('>')) {
     return compareVersions(parts, cleanRangeParts.slice(1)) > 0;
   }
-  if (range.startsWith("<=")) {
+  if (range.startsWith('<=')) {
     return compareVersions(parts, cleanRangeParts.slice(1)) <= 0;
   }
-  if (range.startsWith("<")) {
+  if (range.startsWith('<')) {
     return compareVersions(parts, cleanRangeParts.slice(1)) < 0;
   }
-  if (range.startsWith("=")) {
+  if (range.startsWith('=')) {
     return compareVersions(parts, cleanRangeParts.slice(1)) === 0;
   }
-  if (range.includes(" - ")) {
-    const [min, max] = range.split(" - ");
+  if (range.includes(' - ')) {
+    const [min, max] = range.split(' - ');
     return (
-      compareVersions(parts, parseVersion(min ?? "")) >= 0 &&
-      compareVersions(parts, parseVersion(max ?? "")) <= 0
+      compareVersions(parts, parseVersion(min ?? '')) >= 0 &&
+      compareVersions(parts, parseVersion(max ?? '')) <= 0
     );
   }
-  if (range.includes("||")) {
-    return range.split("||").some((r) => isVersionInRange(version, r.trim()));
+  if (range.includes('||')) {
+    return range.split('||').some((r) => isVersionInRange(version, r.trim()));
   }
 
   return compareVersions(parts, cleanRangeParts) === 0;
 }
 
 function parseVersion(v: string): number[] {
-  const clean = v.replace(/^[^\d]*/, "");
-  const parts = clean.split(".").map(Number);
+  const clean = v.replace(/^[^\d]*/, '');
+  const parts = clean.split('.').map(Number);
   while (parts.length < 3) {
     parts.push(0);
   }

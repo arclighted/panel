@@ -1,5 +1,6 @@
-import { Router, Request, Response } from 'express';
-import { Module } from '../../handlers/moduleInit';
+import type { Request, Response } from 'express';
+import { Router } from 'express';
+import type { Module } from '../../handlers/moduleInit';
 import prisma from '../../db';
 import { isAuthenticated } from '../../handlers/utils/auth/authUtil';
 import logger from '../../handlers/logger';
@@ -23,7 +24,7 @@ const adminModule: Module = {
       async (req: Request, res: Response) => {
         const userId = req.session?.user?.id;
         const user = await prisma.users.findUnique({ where: { id: userId } });
-        if (!user) return res.redirect('/login');
+        if (!user) {return res.redirect('/login');}
         const settings = await prisma.settings.findUnique({ where: { id: 1 } });
         const mounts = await prisma.mount.findMany({ include: { _count: { select: { servers: true } } } });
         res.render('admin/mounts/index', { user, req, settings, mounts });
@@ -66,8 +67,8 @@ const adminModule: Module = {
       '/admin/mounts/:id',
       isAuthenticated(true),
       async (req: Request, res: Response) => {
-const id = parseInt(String(req.params?.id), 10);
-        if (!id) return res.status(400).json({ success: false, error: 'Invalid mount id.' });
+        const id = parseInt(String(req.params?.id), 10);
+        if (!id) {return res.status(400).json({ success: false, error: 'Invalid mount id.' });}
         try {
           await prisma.mount.delete({ where: { id } });
           return res.status(200).json({ success: true });

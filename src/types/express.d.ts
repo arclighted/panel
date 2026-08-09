@@ -1,4 +1,4 @@
-import type { ApiKey, SubUser } from "../generated/prisma/client";
+import type { ApiKey, SubUser } from '../generated/prisma/client';
 
 export interface PanelSessionUser {
   id: number;
@@ -11,7 +11,7 @@ export interface PanelSessionUser {
   onboardingSkipped?: boolean;
 }
 
-declare module "express-session" {
+declare module 'express-session' {
   interface SessionData {
     user: PanelSessionUser;
     pendingUserId?: number;

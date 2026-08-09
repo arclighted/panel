@@ -1,7 +1,7 @@
-import type express from "express";
-import logger from "./logger";
-import chalk from "chalk";
-import { registeredModules } from "../modules/registry";
+import type express from 'express';
+import logger from './logger';
+import chalk from 'chalk';
+import { registeredModules } from '../modules/registry';
 
 export const loadModules = async (
   app: express.Express,
@@ -12,48 +12,48 @@ export const loadModules = async (
   const modules = registeredModules();
 
   const ascii = [
-    "                                              ",
-    "  /$$$$$$ /$$         /$$/$$         /$$      ",
-    " /$$__  $|__/        | $|__/        | $$      ",
-    "| $$  \\ $$/$$ /$$$$$$| $$/$$/$$$$$$$| $$   /$$",
-    "| $$$$$$$| $$/$$__  $| $| $| $$__  $| $$  /$$/",
-    "| $$__  $| $| $$  \\__| $| $| $$  \\ $| $$$$$$/ ",
-    "| $$  | $| $| $$     | $| $| $$  | $| $$_  $$ ",
-    "| $$  | $| $| $$     | $| $| $$  | $| $$ \\  $$",
-    "|__/  |__|__|__/     |__|__|__/  |__|__/  \\__/",
-    "                                              ",
-    "---Airlink Panel - By Airlinklabs MIT LICENSE---",
+    '                                              ',
+    '  /$$$$$$ /$$         /$$/$$         /$$      ',
+    ' /$$__  $|__/        | $|__/        | $$      ',
+    '| $$  \\ $$/$$ /$$$$$$| $$/$$/$$$$$$$| $$   /$$',
+    '| $$$$$$$| $$/$$__  $| $| $| $$__  $| $$  /$$/',
+    '| $$__  $| $| $$  \\__| $| $| $$  \\ $| $$$$$$/ ',
+    '| $$  | $| $| $$     | $| $| $$  | $| $$_  $$ ',
+    '| $$  | $| $| $$     | $| $| $$  | $| $$ \\  $$',
+    '|__/  |__|__|__/     |__|__|__/  |__|__/  \\__/',
+    '                                              ',
+    '---Airlink Panel - By Airlinklabs MIT LICENSE---',
   ];
 
   ascii.forEach((line, i) => {
     const step = i / (ascii.length - 1);
     const channel = Math.floor(255 - step * 51);
-    const hex = `#${channel.toString(16).padStart(2, "0").repeat(3)}`;
+    const hex = `#${channel.toString(16).padStart(2, '0').repeat(3)}`;
     console.log(chalk.hex(hex)(line));
   });
 
   const boxWidth = 55;
-  const border = chalk.gray("+" + "-".repeat(boxWidth) + "+");
+  const border = chalk.gray(`+${  '-'.repeat(boxWidth)  }+`);
   const padLine = (text: string) => {
-    const padding = " ".repeat(Math.max(0, boxWidth - text.length));
+    const padding = ' '.repeat(Math.max(0, boxWidth - text.length));
     return (
-      chalk.greenBright("|") +
+      chalk.greenBright('|') +
       chalk.whiteBright(text) +
       chalk.whiteBright(padding) +
-      chalk.greenBright("|")
+      chalk.greenBright('|')
     );
   };
 
   console.log(border);
-  console.log(padLine("Initializing - Loading core modules and components."));
+  console.log(padLine('Initializing - Loading core modules and components.'));
 
-  const panelMajor = airlinkVersion.split(".")[0];
+  const panelMajor = airlinkVersion.split('.')[0];
   let loaded = 0;
   let errors = 0;
 
   for (const entry of modules) {
     const mod = entry.module;
-    const modMajor = mod.info.version.split(".")[0];
+    const modMajor = mod.info.version.split('.')[0];
 
     // Version compatibility is a hard contract: an incompatible module is a
     // misconfiguration that must surface at startup, not a silent skip.

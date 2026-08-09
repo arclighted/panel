@@ -14,7 +14,7 @@ class MockWebSocket {
   url: string;
   readyState = MockWebSocket.CONNECTING;
   sent: string[] = [];
-  private listeners: Record<string, Array<(evt?: unknown) => void>> = {};
+  private listeners: Record<string, ((evt?: unknown) => void)[]> = {};
 
   constructor(url: string) {
     this.url = url;
@@ -54,7 +54,7 @@ class MockWebSocket {
 
 function memoryStorage(seed?: { seq?: string }) {
   const map = new Map<string, string>();
-  if (seed?.seq) map.set(RealtimeClient.SEQ_KEY, seed.seq);
+  if (seed?.seq) {map.set(RealtimeClient.SEQ_KEY, seed.seq);}
   return {
     getItem: (k: string) => (map.has(k) ? map.get(k) : null),
     setItem: (k: string, v: string) => void map.set(k, v),

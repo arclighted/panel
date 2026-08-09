@@ -1,12 +1,12 @@
-import prisma from "../db";
-import logger from "./logger";
-import { daemonRequest } from "./utils/core/daemonRequest";
+import prisma from '../db';
+import logger from './logger';
+import { daemonRequest } from './utils/core/daemonRequest';
 import {
   daemonPlayerListSchema,
   parseDaemonResponse,
-} from "../platform/daemon/dtos";
-import { parseServerPorts } from "./utils/server/ports";
-import { emitRealtime } from "./realtime/events";
+} from '../platform/daemon/dtos';
+import { parseServerPorts } from './utils/server/ports';
+import { emitRealtime } from './realtime/events';
 
 // Interval in milliseconds (5 minutes)
 const COLLECTION_INTERVAL = 5 * 60 * 1000;
@@ -50,8 +50,8 @@ export async function collectPlayerStats(): Promise<void> {
             nodeAddress: server.node.address,
             nodePort: server.node.port,
             nodeKey: server.node.key,
-            method: "GET",
-            path: "/minecraft/players",
+            method: 'GET',
+            path: '/minecraft/players',
             params: {
               id: server.UUID,
               host: server.node.address,
@@ -105,7 +105,7 @@ export async function collectPlayerStats(): Promise<void> {
     // Clean up old data
     const oldestToKeep = await prisma.playerStats.findMany({
       orderBy: {
-        timestamp: "desc",
+        timestamp: 'desc',
       },
       take: MAX_DATA_POINTS,
     });
@@ -125,12 +125,12 @@ export async function collectPlayerStats(): Promise<void> {
     // Player stats were just collected — tell any admin playerstats page to
     // re-fetch instead of waiting out its own poll interval.
     emitRealtime({
-      type: "player.stats.updated",
+      type: 'player.stats.updated',
       scope: { admin: true },
       state: {},
     });
   } catch (error) {
-    logger.warn("Player stats collection failed", { error });
+    logger.warn('Player stats collection failed', { error });
   }
 }
 
@@ -164,6 +164,6 @@ export function stopPlayerStatsCollection(): void {
   if (statsCollectionInterval) {
     clearInterval(statsCollectionInterval);
     statsCollectionInterval = null;
-    logger.info("Player stats collection stopped");
+    logger.info('Player stats collection stopped');
   }
 }

@@ -11,7 +11,7 @@ try {
   const data = fs.readFileSync(envPath, 'utf8');
   for (const line of data.split('\n')) {
     const eqIndex = line.indexOf('=');
-    if (eqIndex === -1) continue;
+    if (eqIndex === -1) {continue;}
     const key = line.slice(0, eqIndex).trim();
     const value = line.slice(eqIndex + 1).trim().replace(/^["']|["']$/g, '');
     if (key && !process.env[key]) {
@@ -26,7 +26,7 @@ try {
 // always use the same SQLite file. Without this, `prisma db push` and the runtime
 // can resolve `file:./storage/dev.db` to different directories.
 function resolveDbUrl(raw: string): string {
-  if (!raw.startsWith('file:')) return raw;
+  if (!raw.startsWith('file:')) {return raw;}
   const relPath = raw.slice('file:'.length);
   const absPath = path.resolve(process.cwd(), relPath);
   // Ensure the parent directory exists (e.g. storage/)
@@ -51,11 +51,11 @@ try {
   setup.pragma('synchronous = NORMAL');
   setup.close();
 } catch (error) {
-    // Defer to the adapter if the file isn't reachable yet.
-    logger.warn('Could not initialise SQLite journal mode.', {
-      error: error instanceof Error ? error.message : String(error),
-    });
-  }
+  // Defer to the adapter if the file isn't reachable yet.
+  logger.warn('Could not initialise SQLite journal mode.', {
+    error: error instanceof Error ? error.message : String(error),
+  });
+}
 
 const adapter = new PrismaBetterSqlite3({ url: resolvedUrl, timeout: 5000 });
 const prisma = new PrismaClient({ adapter });

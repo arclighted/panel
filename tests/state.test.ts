@@ -2,7 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 // Plain CJS module, browser-global + Node export, testable directly.
 import ALState from '../public/javascript/shared/state.js';
 
-type Deferred = { resolve: (v: unknown) => void; reject: (e: unknown) => void };
+interface Deferred { resolve: (v: unknown) => void; reject: (e: unknown) => void }
 
 function deferred<T = unknown>(): { promise: Promise<T>; resolve: (v: T) => void; reject: (e: unknown) => void } {
   let resolve!: (v: T) => void;
@@ -202,12 +202,12 @@ describe('state client', () => {
     const client = ALState.createClient();
     const done = deferred();
     client.observe('server:status:retry', (s) => {
-      if (s.status === 'success' && s.data) done.resolve(s.data as unknown);
+      if (s.status === 'success' && s.data) {done.resolve(s.data as unknown);}
     });
     client.query('server:status:retry', {
       fetcher: () => {
         attempts += 1;
-        if (attempts < 3) return Promise.reject(new Error('temporary'));
+        if (attempts < 3) {return Promise.reject(new Error('temporary'));}
         return Promise.resolve({ ok: true });
       },
       retry: true,

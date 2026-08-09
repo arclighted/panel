@@ -80,7 +80,7 @@ describe('resource release after container stop', () => {
     // A stopped 4 GB server has freed its resources — starting another 4 GB
     // server on a 4 GB node must be allowed.
     mockPrisma.server.findMany.mockImplementation(({ where }: any) => {
-      if (where?.Running === true) return Promise.resolve([]);
+      if (where?.Running === true) {return Promise.resolve([]);}
       return Promise.resolve([runningServer('stopped-1', 4096)]);
     });
 
@@ -92,7 +92,7 @@ describe('resource release after container stop', () => {
     // A running 4 GB server holds the node — starting another 4 GB server
     // must fail with NodeCapacityExceededError and never reach the daemon.
     mockPrisma.server.findMany.mockImplementation(({ where }: any) => {
-      if (where?.Running === true) return Promise.resolve([runningServer('running-1', 4096)]);
+      if (where?.Running === true) {return Promise.resolve([runningServer('running-1', 4096)]);}
       return Promise.resolve([runningServer('running-1', 4096)]);
     });
 

@@ -38,10 +38,12 @@ async function connect(host: DatabaseHost): Promise<mysql.Connection> {
   } catch (error) {
     const code = (error as { code?: string })?.code;
     if (code === 'ECONNREFUSED') {
-      throw new Error(`MariaDB missing or not running on ${host.host}:${host.port} (connection refused)`);
+      throw new Error(`MariaDB missing or not running on ${host.host}:${host.port} (connection refused)`, {
+        cause: error,
+      });
     }
     if (code === 'ENOTFOUND') {
-      throw new Error(`MariaDB host not found: ${host.host}`);
+      throw new Error(`MariaDB host not found: ${host.host}`, { cause: error });
     }
     throw error instanceof Error ? error : new Error('Failed to connect to the database host');
   }

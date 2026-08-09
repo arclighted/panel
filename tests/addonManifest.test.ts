@@ -39,7 +39,7 @@ describe('parseAddonManifest', () => {
     const dir = writeAddon('has spaces', { ...goodManifest, identifier: 'has-spaces' });
     const result = parseAddonManifest(path.join(dir, 'package.json'), 'has spaces');
     expect(result.success).toBe(false);
-    if (!result.success) expect(result.error).toContain('slug');
+    if (!result.success) {expect(result.error).toContain('slug');}
   });
 
   it('rejects traversal-shaped folder names', () => {
@@ -52,7 +52,7 @@ describe('parseAddonManifest', () => {
     const dir = writeAddon('demo-addon', { ...goodManifest, identifier: 'something-else' });
     const result = parseAddonManifest(path.join(dir, 'package.json'), 'demo-addon');
     expect(result.success).toBe(false);
-    if (!result.success) expect(result.error).toContain('Identifier mismatch');
+    if (!result.success) {expect(result.error).toContain('Identifier mismatch');}
   });
 
   it('rejects a reserved router prefix', () => {
@@ -61,7 +61,7 @@ describe('parseAddonManifest', () => {
       const dir = writeAddon(slug, { ...goodManifest, identifier: slug, router });
       const result = parseAddonManifest(path.join(dir, 'package.json'), slug);
       expect(result.success).toBe(false);
-      if (!result.success) expect(result.error).toContain('Reserved route prefix');
+      if (!result.success) {expect(result.error).toContain('Reserved route prefix');}
     }
   });
 
@@ -72,7 +72,7 @@ describe('parseAddonManifest', () => {
     });
     const result = parseAddonManifest(path.join(dir, 'package.json'), 'demo-addon');
     expect(result.success).toBe(false);
-    if (!result.success) expect(result.error).toContain('outside addon namespace');
+    if (!result.success) {expect(result.error).toContain('outside addon namespace');}
   });
 
   it('rejects reserved identifiers', () => {
@@ -80,7 +80,7 @@ describe('parseAddonManifest', () => {
       const dir = writeAddon(identifier, { ...goodManifest, identifier });
       const result = parseAddonManifest(path.join(dir, 'package.json'), identifier);
       expect(result.success).toBe(false);
-      if (!result.success) expect(result.error).toContain('Reserved identifier');
+      if (!result.success) {expect(result.error).toContain('Reserved identifier');}
     }
   });
 });
