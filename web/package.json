@@ -1,0 +1,54 @@
+{
+  "name": "arclight-web",
+  "private": true,
+  "type": "module",
+  "//": "Arclight panel frontend (TanStack Start). Pin policy (MIGRATION_PLAN.md §7.3): ALL versions are exact-pinned, no caret ranges.",
+  "imports": {
+    "#/*": "./src/*"
+  },
+  "scripts": {
+    "dev": "vite dev --port 3000",
+    "build": "vite build",
+    "start": "node server/index.mjs",
+    "generate-routes": "tsr generate",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@base-ui/react": "1.7.0",
+    "@fontsource-variable/geist": "5.3.0",
+    "@tailwindcss/vite": "4.3.3",
+    "@tanstack/react-devtools": "0.10.9",
+    "@tanstack/react-query": "5.101.4",
+    "@tanstack/react-router": "1.170.25",
+    "@tanstack/react-router-devtools": "1.167.1",
+    "@tanstack/react-start": "1.168.42",
+    "class-variance-authority": "0.7.1",
+    "clsx": "2.1.1",
+    "lucide-react": "1.31.0",
+    "nitro": "3.0.260610-beta",
+    "react": "19.2.8",
+    "react-dom": "19.2.8",
+    "shadcn": "4.16.2",
+    "tailwind-merge": "3.6.0",
+    "tailwindcss": "4.3.3",
+    "tw-animate-css": "1.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/typography": "0.5.20",
+    "@tanstack/devtools-vite": "0.8.3",
+    "@tanstack/router-cli": "1.167.27",
+    "@testing-library/jest-dom": "7.0.1",
+    "@testing-library/react": "16.3.2",
+    "@testing-library/user-event": "14.6.3",
+    "@types/node": "22.10.2",
+    "@types/react": "19.2.18",
+    "@types/react-dom": "19.2.4",
+    "@vitejs/plugin-react": "6.0.5",
+    "jsdom": "30.0.1",
+    "msw": "2.15.0",
+    "typescript": "6.0.3",
+    "vite": "8.2.1",
+    "vitest": "4.1.10"
+  }
+}

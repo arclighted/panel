@@ -1,5 +1,6 @@
 packages:
   - "."
+  - "web"
 
 overrides:
   cookie: ^0.7.2
@@ -11,6 +12,8 @@ allowBuilds:
   '@prisma/engines': true
   better-sqlite3: true
   esbuild: true
+  lightningcss: true
+  msw: true
   prisma: true
 
 minimumReleaseAgeExclude:
@@ -25,3 +28,18 @@ minimumReleaseAgeExclude:
   - '@prisma/fetch-engine@7.9.1'
   - '@prisma/get-platform@7.9.1'
   - prisma@7.9.1
+  - '@tanstack/react-router@1.170.25'
+  - '@tanstack/react-start-client@1.168.23'
+  - '@tanstack/react-start-rsc@0.1.41'
+  - '@tanstack/react-start-server@1.167.30'
+  - '@tanstack/react-start@1.168.42'
+  - '@tanstack/router-cli@1.167.27'
+  - '@tanstack/router-core@1.171.21'
+  - '@tanstack/router-generator@1.167.27'
+  - '@tanstack/router-plugin@1.168.29'
+  - '@tanstack/start-client-core@1.170.21'
+  - '@tanstack/start-plugin-core@1.171.33'
+  - '@tanstack/start-server-core@1.169.25'
+  - '@tanstack/start-storage-context@1.167.23'
+  - '@testing-library/jest-dom@7.0.1'
+  - lucide-react@1.31.0

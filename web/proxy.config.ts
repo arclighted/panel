@@ -1,0 +1,93 @@
+/**
+ * Shared proxy configuration for the Arclight panel frontend.
+ *
+ * During development (Vite) and production (custom Node server), requests to
+ * these paths are forwarded to the Express panel running on PANEL_INTERNAL_PORT.
+ *
+ * The URL-seam: unmigrated legacy page prefixes are listed here and proxied to
+ * Express, which renders them as EJS. As pages migrate (§MIGRATION_PLAN.md 5.2),
+ * their prefix is removed from PANEL_PROXY_PATHS and added as a TanStack route.
+ */
+
+export const PANEL_INTERNAL_PORT = Number(
+  process.env.PANEL_INTERNAL_PORT ?? 3001,
+)
+export const PANEL_INTERNAL_HOST =
+  process.env.PANEL_INTERNAL_HOST ?? '127.0.0.1'
+export const PANEL_INTERNAL_URL = `http://${PANEL_INTERNAL_HOST}:${PANEL_INTERNAL_PORT}`
+
+/**
+ * Legacy static paths that Express serves from `public/` — proxy these for any
+ * passthrough page that references them.
+ */
+export const STATIC_PROXY_PATHS = [
+  '/favicon.ico',
+  '/javascript',
+  '/js',
+  '/fonts',
+  '/styles',
+  '/styles.css',
+  '/themes',
+  '/uploads',
+  '/assets',
+  '/addons',
+  '/monaco',
+  '/tw.css',
+  '/layout-animations.css',
+  '/vendor',
+  '/monaco-editor',
+  '/xterm',
+  '/marked',
+  '/chart.js',
+] as const
+
+/**
+ * API and real-time paths proxied to Express unchanged.
+ */
+export const API_PROXY_PATHS = ['/api', '/ws', '/addon-assets', '/avatar'] as const
+
+/**
+ * Unmigrated legacy page prefixes (URL seam). These paths are served by Express
+ * as full EJS pages. Remove each prefix from this list when its TanStack route
+ * is ready.
+ */
+export const LEGACY_PAGE_PREFIXES = [
+  '/login',
+  '/register',
+  '/forgot-password',
+  '/reset-password',
+  '/2fa',
+  '/logout',
+  '/create-server',
+  '/my-images',
+  '/user/server',
+  '/admin',
+] as const
+
+/** All proxy paths combined. */
+export const ALL_PROXY_PATHS = [
+  ...API_PROXY_PATHS,
+  ...STATIC_PROXY_PATHS,
+  ...LEGACY_PAGE_PREFIXES,
+] as const
+
+/** Vite-compatible proxy configuration object (for server.proxy). */
+export function createProxyConfig(): Record<string, string | { target: string; changeOrigin: boolean; ws: boolean }> {
+  const config: Record<string, string | { target: string; changeOrigin: boolean; ws: boolean }> = {}
+
+  // API and WS paths need ws: true for WebSocket upgrade forwarding
+  for (const path of API_PROXY_PATHS) {
+    config[path] = {
+      target: PANEL_INTERNAL_URL,
+      changeOrigin: true,
+      ws: path === '/ws',
+    }
+  }
+
+  // Static and legacy page paths use simple target string
+  for (const path of [...STATIC_PROXY_PATHS, ...LEGACY_PAGE_PREFIXES]) {
+    config[path] = PANEL_INTERNAL_URL
+  }
+
+  return config
+}
