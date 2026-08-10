@@ -158,9 +158,104 @@ export const addonManifestSchema = z.object({
     )
     .optional(),
   dontfuckinganimateme: z.boolean().optional(),
+
+  /**
+   * Addon v3 UI contract.
+   *
+   * Enabled addons that declare this field participate in the React-based UI:
+   * the panel loads their ESM bundles at runtime (via the import map), injects
+   * their CSS, mounts their components into named slots, registers additional
+   * sidebar / server-menu items, and proxies their declared API paths to
+   * Express.
+   *
+   * See `docs/addon-ui-contract-v3.md` for the full reference.
+   */
+  ui: z
+    .object({
+      /** ESM bundle URLs (one per entry) served by the panel at runtime. */
+      bundles: z.array(z.string()).optional(),
+      /** CSS file URLs to inject when the addon is loaded. */
+      css: z.array(z.string()).optional(),
+      /**
+       * Named React component mounts: key = slot identifier, value =
+       * component name as exported by the addon's entry bundle.
+       * e.g. `{ "server:console:toolbar": "MyConsoleToolbar" }`
+       */
+      slots: z.record(z.string(), z.array(z.string())).optional(),
+      /** Routes to register in the app's React router (TanStack). */
+      routes: z
+        .array(
+          z.object({
+            path: z.string(),
+            component: z.string(),
+          }),
+        )
+        .optional(),
+      /** Admin sidebar items. */
+      adminSidebar: z
+        .array(
+          z.object({
+            id: z.string(),
+            label: z.string(),
+            icon: z.string().optional(),
+            url: z.string(),
+            section: z.string().optional(),
+            group: z.string().optional(),
+          }),
+        )
+        .optional(),
+      /** Server menu items. */
+      serverMenu: z
+        .array(
+          z.object({
+            id: z.string(),
+            label: z.string(),
+            icon: z.string().optional(),
+            url: z.string(),
+            group: z.string().optional(),
+            feature: z.string().optional(),
+          }),
+        )
+        .optional(),
+      /**
+       * API paths this addon registers. The panel's proxy forwards requests
+       * matching these prefixes to Express during development (Vite) and
+       * production (web/server/index.mjs).
+       */
+      apiPaths: z.array(z.string()).optional(),
+    })
+    .optional(),
 });
 
 export type AddonManifestV2 = z.infer<typeof addonManifestSchema>;
+
+/** The v3 UI subset of an addon manifest (stripped of v2-only fields). */
+export interface AddonUIV3Manifest {
+  slug: string;
+  name: string;
+  version: string;
+  bundles?: string[];
+  css?: string[];
+  slots?: Record<string, string[]>;
+  routes?: { path: string; component: string }[];
+  adminSidebar?: {
+    id: string;
+    label: string;
+    icon?: string;
+    url: string;
+    section?: string;
+    group?: string;
+  }[];
+  serverMenu?: {
+    id: string;
+    label: string;
+    icon?: string;
+    url: string;
+    group?: string;
+    feature?: string;
+  }[];
+  apiPaths?: string[];
+}
 
 export type ParseManifestResult =
   | { success: true; manifest: AddonManifestV2; filePath: string }

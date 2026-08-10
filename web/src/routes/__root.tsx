@@ -19,10 +19,29 @@ export const Route = createRootRoute({
   shellComponent: RootDocument,
 })
 
+const VENDOR_IMPORT_MAP = `{"imports":{
+  "react": "/vendor/react.mjs",
+  "react/jsx-runtime": "/vendor/react.mjs",
+  "react-dom": "/vendor/react.mjs",
+  "react-dom/client": "/vendor/react.mjs",
+  "@tanstack/react-router": "/vendor/react-router.mjs",
+  "@tanstack/react-query": "/vendor/react-query.mjs"
+}}`
+
 function RootDocument({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
+        {/*
+          Addon v3 import map: addon bundles externalize the shared runtime
+          (react, react-dom, router, query) and the browser resolves those bare
+          specifiers here — to web/public/vendor/*.mjs (built by
+          web/scripts/vendor-v3.mjs). Because the app build externalizes the
+          same specifiers (vite.config rollupOptions.external), the APP's own
+          chunks also resolve here, guaranteeing a SINGLE React instance across
+          the app and every addon bundle.
+        */}
+        <script type="importmap" dangerouslySetInnerHTML={{ __html: VENDOR_IMPORT_MAP }} />
         <HeadContent />
       </head>
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">

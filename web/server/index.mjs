@@ -33,7 +33,12 @@ const API_PREFIXES = ['/api', '/ws', '/console', '/addon-assets', '/avatar', '/a
 const STATIC_PREFIXES = [
   '/favicon.ico', '/javascript', '/js', '/fonts', '/styles',
   '/styles.css', '/themes', '/uploads', '/assets', '/addons',
-  '/monaco', '/tw.css', '/layout-animations.css', '/vendor',
+  '/monaco', '/tw.css', '/layout-animations.css',
+  // NOT a bare /vendor — see proxy.config.ts for the reasoning. Express
+  // serves these node_modules subpaths for legacy EJS pages; the TanStack
+  // app serves the new v3 runtime files from /vendor/*.mjs (Nitro public).
+  '/vendor/xterm', '/vendor/marked', '/vendor/xterm-addon-fit',
+  '/vendor/xterm-addon-web-links', '/vendor/chartjs',
   '/monaco-editor', '/xterm', '/marked', '/chart.js',
 ]
 

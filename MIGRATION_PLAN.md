@@ -632,4 +632,100 @@ endpoints with CSRF headers. Shell nav is server-driven (uiComponentStore).
 
 *Phase 1.5 complete — every EJS view (auth, user, server, admin) now renders
 in TanStack Start; CI (typecheck/test/build/lint/semgrep, root + web) is
-green. Remaining work: Phase 5 (addons v3) + deleting `views/`.*
+green. Remaining work: Phase 5b (modrinth rewrite) + deleting `views/`.*
+
+---
+
+## 13. Phase 5a — Addon v3 infrastructure (delivered)
+
+**Phase 5a delivers the addon v3 runtime infrastructure: vendor files,
+import-map wiring, server manifest parsing, @arclight/ui, and the app-side
+externalization that guarantees a single React instance across app + addons.**
+
+### 13.1 @arclight/ui (`packages/ui/`)
+
+| Deliverable | Status |
+|---|---|
+| Shared shadcn primitives (Button, Card, Badge, Dialog, Sheet, Dropdown, Alert,
+  Checkbox, Separator, Input, Label) + `cn()` + sonner toast re-export | ✅ Built as a Vite ESM library |
+| Tailwind v4 CSS with `--theme-*` variables; published to `web/public/arclight-ui/` | ✅ Copied to web public dir |
+| `pnpm-workspace.yaml` wiring + isolated tsconfig/build | ✅ |
+
+### 13.2 Vendor runtime + import map
+
+The panel builds single-instance ESM modules from its own node_modules and
+serves them at `/vendor/*.mjs`. The import map in `__root.tsx` maps six bare
+specifiers to these files — addon bundles that externalize the same specifiers
+resolve through the map to the same module instances as the app:
+
+| Import-map key | Vendor file | Bundled packages |
+|---|---|---|
+| `react`, `react/jsx-runtime`, `react/jsx-dev-runtime`,
+  `react-dom`, `react-dom/client` | `/vendor/react.mjs` | react 19.2.8 + jsx-runtime + jsx-dev-runtime +
+  react-dom + react-dom/client, all in one IIFE+ESM-wrapper module (194 KB) |
+| `@tanstack/react-router` | `/vendor/react-router.mjs` | @tanstack/react-router (react externalized) |
+| `@tanstack/react-query` | `/vendor/react-query.mjs` | @tanstack/react-query (react externalized) |
+
+**Why IIFE + wrapper?** React's CJS entry (`module.exports = require(...)`) uses
+runtime re-assignment that esbuild's ESM output cannot statically re-export. By
+bundling to an IIFE global (which returns the runtime exports object) and
+re-exporting its 59 keys from a small ESM wrapper, the vendored file exports
+`useState`, `createRoot`, `jsx`, `jsxDEV`, etc., all from a single module.
+
+**App build externalization** — `build.rollupOptions.external` for the react
+family in `vite.config.ts` causes the app's own client chunks to emit bare
+specifier imports (`import ... from "react"`), which the browser resolves
+through the import map → single React instance in production. The SSR build
+resolves react from node_modules independently (expected, no issue). In dev the
+app uses Vite's pre-bundled react (accepted dev-only caveat).
+
+**Proxy path collision fix** — the legacy `/vendor` proxy prefix was narrowed
+to specific Express-served subpaths (`/vendor/xterm`, `/vendor/chartjs`, etc.)
+so that new `.mjs` runtime files pass through to Vite/Nitro naturally.
+
+**Verified:** canary test (renders a hooks component through the vendored
+react-dom — validates single React instance); web typecheck ✓; web tests 86/86 ✓.
+
+### 13.3 Server manifest parsing (`src/handlers/addonManifest.ts`)
+
+Extended the `addonManifestSchema` (zod v4.4) with an optional `ui` field:
+
+```typescript
+ui?: {
+  bundles?: string[]           // ESM bundle URLs
+  css?: string[]               // CSS file URLs
+  slots?: Record<string, string[]>  // slot id → component names
+  routes?: { path: string; component: string }[]
+  adminSidebar?: SidebarItem[]
+  serverMenu?: ServerMenuItem[]
+  apiPaths?: string[]
+}
+```
+
+Created `src/modules/api/addonUi.ts` → `GET /api/addons/ui` returns the v3 UI
+manifest for every enabled addon with a `ui` field. Registered in the module
+registry. Type exports: `AddonUIV3Manifest`.
+
+### 13.4 Next → Phase 5b
+
+**Modrinth reference rewrite** — the bundled `modrinth` addon will be rewritten
+as the canonical v3 example. This validates the full contract end-to-end: addon
+build, bundle externalization, slot rendering, route registration, and the store
+review checklist.
+
+After Phase 5b:
+- Delete `views/` (the EJS surface is fully replaced).
+- Retire/update the source-inspection tests that assert EJS strings.
+- Phase 5c: parachute + arclight-cloud migration.
+
+### 13.5 Known deviations / notes
+
+- **Dev-mode dual React:** In dev, the app uses Vite's pre-bundled React while
+  addon bundles loaded via the import map use the vendored React. Production
+  (single React) is the verified target; dev mode is documented as caveat.
+- **Router/query externalization:** The app does NOT externalize
+  `@tanstack/react-router` or `@tanstack/react-query` — these are bundled into
+  the app as normal. Addons may import them via the import map (vendored
+  copies exist) but shared instance is not guaranteed. Phase 5b will evaluate
+  whether full router/query externalization is needed.
+

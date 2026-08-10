@@ -34,7 +34,16 @@ export const STATIC_PROXY_PATHS = [
   '/monaco',
   '/tw.css',
   '/layout-animations.css',
-  '/vendor',
+  // NOTE: NOT a bare `/vendor` — only the specific subpaths Express serves
+  // from node_modules for legacy EJS pages. The broad `/vendor` would
+  // intercept the TanStack app's vendor runtime files (`/vendor/*.mjs`)
+  // which Express has no copy of. New runtime files live in web/public/vendor/
+  // and are served by Vite (dev) / Nitro (prod).
+  '/vendor/xterm',
+  '/vendor/marked',
+  '/vendor/xterm-addon-fit',
+  '/vendor/xterm-addon-web-links',
+  '/vendor/chartjs',
   '/monaco-editor',
   '/xterm',
   '/marked',

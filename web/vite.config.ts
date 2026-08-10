@@ -80,6 +80,21 @@ const config = defineConfig({
   server: {
     proxy: createProxyConfig(),
   },
+  // Addon v3 shared runtime: in the production build, the react family is
+  // externalized so the app's chunks emit bare imports. The import map in
+  // __root.tsx resolves these to /vendor/*.mjs, guaranteeing a single React
+  // instance across app + addon bundles in production. SSR (Nitro) resolves
+  // from node_modules independently (fine — SSR doesn't use the import map).
+  // DEV mode does NOT externalize react (Vite pre-bundles it for HMR). In
+  // dev, addon bundles that load at runtime via dynamic import() resolve
+  // react through the browser import map to the vendored file, while the app
+  // uses Vite's pre-bundled react — producing two React instances. This is a
+  // documented dev-only caveat; single-instance is guaranteed in production.
+  build: {
+    rollupOptions: {
+      external: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime'],
+    },
+  },
 });
 
 export default config;

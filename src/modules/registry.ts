@@ -32,6 +32,7 @@ import admin_context from './admin/context';
 import api_Alternative_api from './api/Alternative/api';
 import api_client_clientApi from './api/client/clientApi';
 import api_v1_api from './api/v1/api';
+import addon_ui from './api/addonUi';
 import auth_auth from './auth/auth';
 import auth_authService from './auth/authService';
 import auth_passwordReset from './auth/passwordReset';
@@ -102,6 +103,7 @@ const candidates: { module: unknown; name: string }[] = [
   { module: api_Alternative_api, name: 'api/alternative' },
   { module: api_client_clientApi, name: 'api/client' },
   { module: api_v1_api, name: 'api/v1' },
+  { module: addon_ui, name: 'addon/ui' },
   { module: auth_auth, name: 'auth' },
   { module: auth_authService, name: 'auth/service' },
   { module: auth_passwordReset, name: 'auth/passwordReset' },
