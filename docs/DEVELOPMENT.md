@@ -70,6 +70,100 @@ pnpm run dev              # dev server with auto-restart (also builds CSS)
 
 ---
 
+## Database migrations (Prisma)
+
+The project uses **Prisma Migrate** with SQLite. Migrations live in `prisma/migrations/` as timestamped directories, each containing a `migration.sql` file.
+
+### Normal workflow
+
+```bash
+# After changing prisma/schema.prisma, create a new migration:
+npx prisma migrate dev --name describe_your_change
+
+# In production (or when `pnpm run dev` starts), migrations are applied with:
+npx prisma migrate deploy
+```
+
+`pnpm run dev` automatically runs `prisma migrate deploy && prisma generate` before starting the dev server, so you normally don't need to run these manually.
+
+### Creating a migration
+
+1. Edit `prisma/schema.prisma` with your model changes.
+2. Run `npx prisma migrate dev --name my_change` — this generates the SQL, applies it to your local DB, and regenerates the client.
+3. Commit the new `prisma/migrations/<timestamp>_my_change/` directory.
+
+> **Tip:** Use `npx prisma migrate dev --create-only --name my_change` if you want to review/edit the SQL before applying it.
+
+### Troubleshooting: failed migrations (P3009 / P3018)
+
+If you see an error like this when running `pnpm run dev`:
+
+```
+Error: P3009
+
+migrate found failed migrations in the target database, new migrations
+will not be applied.
+
+The `20260813000000_totp_recovery_codes` migration started at ... failed
+```
+
+This means a migration was attempted but failed partway through. Prisma refuses to apply any subsequent migrations until the failed one is resolved.
+
+**Common cause:** The columns/tables already exist in your database (e.g. you previously ran `prisma migrate dev` or `prisma db push` which applied the schema changes directly), so the migration's `ALTER TABLE ... ADD COLUMN` fails with `duplicate column name`.
+
+**How to fix it:**
+
+1. **Check what the failed migration does:**
+   ```bash
+   cat prisma/migrations/<migration_name>/migration.sql
+   ```
+
+2. **Verify the changes already exist in your database.** You can inspect the schema with:
+   ```bash
+   node -e "
+     const Database = require('better-sqlite3');
+     const db = new Database('storage/dev.db');
+     console.log(db.prepare('PRAGMA table_info(YourTable)').all());
+     db.close();
+   "
+   ```
+
+3. **If the changes are already applied**, mark the migration as resolved:
+   ```bash
+   npx prisma migrate resolve --applied <migration_name>
+   ```
+
+4. **If the changes are NOT applied** (the migration genuinely failed), you can either:
+   - Fix the underlying issue and roll back the failed record:
+     ```bash
+     npx prisma migrate resolve --rolled-back <migration_name>
+     ```
+   - Or reset the database entirely (⚠️ **destroys all data**):
+     ```bash
+     npx prisma migrate reset
+     ```
+
+5. **Run deploy again** to apply remaining pending migrations:
+   ```bash
+   npx prisma migrate deploy
+   ```
+
+> **Note:** Multiple migrations can fail in a cascade. If after resolving one you hit the same error on the next migration, repeat step 3 for each one.
+
+### Nuclear option: full reset
+
+If your local database is hopelessly out of sync with the migration history, you can wipe it and start fresh:
+
+```bash
+rm storage/dev.db
+npx prisma migrate deploy   # re-creates the DB and applies all migrations
+npx prisma generate          # regenerate the client
+```
+
+This is safe for **development only** — you will lose all local data.
+
+---
+
 ## Testing
 
 ### Unit tests (Vitest)
