@@ -90,6 +90,15 @@ function proxyHttp(req, res, targetHost, targetPort) {
 // ── HTTP server ────────────────────────────────────────────────────────────
 
 const server = http.createServer((req, res) => {
+  // Express is the mutation authority: non-GET requests always go to Express
+  // (they carry session + CSRF state only Express can validate), even when the
+  // path is a migrated TanStack GET route (e.g. POST /login).
+  const method = (req.method ?? 'GET').toUpperCase()
+  if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
+    proxyHttp(req, res, PANEL_HOST, PANEL_PORT)
+    return
+  }
+
   if (isProxyPath(req.url)) {
     proxyHttp(req, res, PANEL_HOST, PANEL_PORT) // Express panel
   } else {

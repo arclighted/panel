@@ -48,15 +48,11 @@ export const API_PROXY_PATHS = ['/api', '/ws', '/addon-assets', '/avatar'] as co
 
 /**
  * Unmigrated legacy page prefixes (URL seam). These paths are served by Express
- * as full EJS pages. Remove each prefix from this list when its TanStack route
- * is ready.
+ * as full EJS pages on GET. Remove each prefix from this list when its
+ * TanStack route is ready (the route then owns GETs; non-GETs always go to
+ * Express regardless of this list — see createProxyConfig / server/index.mjs).
  */
 export const LEGACY_PAGE_PREFIXES = [
-  '/login',
-  '/register',
-  '/forgot-password',
-  '/reset-password',
-  '/2fa',
   '/logout',
   '/create-server',
   '/my-images',
@@ -71,7 +67,15 @@ export const ALL_PROXY_PATHS = [
   ...LEGACY_PAGE_PREFIXES,
 ] as const
 
-/** Vite-compatible proxy configuration object (for server.proxy). */
+/**
+ * Vite-compatible proxy configuration object (for server.proxy).
+ *
+ * Note: Vite's path-based proxy only covers GET-style passthrough. Non-GET
+ * requests (POST/PUT/DELETE/PATCH) are always forwarded to Express by the
+ * `proxyMutationsToExpress` plugin in vite.config.ts, because Express is the
+ * mutation authority (CSRF + session) for every endpoint, including those that
+ * share a path with a migrated TanStack route (e.g. POST /login).
+ */
 export function createProxyConfig(): Record<string, string | { target: string; changeOrigin: boolean; ws: boolean }> {
   const config: Record<string, string | { target: string; changeOrigin: boolean; ws: boolean }> = {}
 

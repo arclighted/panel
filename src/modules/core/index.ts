@@ -69,6 +69,33 @@ const coreModule: Module = {
       res.status(200).json({ status: 'ok' });
     });
 
+    // Additive endpoint for the TanStack frontend (auth pages). Returns the
+    // CSRF token (bound to the current session), the session user (if any),
+    // and the public subset of panel settings needed by the auth pages.
+    // GET is a safe method (CSRF middleware passes it); the token is set on
+    // this response by addCsrfTokenToLocals middleware.
+    router.get('/api/auth-config', async (req: Request, res: Response) => {
+      try {
+        const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+        const firstUser = (await prisma.users.count()) === 0;
+        res.json({
+          csrfToken: (res.locals.csrfToken as string) ?? null,
+          user: req.session?.user ?? null,
+          firstUser,
+          settings: {
+            title: settings?.title ?? 'Arclight',
+            logo: settings?.logo ?? null,
+            allowRegistration: settings?.allowRegistration ?? false,
+            loginWallpaper: settings?.loginWallpaper ?? null,
+            registerWallpaper: settings?.registerWallpaper ?? null,
+          },
+        });
+      } catch (error) {
+        logger.error('Error fetching auth config:', error);
+        res.status(500).json({ error: 'Failed to fetch auth config' });
+      }
+    });
+
     router.post('/api/system/test-node-connection', isAuthenticated(true), async (req: Request, res: Response) => {
       try {
         const { address, port, key } = req.body;
