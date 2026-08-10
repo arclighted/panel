@@ -9,7 +9,10 @@ This document is for developers who want to work on the Arclight panel. It cover
 Arclight is a **control plane**: a browser-served Express panel (this repo) that manages game servers running inside Docker containers on remote **nodes**. Each node runs a daemon (`arclightd`, a separate repository). The panel talks to daemons over HTTP/WebSocket signed with **HMAC** headers (`X-Arclight-Timestamp`, `X-Arclight-Signature`, `X-Arclight-Nonce`, `X-Arclight-Payload-Version`, `X-Arclight-Digest`) and `Basic Arclight:<node-key>` auth. Data lives in a SQLite database via Prisma.
 
 ```
-Browser ──▶ Express panel (this repo)
+Browser ──▶ TanStack Start frontend (web/ — React, dev: Vite on :3000)
+                 │  proxies /api, /ws, /console + legacy pages
+                 ▼
+            Express panel (this repo, internal :3001)
                  │  HMAC-signed HTTP/WS
                  ▼
             arclightd daemon (Docker, files, SFTP)  ──▶ game server containers
@@ -27,7 +30,8 @@ Browser ──▶ Express panel (this repo)
 | `src/handlers/utils/` | Core utilities: HMAC daemon client, SFTP, backups, MySQL provisioning, SSRF guard |
 | `src/tui/` | Terminal UI + headless runner (`bun src/tui/index.ts`); excluded from the main tsconfig |
 | `src/types/` | Global type declarations |
-| `views/` | EJS templates (`components/`, `user/`, `admin/`, `auth/`, `api/`) |
+| `views/` | EJS templates (`components/`, `user/`, `admin/`, `auth/`, `api/`) — being retired as pages migrate to React |
+| `web/` | TanStack Start frontend (React 19 + shadcn/ui, TanStack Query); its own `package.json`, Vite config, and Vitest suite |
 | `public/` | Static assets, CSS, browser JS (`javascript/shared/` has `al-*` controllers) |
 | `storage/` | Runtime data: SQLite `dev.db`, lang packs, addons |
 | `storage/lang/` | i18n string tables (10 locales, keyed JSON) |
@@ -51,16 +55,24 @@ Browser ──▶ Express panel (this repo)
 ```bash
 pnpm install              # installs deps + generates Prisma client
 cp example.env .env       # edit PORT, URL, SESSION_SECRET, DATABASE_URL
-pnpm run dev              # dev server with auto-restart (also builds CSS)
+pnpm run dev              # boots the full stack (TanStack + Express + CSS)
 ```
 
-`pnpm run dev` runs `prisma migrate deploy && prisma generate` first, then starts the panel with nodemon and Tailwind watch.
+`pnpm run dev` runs `prisma migrate deploy && prisma generate`, then boots **three processes** via `scripts/dev.mjs`:
+
+1. **TanStack Start dev server (Vite)** on `PORT` (default `3000`) — this is the URL you open in the browser. Migrated pages render as React here.
+2. **Express panel** on `PANEL_INTERNAL_PORT` (default `3001`) — nodemon auto-restarts on `src/` changes; the Vite dev server proxies `/api`, `/ws`, `/console`, static assets, and any unmigrated legacy pages to it.
+3. **Tailwind watch** → `public/styles.css` (legacy EJS passthrough pages).
+
+Ports follow the production split: `PORT` is the public TanStack frontend, `PANEL_INTERNAL_PORT` is the internal Express panel.
 
 ## Useful scripts
 
 | Command | What it does |
 |---------|--------------|
-| `pnpm run dev` | Dev server (auto-restart + CSS watch) |
+| `pnpm run dev` | Full-stack dev: TanStack (Vite :3000) + Express (:3001) + CSS watch |
+| `pnpm run dev:web` | Only the TanStack dev server (`web/`), proxying to an already-running Express on :3001 |
+| `pnpm run start:web` | Production-style: single Node server proxying Nitro + Express (build first) |
 | `pnpm run typecheck` | `tsc --noEmit` for main, prisma, and tui configs |
 | `pnpm test` / `pnpm run test:watch` | Vitest suite |
 | `pnpm run lint` | ESLint over `src/` (autofix) |
@@ -225,7 +237,7 @@ If you change any of these, update **both** repositories in the same PR.
 
 ## Environment variables
 
-See `example.env` for the full set. Notable: `NAME` (display name), `URL`, `PORT`, `DATABASE_URL`, `SESSION_SECRET`, and the daemon-facing `ARCLIGHT_*` vars used by the TUI/headless runner.
+See `example.env` for the full set. Notable: `NAME` (display name), `URL`, `PORT` (public TanStack frontend), `PANEL_INTERNAL_PORT` (internal Express panel, default 3001), `DATABASE_URL`, `SESSION_SECRET`, and the daemon-facing `ARCLIGHT_*` vars used by the TUI/headless runner.
 
 ---
 

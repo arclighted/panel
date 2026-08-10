@@ -51,7 +51,13 @@ export function loadEnv() {
     const data = fs.readFileSync(envPath, 'utf8');
     const parsed = parseEnv(data);
     for (const [key, value] of Object.entries(parsed)) {
-      process.env[key] = value;
+      // Do not clobber variables already set in the environment (shell or the
+      // dev orchestrator) — matches dotenv / node --env-file semantics. This
+      // lets `pnpm run dev` run Express on PANEL_INTERNAL_PORT (3001) while
+      // .env keeps the public PORT=3000 used by the TanStack frontend.
+      if (process.env[key] === undefined) {
+        process.env[key] = value;
+      }
     }
   } catch (error) {
     logger.error('Error loading .env file:', error);

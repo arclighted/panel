@@ -458,6 +458,9 @@ approval. The following was produced:
 
 ### 11.3 Scripts (root)
 
+- `pnpm dev` — **TanStack-first**: `scripts/dev.mjs` runs migrations, then
+  boots Vite (public `PORT`, default 3000) + Express on `PANEL_INTERNAL_PORT`
+  (default 3001, nodemon reload) + Tailwind watch together
 - `pnpm dev:web` — Vite dev server (port 3000, proxies to Express on 3001)
 - `pnpm build:web` — Vite build + Nitro server compilation
 - `pnpm start:web` — Production server (node web/server/index.mjs)

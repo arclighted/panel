@@ -636,7 +636,8 @@ const adminContextModule: Module = {
   info: {
     name: 'Admin Context Module',
     description: 'Additive JSON endpoints for the React admin panel.',
-    version: '1.0.0',
+    // Major must match the panel major (modulesLoader hard contract).
+    version: '2.0.0',
     moduleVersion: '1.0.0',
     author: 'Arclight',
     license: 'MIT',

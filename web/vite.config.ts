@@ -1,15 +1,20 @@
-import { defineConfig } from 'vite'
-import { devtools } from '@tanstack/devtools-vite'
-import type { Plugin } from 'vite'
-import http from 'node:http'
+import { defineConfig } from 'vite';
+import { devtools } from '@tanstack/devtools-vite';
+import type { Plugin } from 'vite';
+import http from 'node:http';
 
-import { tanstackStart } from '@tanstack/react-start/plugin/vite'
+import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 
-import viteReact from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
-import { nitro } from 'nitro/vite'
+import viteReact from '@vitejs/plugin-react';
+import tailwindcss from '@tailwindcss/vite';
+import { nitro } from 'nitro/vite';
 
-import { createProxyConfig, isMigratedServerPage, PANEL_INTERNAL_URL } from './proxy.config'
+import {
+  ALL_PROXY_PATHS,
+  createProxyConfig,
+  isMigratedServerPage,
+  PANEL_INTERNAL_URL,
+} from './proxy.config';
 
 /**
  * Express is the authority for everything Vite's path-based proxy cannot
@@ -22,16 +27,23 @@ import { createProxyConfig, isMigratedServerPage, PANEL_INTERNAL_URL } from './p
 function proxyToExpress(): Plugin {
   return {
     name: 'arclight:proxy-to-express',
+    // Must run BEFORE the TanStack Start dev middleware (which renders its own
+    // 404 for unmatched paths, swallowing /api/* GETs) and before Vite's
+    // built-in middlewares: `enforce: 'pre'` + first in the plugin array.
+    enforce: 'pre',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
-        const method = (req.method ?? 'GET').toUpperCase()
-        const url = req.url ?? ''
-        const isGet = method === 'GET' || method === 'HEAD' || method === 'OPTIONS'
-        if (isGet && !(url.startsWith('/server/') && !isMigratedServerPage(url))) {
-          return next()
+        const method = (req.method ?? 'GET').toUpperCase();
+        const url = req.url ?? '';
+        const isGet = method === 'GET' || method === 'HEAD' || method === 'OPTIONS';
+        const isLegacyServerPage =
+          url.startsWith('/server/') && !isMigratedServerPage(url);
+        const isProxyPath = ALL_PROXY_PATHS.some((p) => url.startsWith(p));
+        if (isGet && !isLegacyServerPage && !isProxyPath) {
+          return next();
         }
 
-        const target = new URL(PANEL_INTERNAL_URL)
+        const target = new URL(PANEL_INTERNAL_URL);
         const proxyReq = http.request(
           {
             host: target.hostname,
@@ -41,33 +53,33 @@ function proxyToExpress(): Plugin {
             headers: { ...req.headers },
           },
           (proxyRes) => {
-            res.writeHead(proxyRes.statusCode ?? 502, proxyRes.headers)
-            proxyRes.pipe(res)
+            res.writeHead(proxyRes.statusCode ?? 502, proxyRes.headers);
+            proxyRes.pipe(res);
           },
-        )
+        );
         proxyReq.on('error', () => {
-          res.writeHead(502)
-          res.end('Proxy Error')
-        })
-        req.pipe(proxyReq)
-      })
+          res.writeHead(502);
+          res.end('Proxy Error');
+        });
+        req.pipe(proxyReq);
+      });
     },
-  }
+  };
 }
 
 const config = defineConfig({
   resolve: { tsconfigPaths: true },
   plugins: [
+    proxyToExpress(),
     devtools(),
     nitro({ rollupConfig: { external: [/^@sentry\//] } }),
     tailwindcss(),
     tanstackStart(),
     viteReact(),
-    proxyToExpress(),
   ],
   server: {
     proxy: createProxyConfig(),
   },
-})
+});
 
-export default config
+export default config;
