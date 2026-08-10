@@ -4,6 +4,7 @@ import type { Module } from '../../handlers/moduleInit';
 import prisma from '../../db';
 import { isAuthenticated } from '../../handlers/utils/auth/authUtil';
 import { getUser } from '../../handlers/utils/user/user';
+import { uiComponentStore, type SidebarItem } from '../../handlers/uiComponentHandler';
 import logger from '../../handlers/logger';
 import { daemonRequest } from '../../handlers/utils/core/daemonRequest';
 import {
@@ -248,6 +249,219 @@ const dashboardModule: Module = {
 
   router: () => {
     const router = Router();
+
+    // ── Additive JSON payload for the React dashboard ─────────────────────
+    // The EJS `GET /` path above is untouched; this endpoint mirrors its data
+    // (servers + daemon stats, folders, pagination, offline nodes, onboarding)
+    // plus the navigation items for the React app shell.
+
+    const serializeServer = (s: Record<string, unknown>) => ({
+      UUID: s.UUID,
+      name: s.name,
+      description: s.description ?? null,
+      Storage: s.Storage ?? 0,
+      Suspended: !!s.Suspended,
+      shared: !!s.shared,
+      status: s.status ?? 'unknown',
+      dockerStatus: s.dockerStatus ?? null,
+      ramUsage: s.ramUsage ?? '0',
+      cpuUsage: s.cpuUsage ?? '0',
+      ramUsed: s.ramUsed ?? '0MB',
+      nodeOffline: !!s.nodeOffline,
+      node: s.node
+        ? { name: (s.node as { name: string }).name, address: (s.node as { address: string }).address }
+        : null,
+      owner: s.owner
+        ? {
+            username: (s.owner as { username: string }).username,
+            avatar: (s.owner as { avatar: string | null }).avatar,
+          }
+        : null,
+    });
+
+    const serializeFolder = (f: {
+      id: number;
+      name: string;
+      members: { serverUUID: string }[];
+    }) => ({ id: f.id, name: f.name, members: f.members.map((m) => m.serverUUID) });
+
+    const serializeNavItem = (item: SidebarItem) => ({
+      id: item.id,
+      label: item.label,
+      url: item.url,
+      iconName: item.iconName ?? null,
+      icon: item.icon,
+      matchPrefix: item.matchPrefix ?? null,
+    });
+
+    router.get('/api/dashboard', isAuthenticated(), async (req: Request, res: Response) => {
+      const userId = req.session?.user?.id;
+      try {
+        const user = await prisma.users.findUnique({ where: { id: userId } });
+        if (!user) {
+          res.status(404).json({ success: false, error: 'User not found.' });
+          return;
+        }
+
+        const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+        const needsOnboarding = Boolean(
+          settings?.onboardingEnabled &&
+          !user.onboardingCompleted &&
+          !user.onboardingSkipped,
+        );
+        const canCreateServerForOnboarding =
+          !user.isAdmin && (settings?.allowUserCreateServer ?? false);
+
+        const servers = await prisma.server.findMany({
+          where: { ownerId: user.id },
+          include: { node: true, owner: true },
+        });
+        const subUserServers = await prisma.subUser.findMany({
+          where: { userId: user.id },
+          include: { server: { include: { node: true, owner: true } } },
+        });
+        const ownedUuids = new Set(servers.map((s) => s.UUID));
+        const mergedServers = [
+          ...servers,
+          ...subUserServers
+            .filter((su) => !ownedUuids.has(su.server.UUID))
+            .map((su) => ({ ...su.server, shared: true })),
+        ];
+
+        let page = 1;
+        if (typeof req.query.page === 'string') {
+          page = parseInt(req.query.page, 10);
+        }
+        if (isNaN(page)) {page = 1;}
+        const perPage = 8 as const;
+        const startIndex = (page - 1) * perPage;
+        const endIndex = page * perPage;
+
+        const nodeStatuses: Record<number, NodeHealth> = {};
+        let anyNodeOffline = false;
+        for (const server of mergedServers) {
+          if (!nodeStatuses[server.node.id]) {
+            const health = await getNodeHealth(server.node, true);
+            nodeStatuses[server.node.id] = health;
+            if (!health.online) {anyNodeOffline = true;}
+          }
+        }
+
+        const userServerLimit =
+          user.serverLimit !== null && user.serverLimit !== undefined
+            ? user.serverLimit
+            : (settings?.defaultServerLimit ?? 0);
+        const canCreateServer =
+          !user.isAdmin &&
+          (settings?.allowUserCreateServer ?? false) &&
+          userServerLimit > 0;
+
+        const nav = {
+          regular: uiComponentStore
+            .getSidebarItems(undefined, false)
+            .map(serializeNavItem),
+          admin: uiComponentStore
+            .getSidebarItems(undefined, true)
+            .map(serializeNavItem),
+          adminGroups: uiComponentStore
+            .getAdminSidebarGroups()
+            .map((g) => ({
+              section: g.section,
+              label: g.label,
+              items: g.items.map(serializeNavItem),
+            })),
+        };
+
+        const base = {
+          canCreateServer,
+          needsOnboarding,
+          canCreateServerForOnboarding,
+          nav,
+        };
+
+        if (anyNodeOffline) {
+          const folders = await prisma.serverFolder.findMany({
+            where: { ownerId: user.id },
+            include: { members: true },
+            orderBy: { createdAt: 'asc' },
+          });
+          const offlineNodes = mergedServers
+            .filter((s) => !nodeStatuses[s.node.id]?.online)
+            .reduce<Record<number, { name: string; reason: string }>>(
+              (acc, s) => {
+                if (!acc[s.node.id]) {
+                  acc[s.node.id] = {
+                    name: s.node.name,
+                    reason: nodeStatuses[s.node.id]?.reason ?? 'unreachable',
+                  };
+                }
+                return acc;
+              },
+              {},
+            );
+          res.json({
+            success: true,
+            ...base,
+            servers: mergedServers.map(serializeServer),
+            allServers: mergedServers.map(serializeServer),
+            folders: folders.map(serializeFolder),
+            currentPage: 1,
+            totalPages: 1,
+            daemonOffline: true,
+            offlineNodes: Object.values(offlineNodes),
+          });
+          return;
+        }
+
+        const serversWithStats = await Promise.all(
+          mergedServers.map(async (server, index) => {
+            const revalidate = index >= startIndex && index < endIndex;
+            if (nodeStatuses[server.node.id] && !nodeStatuses[server.node.id]?.online) {
+              return {
+                ...server,
+                status: 'unknown',
+                dockerStatus: null,
+                ramUsage: '0',
+                cpuUsage: '0',
+                ramUsed: '0MB',
+                nodeOffline: true,
+              };
+            }
+            const snapshot = await getServerSnapshot(server.node, server, revalidate);
+            return {
+              ...server,
+              status: snapshot.status,
+              dockerStatus: snapshot.dockerStatus,
+              ramUsage: snapshot.ramUsage,
+              cpuUsage: snapshot.cpuUsage,
+              ramUsed: snapshot.ramUsed,
+              nodeOffline: snapshot.nodeOffline,
+            };
+          }),
+        );
+
+        const folders = await prisma.serverFolder.findMany({
+          where: { ownerId: user.id },
+          include: { members: true },
+          orderBy: { createdAt: 'asc' },
+        });
+
+        res.json({
+          success: true,
+          ...base,
+          servers: serversWithStats.slice(startIndex, endIndex).map(serializeServer),
+          allServers: serversWithStats.map(serializeServer),
+          folders: folders.map(serializeFolder),
+          currentPage: page,
+          totalPages: Math.ceil(mergedServers.length / perPage),
+          daemonOffline: false,
+          offlineNodes: [],
+        });
+      } catch (error) {
+        logger.error('Error loading dashboard API data:', error);
+        res.status(500).json({ success: false, error: 'Failed to load dashboard.' });
+      }
+    });
 
     router.get('/', isAuthenticated(), async (req: Request, res: Response) => {
       const errorMessage: ErrorMessage = {};

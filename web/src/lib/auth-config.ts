@@ -7,6 +7,7 @@ export interface SessionUser {
   description?: string
   username?: string
   role?: string
+  avatar?: string | null
 }
 
 export interface AuthSettings {

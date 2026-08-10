@@ -5,6 +5,9 @@ export interface SidebarItem {
   id: string;
   label: string;
   icon: string;
+  /** Dash-case lucide icon name (additive — lets React shells resolve icons
+   *  to components; `icon` remains the rendered SVG for EJS + fallbacks). */
+  iconName?: string;
   url: string;
   priority: number;
   section?: string;
@@ -272,6 +275,7 @@ export function initializeDefaultUIComponents(): void {
     id: 'servers',
     label: 'Dashboard',
     icon: icon('layout-grid', { class: 'w-5 h-5 mt-0.5' }),
+    iconName: 'layout-grid',
     url: '/',
     priority: 100,
     matchPrefix: '/server',
@@ -282,6 +286,7 @@ export function initializeDefaultUIComponents(): void {
     id: 'admin-overview',
     label: 'Overview',
     icon: icon('layout-grid', { class: 'w-5 h-5 mt-0.5', strokeWidth: 1.5 }),
+    iconName: 'layout-grid',
     url: '/admin/overview',
     priority: 90,
     isAdminItem: true,
@@ -291,6 +296,7 @@ export function initializeDefaultUIComponents(): void {
     id: 'admin-servers',
     label: 'Servers',
     icon: icon('server', { class: 'w-5 h-5 mt-0.5', strokeWidth: 1.5 }),
+    iconName: 'server',
     url: '/admin/servers',
     priority: 88,
     isAdminItem: true,
@@ -300,6 +306,7 @@ export function initializeDefaultUIComponents(): void {
     id: 'admin-users',
     label: 'Users',
     icon: icon('users', { class: 'w-5 h-5 mt-0.5', strokeWidth: 1.5 }),
+    iconName: 'users',
     url: '/admin/users',
     priority: 86,
     isAdminItem: true,
@@ -311,6 +318,7 @@ export function initializeDefaultUIComponents(): void {
     id: 'admin-nodes',
     label: 'Nodes',
     icon: icon('network', { class: 'w-5 h-5 mt-0.5', strokeWidth: 1.5 }),
+    iconName: 'network',
     url: '/admin/nodes',
     priority: 80,
     isAdminItem: true,
@@ -320,6 +328,7 @@ export function initializeDefaultUIComponents(): void {
     id: 'admin-activity',
     label: 'Activity Log',
     icon: icon('activity', { class: 'w-5 h-5 mt-0.5', strokeWidth: 1.5 }),
+    iconName: 'activity',
     url: '/admin/activity',
     priority: 78,
     isAdminItem: true,
@@ -329,6 +338,7 @@ export function initializeDefaultUIComponents(): void {
     id: 'admin-images',
     label: 'Images',
     icon: icon('box', { class: 'w-5 h-5 mt-0.5', strokeWidth: 1.5 }),
+    iconName: 'box',
     url: '/admin/images',
     priority: 76,
     isAdminItem: true,
@@ -340,6 +350,7 @@ export function initializeDefaultUIComponents(): void {
     id: 'admin-addons',
     label: 'Addons',
     icon: icon('puzzle', { class: 'w-5 h-5 mt-0.5', strokeWidth: 1.5 }),
+    iconName: 'puzzle',
     url: '/admin/addons',
     priority: 70,
     isAdminItem: true,
@@ -349,6 +360,7 @@ export function initializeDefaultUIComponents(): void {
     id: 'admin-apikeys',
     label: 'API Keys',
     icon: icon('key', { class: 'w-5 h-5 mt-0.5', strokeWidth: 1.5 }),
+    iconName: 'key',
     url: '/admin/apikeys',
     priority: 68,
     isAdminItem: true,
@@ -360,6 +372,7 @@ export function initializeDefaultUIComponents(): void {
     id: 'admin-settings',
     label: 'Settings',
     icon: icon('settings', { class: 'w-5 h-5 mt-0.5', strokeWidth: 1.5 }),
+    iconName: 'settings',
     url: '/admin/settings',
     priority: 60,
     isAdminItem: true,
@@ -369,6 +382,7 @@ export function initializeDefaultUIComponents(): void {
     id: 'admin-analytics',
     label: 'Analytics',
     icon: icon('chart-column', { class: 'w-5 h-5 mt-0.5' }),
+    iconName: 'chart-column',
     url: '/admin/analytics',
     priority: 58,
     isAdminItem: true,
@@ -378,6 +392,7 @@ export function initializeDefaultUIComponents(): void {
     id: 'admin-databases',
     label: 'Databases',
     icon: icon('database', { class: 'w-5 h-5 mt-0.5' }),
+    iconName: 'database',
     url: '/admin/databases',
     priority: 56,
     isAdminItem: true,
@@ -387,6 +402,7 @@ export function initializeDefaultUIComponents(): void {
     id: 'admin-mounts',
     label: 'Mounts',
     icon: icon('box', { class: 'w-5 h-5 mt-0.5' }),
+    iconName: 'box',
     url: '/admin/mounts',
     priority: 54,
     isAdminItem: true,

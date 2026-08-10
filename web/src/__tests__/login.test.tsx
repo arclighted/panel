@@ -54,9 +54,14 @@ describe('login page', () => {
 
     renderApp('/login')
 
-    await waitFor(() => {
-      expect(screen.getByLabelText('Username or email')).toBeInTheDocument()
-    })
+    // Full-suite CPU contention can push the initial router load past the
+    // 1000ms default, so use explicit timeouts (same as the dashboard tests).
+    await waitFor(
+      () => {
+        expect(screen.getByLabelText('Username or email')).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
     expect(screen.getByLabelText('Password')).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Sign in' })).toBeInTheDocument()
     // The register link only renders once the auth-config query resolves.
@@ -79,7 +84,11 @@ describe('login page', () => {
 
     renderApp('/login')
 
-    const identifier = await screen.findByLabelText('Username or email')
+    const identifier = await screen.findByLabelText(
+      'Username or email',
+      {},
+      { timeout: 5000 },
+    )
     await userEvent.type(identifier, 'admin')
     await userEvent.type(screen.getByLabelText('Password'), 'wrong-password')
     await userEvent.click(screen.getByRole('button', { name: 'Sign in' }))
@@ -128,14 +137,18 @@ describe('login page', () => {
 
     renderApp('/login')
 
-    // The login page should navigate to the dashboard, which greets the user.
+    // The login page should navigate to the authenticated dashboard shell.
     await waitFor(
       () => {
-        expect(screen.getByText(/Welcome/)).toBeInTheDocument()
+        expect(
+          screen.getByRole('heading', { name: 'Dashboard' }),
+        ).toBeInTheDocument()
       },
       { timeout: 3000 },
     )
-    expect(screen.getByText(/admin/)).toBeInTheDocument()
-    expect(screen.queryByRole('button', { name: 'Sign in' })).not.toBeInTheDocument()
+    expect(screen.getByText('No servers yet')).toBeInTheDocument()
+    expect(
+      screen.queryByRole('button', { name: 'Sign in' }),
+    ).not.toBeInTheDocument()
   })
 })

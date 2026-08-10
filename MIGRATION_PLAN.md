@@ -476,6 +476,48 @@ and password reset. Before that:
 - Rebuild the sidebar/nav shell (present in `__root.tsx`)
 - Wire TanStack Query with auth state
 
+### 11.5 Phase 1.1 & 1.2 — delivered (auth + dashboard)
+
+**Phase 1.1 (auth)** — login, register, 2FA, forgot/reset migrated; additive
+`GET /api/auth-config` (CSRF token + session user + branding). Method-aware
+proxy rule: non-GET always reaches Express (session/CSRF authority).
+
+**Phase 1.2 (dashboard + shell)** — `/_app` layout (auth gate + app shell),
+dashboard page with server grid/list, folders (create/delete/pick/drag-drop),
+pagination, daemon-offline banner, alerts, onboarding modal. Additive
+`GET /api/dashboard` mirrors the EJS page data (servers + SWR daemon stats,
+folders, nav) and serializes the addon-driven nav items (new optional
+`iconName` on `SidebarItem` — additive to the addon contract; raw SVG kept
+for addon icons). Folder mutations reuse the existing `/api/folders` REST
+endpoints with CSRF headers. Shell nav is server-driven (uiComponentStore).
+
+**Known deviations / notes**
+
+- Live server-status badges: EJS gets them via the `/ws` realtime state
+  cache; the React dashboard uses a 15s client refetch of `/api/dashboard`
+  (server-side SWR caches make this cheap). Real-time WS wiring lands with
+  the console/server phases.
+- Dashboard live status was a stand-in; no polling loop exists server-side.
+- base-ui Dialog focus management hangs under jsdom — dialog interactions
+  are covered by the mutation-contract test; visual/browser verification is
+  a follow-up (Chrome not available in this environment).
+- shadcn components are base-ui (Nova) style — no `asChild`; use `render`
+  props. `sonner` for toasts.
+
+**Phase 1.2 review fixes**
+
+- Onboarding skip/complete now dismiss the dialog (local `onboardingDismissed`
+  state) and invalidate the dashboard query; the skip/complete POSTs moved to
+  `web/src/lib/onboarding.ts` (CSRF-guarded, never rejects). A failed skip
+  refetches with `needsOnboarding` still true, so the tutorial re-shows on the
+  next visit — matching EJS.
+- Dashboard empty state is admin-aware, mirroring `views/user/dashboard.ejs`:
+  admins always get a create action pointing at `/admin/servers/create` even
+  when the non-admin `canCreateServer` flag is false.
+- Auth-page tests (login/2FA) needed explicit 5s waits: the initial router
+  load can exceed the 1000ms default under full-suite CPU contention.
+
 ---
 
-*Scaffold complete. Phase 1 page migration begins in the next commit.*
+*Phases 1.1–1.2 complete. Next: Phase 1.3 server pages (console, files) —
+the first real-time surfaces.*

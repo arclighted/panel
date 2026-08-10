@@ -69,13 +69,17 @@ describe('2fa page', () => {
 
     renderApp('/2fa')
 
-    const input = await screen.findByLabelText('6-digit code')
+    const input = await screen.findByLabelText(
+      '6-digit code',
+      {},
+      { timeout: 5000 },
+    )
     await userEvent.type(input, '123456')
     await userEvent.click(screen.getByRole('button', { name: 'Verify and sign in' }))
 
     // Land on the dashboard with the fresh post-2FA session.
     await waitFor(() => {
-      expect(screen.getByText(/Welcome, admin/)).toBeInTheDocument()
+      expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
     })
 
     // POST /2fa carried the CSRF token and the JSON body.

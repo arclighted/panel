@@ -2,6 +2,8 @@ import type { ReactNode } from 'react'
 import { HeadContent, Scripts, createRootRoute } from '@tanstack/react-router'
 import { QueryClientProvider } from '@tanstack/react-query'
 
+import { Toaster } from 'sonner'
+
 import appCss from '../styles.css?url'
 import { queryClient } from '../lib/query-client'
 
@@ -26,6 +28,7 @@ function RootDocument({ children }: { children: ReactNode }) {
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
         <QueryClientProvider client={queryClient}>
           {children}
+          <Toaster richColors position="bottom-right" />
         </QueryClientProvider>
         <Scripts />
       </body>
