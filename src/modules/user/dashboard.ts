@@ -273,9 +273,9 @@ const dashboardModule: Module = {
         : null,
       owner: s.owner
         ? {
-            username: (s.owner as { username: string }).username,
-            avatar: (s.owner as { avatar: string | null }).avatar,
-          }
+          username: (s.owner as { username: string }).username,
+          avatar: (s.owner as { avatar: string | null }).avatar,
+        }
         : null,
     });
 

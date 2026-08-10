@@ -586,7 +586,7 @@ function ServerNav({
   )
 }
 
-/** Tabs now served by the TanStack app — SPA Links instead of anchor reloads. */
+/** Pages now served by the TanStack app — SPA Links instead of anchor reloads. */
 const MIGRATED_TAB_ROUTES: Record<string, string> = {
   '/files': '/server/$uuid/files',
   '/settings': '/server/$uuid/settings',
@@ -596,6 +596,8 @@ const MIGRATED_TAB_ROUTES: Record<string, string> = {
   '/schedules': '/server/$uuid/schedules',
   '/backups': '/server/$uuid/backups',
   '/subusers': '/server/$uuid/subusers',
+  '/worlds': '/server/$uuid/worlds',
+  '/players': '/server/$uuid/players',
 }
 
 /** Addon-supplied icons are raw SVG strings (same trust model as EJS). */

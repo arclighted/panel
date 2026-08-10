@@ -366,6 +366,57 @@ const userImagesModule: Module = {
       },
     );
 
+    // Additive JSON payload for the React my-images edit page.
+    router.get(
+      '/api/my-images/:id',
+      isAuthenticated(),
+      async (req: Request, res: Response) => {
+        try {
+          const userId = req.session?.user?.id;
+          const image = await prisma.images.findUnique({
+            where: { id: Number(req.params.id) },
+          });
+          if (!image) {
+            res.status(404).json({ error: 'Image not found.' });
+            return;
+          }
+          if (image.createdById !== userId) {
+            res.status(403).json({ error: 'You can only edit images you submitted.' });
+            return;
+          }
+
+          const parseJson = (value: string | null): unknown => {
+            if (!value) {return [];}
+            try {
+              return JSON.parse(value);
+            } catch {
+              return [];
+            }
+          };
+
+          res.json({
+            success: true,
+            image: {
+              id: image.id,
+              name: image.name,
+              description: image.description,
+              author: image.author,
+              authorName: image.authorName,
+              startup: image.startup,
+              stop: image.stop,
+              status: image.status,
+              rejectionReason: image.rejectionReason,
+              dockerImages: parseJson(image.dockerImages),
+              variables: parseJson(image.variables),
+            },
+          });
+        } catch (error) {
+          logger.error('Failed to load image for edit:', error);
+          res.status(500).json({ error: 'Failed to load image.' });
+        }
+      },
+    );
+
     return router;
   },
 };

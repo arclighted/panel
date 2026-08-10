@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express';
-import { Router } from 'express';
+import type { Router } from 'express';
 import { isAuthenticatedForServer, subUserHasPermission } from '../../../handlers/utils/auth/serverAuthUtil';
 import { checkEulaStatus } from '../../../handlers/features';
 import { checkForServerInstallation } from '../../../handlers/checkForServerInstallation';

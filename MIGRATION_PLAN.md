@@ -567,6 +567,66 @@ endpoints with CSRF headers. Shell nav is server-driven (uiComponentStore).
 
 ---
 
-*Phases 1.1–1.4 complete — all server pages (console, files, settings,
-startup, logs, databases, schedules, backups, subusers) now render in
-TanStack Start. Next: admin pages.*
+## 12. Phase 1.5 — remaining user pages + full admin surface (delivered)
+
+**Phase 1.5 (server + user + admin)** completes the view migration:
+
+- **Server pages:** `worlds`, `players`, and the standalone file editor
+  (`/server/:uuid/files/edit/{*path}` splat route). Additive
+  `GET /api/server/:id/worlds` backs the worlds list (reuses the existing
+  file APIs for delete/download). Players reuses the existing JSON data
+  endpoint. The editor is a textarea route (Monaco stays on the EJS editor
+  page — noted future enhancement, same as Phase 1.3).
+- **User pages:** `account` (profile/images/history), `account/2fa/setup`,
+  `credits`, `my-images` (+`edit/:id`), and `create-server` (with the
+  image-driven port editor). Additive endpoints mirror the EJS render
+  payloads: `GET /api/account`, `GET /api/account/2fa/setup`,
+  `GET /api/account/credits`, `GET /api/account/my-images` (+edit),
+  `GET /api/create-server`. Mutations reuse the existing `/account/*`,
+  `/my-images/*`, and `/create-server` POST endpoints with CSRF headers.
+- **Admin surface (the largest chunk, ~7,200 lines of EJS):** additive
+  `GET /api/admin/context` (admin identity + addon-driven sidebar groups
+  from `uiComponentStore.getAdminSidebarGroups()` + `require2faForAdmins`)
+  and `GET /api/admin/page/:page` (per-page render data mirroring each EJS
+  `res.render` payload). All admin mutations reuse the existing `/admin/*`
+  POST/PUT/DELETE endpoints with CSRF headers; Express stays the mutation
+  authority. 26 TanStack routes: overview, users (+create/edit/view),
+  nodes (+create/edit at `/admin/node/:id`, stats at `/admin/node/:id/stats`,
+  configure command), servers (+create/edit), images (+edit, approvals &
+  egg-store tabs, export), apikeys, `/admin/api/docs`, databases (+create),
+  settings (tabs), activity (paged log), analytics, playerstats, mounts,
+  menu, addons (+store), and the admin shell layout + addon-driven sidebar.
+- **URL seam:** `/admin` was removed from the legacy proxy; every admin GET
+  now renders in TanStack. `/admin/images/export` is a targeted API proxy
+  exception (restores the egg-export download).
+- **CI:** `.github/workflows/ci.yml` now runs `arclight-web` typecheck, test,
+  and build in the typecheck/test/build jobs.
+
+**Known deviations / notes**
+
+- `context.ts` gates on `isAuthenticated(true)` (admin-only, 2FA enforced) —
+  the same level as most admin mutations. Per-page permission granularity
+  (e.g. `arclight.admin.nodes.view`) is enforced by the server-side
+  permission-filtered sidebar + page visibility rather than re-guarding each
+  context case; the EJS render guards were page-level, the React shell hides
+  inaccessible sections. Flagged for maintainer review if stricter
+  per-page authorization is wanted.
+- Legacy `/admin/*` JSON GET endpoints that only the (now-removed) EJS pages
+  consumed (`/admin/images/list`, `/admin/images/store/catalogue`,
+  `/admin/images/store/panel`, `/admin/check-update`, `/admin/node/:id/configure`)
+  are orphaned in the React app: page reads come from the context endpoints
+  instead. The endpoints remain on Express for API consumers. The node
+  configure command is exposed to React via the `nodes-configure` context
+  case (stats page Configure button).
+- `views/admin/radar`, `security`, `uiComponents` have **no EJS views** —
+  they are API-only modules (JSON endpoints), so nothing was dropped; their
+  functionality was never a rendered page.
+- The `admin/context` module sits mid-list in `src/modules/registry.ts`
+  (admin group is 19 modules); `tests/featureRegistry.test.ts` asserts its
+  actual position (index 11) and the api group start (index 19).
+
+---
+
+*Phase 1.5 complete — every EJS view (auth, user, server, admin) now renders
+in TanStack Start; CI (typecheck/test/build/lint/semgrep, root + web) is
+green. Remaining work: Phase 5 (addons v3) + deleting `views/`.*

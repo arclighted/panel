@@ -451,6 +451,144 @@ const userCreateServerModule: Module = {
       }
     });
 
+    // Additive JSON context for the React create-server page — mirrors the
+    // EJS render's gates and data (nodes, approved images, per-user limits,
+    // node headroom, recommended node) as data instead of a page.
+    router.get(
+      '/api/create-server/context',
+      isAuthenticated(),
+      async (req: Request, res: Response) => {
+        try {
+          const userId = req.session?.user?.id;
+          const user = await prisma.users.findUnique({ where: { id: userId } });
+          if (!user) {
+            res.status(401).json({ error: 'Unauthorized' });
+            return;
+          }
+
+          const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+          if (!settings?.allowUserCreateServer) {
+            res.json({ success: false, disabled: true });
+            return;
+          }
+
+          const serverLimit = await resolveUserServerLimit(userId!, settings);
+          if (serverLimit === 0) {
+            res.json({ success: false, notAllowed: true });
+            return;
+          }
+
+          const currentCount = await prisma.server.count({
+            where: { ownerId: userId },
+          });
+          if (currentCount >= serverLimit) {
+            res.json({
+              success: false,
+              limitReached: true,
+              serverLimit,
+              currentCount,
+            });
+            return;
+          }
+
+          const resourceLimits = await resolveUserResourceLimits(userId!, settings);
+          const nodes = await prisma.node.findMany();
+          const images = await prisma.images.findMany({
+            where: { status: 'approved' },
+          });
+
+          const nodeHeadroom: Record<string, unknown> = {};
+          let recommendedNodeId: number | null = null;
+          let bestRatio = Infinity;
+          for (const n of nodes) {
+            const agg = await prisma.server.aggregate({
+              where: { nodeId: n.id },
+              _sum: { Memory: true, Cpu: true, Storage: true },
+            });
+            const usedMemory = agg._sum.Memory ?? 0;
+            const usedCpu = agg._sum.Cpu ?? 0;
+            const usedStorage = agg._sum.Storage ?? 0;
+            nodeHeadroom[String(n.id)] = {
+              ram: n.ram,
+              cpu: n.cpu,
+              disk: n.disk,
+              overMemory: n.overallocateMemory,
+              overCpu: n.overallocateCpu,
+              overDisk: n.overallocateDisk,
+              usedMemory,
+              usedCpu,
+              usedStorage,
+            };
+
+            const ratios: number[] = [];
+            if (n.ram > 0) {ratios.push(usedMemory / (n.ram * 1024));}
+            if (n.cpu > 0) {ratios.push(usedCpu / n.cpu);}
+            if (n.disk > 0) {ratios.push(usedStorage / (n.disk * 1024));}
+            const ratio =
+              ratios.length > 0
+                ? ratios.reduce((sum, r) => sum + r, 0) / ratios.length
+                : 0;
+            if (ratio < bestRatio) {
+              bestRatio = ratio;
+              recommendedNodeId = n.id;
+            }
+          }
+
+          if (
+            user.preferredNodeId &&
+            nodes.some((n) => n.id === user.preferredNodeId)
+          ) {
+            recommendedNodeId = user.preferredNodeId;
+          }
+
+          res.json({
+            success: true,
+            serverLimit,
+            currentCount,
+            resourceLimits,
+            recommendedNodeId,
+            nodeHeadroom,
+            nodes: nodes.map((n) => ({
+              id: n.id,
+              name: n.name,
+              address: n.address,
+            })),
+            images: images.map((img) => {
+              let dockerImages: Record<string, string>[] = [];
+              try {
+                const parsed: unknown = JSON.parse(img.dockerImages || '[]');
+                if (Array.isArray(parsed)) {
+                  dockerImages = parsed as Record<string, string>[];
+                }
+              } catch {
+                dockerImages = [];
+              }
+              let portRequirements: { name: string; internalPort: number }[] = [];
+              try {
+                const parsed: unknown = JSON.parse(img.portRequirements || '[]');
+                if (Array.isArray(parsed)) {
+                  portRequirements = parsed as { name: string; internalPort: number }[];
+                }
+              } catch {
+                portRequirements = [];
+              }
+              return {
+                id: img.id,
+                name: img.name,
+                description: img.description,
+                startup: img.startup,
+                dockerImages,
+                portRequirements,
+              };
+            }),
+          });
+        } catch (error) {
+          logger.error('Error loading create-server context:', error);
+          res.status(500).json({ error: 'Failed to load server creation data.' });
+        }
+      },
+    );
+
     return router;
   },
 };

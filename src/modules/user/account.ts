@@ -629,6 +629,83 @@ const accountModule: Module = {
       },
     );
 
+    // Additive JSON context for the React account page — the same data the EJS
+    // render computes (profile, login history, preferred-node list, image
+    // submissions, submission permission) without rendering a page.
+    router.get(
+      '/api/account/context',
+      isAuthenticated(),
+      async (req: Request, res: Response) => {
+        const userId = req.session?.user?.id;
+        try {
+          const settings = await prisma.settings.findUnique({ where: { id: 1 } });
+          const [user, loginHistory, nodes, images] = await Promise.all([
+            prisma.users.findUnique({ where: { id: userId } }),
+            prisma.loginHistory.findMany({
+              where: { userId },
+              orderBy: { timestamp: 'desc' },
+              take: 10,
+            }),
+            prisma.node.findMany({
+              select: { id: true, name: true, address: true },
+              orderBy: { id: 'asc' },
+            }),
+            prisma.images.findMany({
+              where: { createdById: userId },
+              orderBy: { createdAt: 'desc' },
+            }),
+          ]);
+          if (!user) {
+            res.status(404).json({ error: 'User not found.' });
+            return;
+          }
+
+          const allowed =
+            user.isAdmin === true || settings?.allowUserCreateImages === true;
+
+          res.json({
+            success: true,
+            user: {
+              id: user.id,
+              username: user.username,
+              email: user.email,
+              avatar: user.avatar,
+              description: user.description ?? '',
+              isAdmin: user.isAdmin === true,
+              createdAt: user.createdAt,
+              preferredNodeId: user.preferredNodeId ?? null,
+              totpEnabled: user.totpEnabled === true,
+            },
+            loginHistory: loginHistory.map((h) => ({
+              id: h.id,
+              timestamp: h.timestamp,
+              ipAddress: h.ipAddress,
+              userAgent: h.userAgent,
+            })),
+            nodes: nodes.map((n) => ({
+              id: n.id,
+              name: n.name,
+              address: n.address,
+            })),
+            images: images.map((img) => ({
+              id: img.id,
+              name: img.name,
+              status: img.status,
+              createdAt: img.createdAt,
+              rejectionReason: img.rejectionReason,
+            })),
+            allowed,
+            settings: {
+              allowUserCreateImages: settings?.allowUserCreateImages === true,
+            },
+          });
+        } catch (error) {
+          logger.error('Error fetching account context:', error);
+          res.status(500).json({ error: 'Error fetching account data.' });
+        }
+      },
+    );
+
     return router;
   },
 };

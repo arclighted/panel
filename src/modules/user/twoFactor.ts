@@ -309,6 +309,50 @@ const twoFactorModule: Module = {
       }
     });
 
+    // Additive JSON variant of the 2FA setup page for the React flow — same
+    // fresh secret + QR, with the pending secret stashed in the session so
+    // POST /account/2fa/enable validates exactly like the EJS page.
+    router.get(
+      '/api/account/2fa/setup',
+      isAuthenticated(),
+      async (req: Request, res: Response) => {
+        try {
+          const user = await prisma.users.findUnique({
+            where: { id: req.session?.user?.id },
+          });
+          if (!user) {
+            res.status(404).json({ error: 'User not found.' });
+            return;
+          }
+          if (user.totpEnabled) {
+            res.json({ success: false, alreadyEnabled: true });
+            return;
+          }
+
+          const secret = new OTPAuth.Secret({ size: 20 });
+          const secretBase32 = secret.base32;
+          req.session.pendingTotpSecret = secretBase32;
+
+          const totp = createTotp(secretBase32, user.email);
+          const qrDataUrl = await QRCode.toDataURL(totp.toString(), {
+            width: 220,
+            margin: 1,
+          });
+
+          res.json({
+            success: true,
+            qrDataUrl,
+            secretBase32:
+              secretBase32.match(/.{1,4}/g)?.join(' ') ?? secretBase32,
+            required: req.query.required === '1',
+          });
+        } catch (error) {
+          logger.error('2FA setup error:', error);
+          res.status(500).json({ error: 'Failed to start 2FA setup.' });
+        }
+      },
+    );
+
     return router;
   },
 };

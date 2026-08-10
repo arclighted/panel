@@ -16,16 +16,53 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppAccountRouteImport } from './routes/_app/account'
+import { Route as AppAdminRouteImport } from './routes/_app/admin'
+import { Route as AppCreateServerRouteImport } from './routes/_app/create-server'
+import { Route as AppCreditsRouteImport } from './routes/_app/credits'
+import { Route as AppMyImagesRouteImport } from './routes/_app/my-images'
+import { Route as AppAdminIndexRouteImport } from './routes/_app/admin/index'
+import { Route as AppAdminActivityRouteImport } from './routes/_app/admin/activity'
+import { Route as AppAdminAddonsRouteImport } from './routes/_app/admin/addons'
+import { Route as AppAdminAnalyticsRouteImport } from './routes/_app/admin/analytics'
+import { Route as AppAdminApikeysRouteImport } from './routes/_app/admin/apikeys'
+import { Route as AppAdminDatabasesRouteImport } from './routes/_app/admin/databases'
+import { Route as AppAdminImagesRouteImport } from './routes/_app/admin/images'
+import { Route as AppAdminMenuRouteImport } from './routes/_app/admin/menu'
+import { Route as AppAdminMountsRouteImport } from './routes/_app/admin/mounts'
+import { Route as AppAdminNodesRouteImport } from './routes/_app/admin/nodes'
+import { Route as AppAdminOverviewRouteImport } from './routes/_app/admin/overview'
+import { Route as AppAdminPlayerstatsRouteImport } from './routes/_app/admin/playerstats'
+import { Route as AppAdminServersRouteImport } from './routes/_app/admin/servers'
+import { Route as AppAdminSettingsRouteImport } from './routes/_app/admin/settings'
+import { Route as AppAdminUsersRouteImport } from './routes/_app/admin/users'
 import { Route as AppServerUuidRouteImport } from './routes/_app/server/$uuid'
+import { Route as AppAccount2faSetupRouteImport } from './routes/_app/account/2fa/setup'
+import { Route as AppAdminAddonsStoreRouteImport } from './routes/_app/admin/addons/store'
+import { Route as AppAdminApiDocsRouteImport } from './routes/_app/admin/api/docs'
+import { Route as AppAdminDatabasesCreateRouteImport } from './routes/_app/admin/databases/create'
+import { Route as AppAdminNodeIdRouteImport } from './routes/_app/admin/node.$id'
+import { Route as AppAdminNodesCreateRouteImport } from './routes/_app/admin/nodes/create'
+import { Route as AppAdminServersCreateRouteImport } from './routes/_app/admin/servers/create'
+import { Route as AppAdminUsersCreateRouteImport } from './routes/_app/admin/users/create'
+import { Route as AppMyImagesEditIdRouteImport } from './routes/_app/my-images/edit.$id'
 import { Route as AppServerUuidIndexRouteImport } from './routes/_app/server/$uuid/index'
 import { Route as AppServerUuidBackupsRouteImport } from './routes/_app/server/$uuid/backups'
 import { Route as AppServerUuidDatabasesRouteImport } from './routes/_app/server/$uuid/databases'
 import { Route as AppServerUuidFilesRouteImport } from './routes/_app/server/$uuid/files'
 import { Route as AppServerUuidLogsRouteImport } from './routes/_app/server/$uuid/logs'
+import { Route as AppServerUuidPlayersRouteImport } from './routes/_app/server/$uuid/players'
 import { Route as AppServerUuidSchedulesRouteImport } from './routes/_app/server/$uuid/schedules'
 import { Route as AppServerUuidSettingsRouteImport } from './routes/_app/server/$uuid/settings'
 import { Route as AppServerUuidStartupRouteImport } from './routes/_app/server/$uuid/startup'
 import { Route as AppServerUuidSubusersRouteImport } from './routes/_app/server/$uuid/subusers'
+import { Route as AppServerUuidWorldsRouteImport } from './routes/_app/server/$uuid/worlds'
+import { Route as AppAdminImagesEditIdRouteImport } from './routes/_app/admin/images/edit.$id'
+import { Route as AppAdminNodeIdStatsRouteImport } from './routes/_app/admin/node.$id.stats'
+import { Route as AppAdminServersEditIdRouteImport } from './routes/_app/admin/servers/edit.$id'
+import { Route as AppAdminUsersEditIdRouteImport } from './routes/_app/admin/users/edit.$id'
+import { Route as AppAdminUsersViewIdRouteImport } from './routes/_app/admin/users/view.$id'
+import { Route as AppServerUuidFilesEditSplatRouteImport } from './routes/_app/server/$uuid/files/edit.$'
 
 const R2faRoute = R2faRouteImport.update({
   id: '/2fa',
@@ -61,10 +98,155 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppAccountRoute = AppAccountRouteImport.update({
+  id: '/account',
+  path: '/account',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminRoute = AppAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCreateServerRoute = AppCreateServerRouteImport.update({
+  id: '/create-server',
+  path: '/create-server',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppCreditsRoute = AppCreditsRouteImport.update({
+  id: '/credits',
+  path: '/credits',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppMyImagesRoute = AppMyImagesRouteImport.update({
+  id: '/my-images',
+  path: '/my-images',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppAdminIndexRoute = AppAdminIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminActivityRoute = AppAdminActivityRouteImport.update({
+  id: '/activity',
+  path: '/activity',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminAddonsRoute = AppAdminAddonsRouteImport.update({
+  id: '/addons',
+  path: '/addons',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminAnalyticsRoute = AppAdminAnalyticsRouteImport.update({
+  id: '/analytics',
+  path: '/analytics',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminApikeysRoute = AppAdminApikeysRouteImport.update({
+  id: '/apikeys',
+  path: '/apikeys',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminDatabasesRoute = AppAdminDatabasesRouteImport.update({
+  id: '/databases',
+  path: '/databases',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminImagesRoute = AppAdminImagesRouteImport.update({
+  id: '/images',
+  path: '/images',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminMenuRoute = AppAdminMenuRouteImport.update({
+  id: '/menu',
+  path: '/menu',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminMountsRoute = AppAdminMountsRouteImport.update({
+  id: '/mounts',
+  path: '/mounts',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminNodesRoute = AppAdminNodesRouteImport.update({
+  id: '/nodes',
+  path: '/nodes',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminOverviewRoute = AppAdminOverviewRouteImport.update({
+  id: '/overview',
+  path: '/overview',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminPlayerstatsRoute = AppAdminPlayerstatsRouteImport.update({
+  id: '/playerstats',
+  path: '/playerstats',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminServersRoute = AppAdminServersRouteImport.update({
+  id: '/servers',
+  path: '/servers',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminSettingsRoute = AppAdminSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminUsersRoute = AppAdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AppAdminRoute,
+} as any)
 const AppServerUuidRoute = AppServerUuidRouteImport.update({
   id: '/server/$uuid',
   path: '/server/$uuid',
   getParentRoute: () => AppRoute,
+} as any)
+const AppAccount2faSetupRoute = AppAccount2faSetupRouteImport.update({
+  id: '/2fa/setup',
+  path: '/2fa/setup',
+  getParentRoute: () => AppAccountRoute,
+} as any)
+const AppAdminAddonsStoreRoute = AppAdminAddonsStoreRouteImport.update({
+  id: '/store',
+  path: '/store',
+  getParentRoute: () => AppAdminAddonsRoute,
+} as any)
+const AppAdminApiDocsRoute = AppAdminApiDocsRouteImport.update({
+  id: '/api/docs',
+  path: '/api/docs',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminDatabasesCreateRoute = AppAdminDatabasesCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => AppAdminDatabasesRoute,
+} as any)
+const AppAdminNodeIdRoute = AppAdminNodeIdRouteImport.update({
+  id: '/node/$id',
+  path: '/node/$id',
+  getParentRoute: () => AppAdminRoute,
+} as any)
+const AppAdminNodesCreateRoute = AppAdminNodesCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => AppAdminNodesRoute,
+} as any)
+const AppAdminServersCreateRoute = AppAdminServersCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => AppAdminServersRoute,
+} as any)
+const AppAdminUsersCreateRoute = AppAdminUsersCreateRouteImport.update({
+  id: '/create',
+  path: '/create',
+  getParentRoute: () => AppAdminUsersRoute,
+} as any)
+const AppMyImagesEditIdRoute = AppMyImagesEditIdRouteImport.update({
+  id: '/edit/$id',
+  path: '/edit/$id',
+  getParentRoute: () => AppMyImagesRoute,
 } as any)
 const AppServerUuidIndexRoute = AppServerUuidIndexRouteImport.update({
   id: '/',
@@ -91,6 +273,11 @@ const AppServerUuidLogsRoute = AppServerUuidLogsRouteImport.update({
   path: '/logs',
   getParentRoute: () => AppServerUuidRoute,
 } as any)
+const AppServerUuidPlayersRoute = AppServerUuidPlayersRouteImport.update({
+  id: '/players',
+  path: '/players',
+  getParentRoute: () => AppServerUuidRoute,
+} as any)
 const AppServerUuidSchedulesRoute = AppServerUuidSchedulesRouteImport.update({
   id: '/schedules',
   path: '/schedules',
@@ -111,6 +298,42 @@ const AppServerUuidSubusersRoute = AppServerUuidSubusersRouteImport.update({
   path: '/subusers',
   getParentRoute: () => AppServerUuidRoute,
 } as any)
+const AppServerUuidWorldsRoute = AppServerUuidWorldsRouteImport.update({
+  id: '/worlds',
+  path: '/worlds',
+  getParentRoute: () => AppServerUuidRoute,
+} as any)
+const AppAdminImagesEditIdRoute = AppAdminImagesEditIdRouteImport.update({
+  id: '/edit/$id',
+  path: '/edit/$id',
+  getParentRoute: () => AppAdminImagesRoute,
+} as any)
+const AppAdminNodeIdStatsRoute = AppAdminNodeIdStatsRouteImport.update({
+  id: '/stats',
+  path: '/stats',
+  getParentRoute: () => AppAdminNodeIdRoute,
+} as any)
+const AppAdminServersEditIdRoute = AppAdminServersEditIdRouteImport.update({
+  id: '/edit/$id',
+  path: '/edit/$id',
+  getParentRoute: () => AppAdminServersRoute,
+} as any)
+const AppAdminUsersEditIdRoute = AppAdminUsersEditIdRouteImport.update({
+  id: '/edit/$id',
+  path: '/edit/$id',
+  getParentRoute: () => AppAdminUsersRoute,
+} as any)
+const AppAdminUsersViewIdRoute = AppAdminUsersViewIdRouteImport.update({
+  id: '/view/$id',
+  path: '/view/$id',
+  getParentRoute: () => AppAdminUsersRoute,
+} as any)
+const AppServerUuidFilesEditSplatRoute =
+  AppServerUuidFilesEditSplatRouteImport.update({
+    id: '/edit/$',
+    path: '/edit/$',
+    getParentRoute: () => AppServerUuidFilesRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/2fa': typeof R2faRoute
@@ -119,16 +342,53 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/account': typeof AppAccountRouteWithChildren
+  '/admin': typeof AppAdminRouteWithChildren
+  '/create-server': typeof AppCreateServerRoute
+  '/credits': typeof AppCreditsRoute
+  '/my-images': typeof AppMyImagesRouteWithChildren
+  '/admin/activity': typeof AppAdminActivityRoute
+  '/admin/addons': typeof AppAdminAddonsRouteWithChildren
+  '/admin/analytics': typeof AppAdminAnalyticsRoute
+  '/admin/apikeys': typeof AppAdminApikeysRoute
+  '/admin/databases': typeof AppAdminDatabasesRouteWithChildren
+  '/admin/images': typeof AppAdminImagesRouteWithChildren
+  '/admin/menu': typeof AppAdminMenuRoute
+  '/admin/mounts': typeof AppAdminMountsRoute
+  '/admin/nodes': typeof AppAdminNodesRouteWithChildren
+  '/admin/overview': typeof AppAdminOverviewRoute
+  '/admin/playerstats': typeof AppAdminPlayerstatsRoute
+  '/admin/servers': typeof AppAdminServersRouteWithChildren
+  '/admin/settings': typeof AppAdminSettingsRoute
+  '/admin/users': typeof AppAdminUsersRouteWithChildren
   '/server/$uuid': typeof AppServerUuidRouteWithChildren
+  '/admin/': typeof AppAdminIndexRoute
+  '/account/2fa/setup': typeof AppAccount2faSetupRoute
+  '/admin/addons/store': typeof AppAdminAddonsStoreRoute
+  '/admin/api/docs': typeof AppAdminApiDocsRoute
+  '/admin/databases/create': typeof AppAdminDatabasesCreateRoute
+  '/admin/node/$id': typeof AppAdminNodeIdRouteWithChildren
+  '/admin/nodes/create': typeof AppAdminNodesCreateRoute
+  '/admin/servers/create': typeof AppAdminServersCreateRoute
+  '/admin/users/create': typeof AppAdminUsersCreateRoute
+  '/my-images/edit/$id': typeof AppMyImagesEditIdRoute
   '/server/$uuid/backups': typeof AppServerUuidBackupsRoute
   '/server/$uuid/databases': typeof AppServerUuidDatabasesRoute
-  '/server/$uuid/files': typeof AppServerUuidFilesRoute
+  '/server/$uuid/files': typeof AppServerUuidFilesRouteWithChildren
   '/server/$uuid/logs': typeof AppServerUuidLogsRoute
+  '/server/$uuid/players': typeof AppServerUuidPlayersRoute
   '/server/$uuid/schedules': typeof AppServerUuidSchedulesRoute
   '/server/$uuid/settings': typeof AppServerUuidSettingsRoute
   '/server/$uuid/startup': typeof AppServerUuidStartupRoute
   '/server/$uuid/subusers': typeof AppServerUuidSubusersRoute
+  '/server/$uuid/worlds': typeof AppServerUuidWorldsRoute
   '/server/$uuid/': typeof AppServerUuidIndexRoute
+  '/admin/images/edit/$id': typeof AppAdminImagesEditIdRoute
+  '/admin/node/$id/stats': typeof AppAdminNodeIdStatsRoute
+  '/admin/servers/edit/$id': typeof AppAdminServersEditIdRoute
+  '/admin/users/edit/$id': typeof AppAdminUsersEditIdRoute
+  '/admin/users/view/$id': typeof AppAdminUsersViewIdRoute
+  '/server/$uuid/files/edit/$': typeof AppServerUuidFilesEditSplatRoute
 }
 export interface FileRoutesByTo {
   '/2fa': typeof R2faRoute
@@ -136,16 +396,52 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/account': typeof AppAccountRouteWithChildren
+  '/create-server': typeof AppCreateServerRoute
+  '/credits': typeof AppCreditsRoute
+  '/my-images': typeof AppMyImagesRouteWithChildren
   '/': typeof AppIndexRoute
+  '/admin/activity': typeof AppAdminActivityRoute
+  '/admin/addons': typeof AppAdminAddonsRouteWithChildren
+  '/admin/analytics': typeof AppAdminAnalyticsRoute
+  '/admin/apikeys': typeof AppAdminApikeysRoute
+  '/admin/databases': typeof AppAdminDatabasesRouteWithChildren
+  '/admin/images': typeof AppAdminImagesRouteWithChildren
+  '/admin/menu': typeof AppAdminMenuRoute
+  '/admin/mounts': typeof AppAdminMountsRoute
+  '/admin/nodes': typeof AppAdminNodesRouteWithChildren
+  '/admin/overview': typeof AppAdminOverviewRoute
+  '/admin/playerstats': typeof AppAdminPlayerstatsRoute
+  '/admin/servers': typeof AppAdminServersRouteWithChildren
+  '/admin/settings': typeof AppAdminSettingsRoute
+  '/admin/users': typeof AppAdminUsersRouteWithChildren
+  '/admin': typeof AppAdminIndexRoute
+  '/account/2fa/setup': typeof AppAccount2faSetupRoute
+  '/admin/addons/store': typeof AppAdminAddonsStoreRoute
+  '/admin/api/docs': typeof AppAdminApiDocsRoute
+  '/admin/databases/create': typeof AppAdminDatabasesCreateRoute
+  '/admin/node/$id': typeof AppAdminNodeIdRouteWithChildren
+  '/admin/nodes/create': typeof AppAdminNodesCreateRoute
+  '/admin/servers/create': typeof AppAdminServersCreateRoute
+  '/admin/users/create': typeof AppAdminUsersCreateRoute
+  '/my-images/edit/$id': typeof AppMyImagesEditIdRoute
   '/server/$uuid/backups': typeof AppServerUuidBackupsRoute
   '/server/$uuid/databases': typeof AppServerUuidDatabasesRoute
-  '/server/$uuid/files': typeof AppServerUuidFilesRoute
+  '/server/$uuid/files': typeof AppServerUuidFilesRouteWithChildren
   '/server/$uuid/logs': typeof AppServerUuidLogsRoute
+  '/server/$uuid/players': typeof AppServerUuidPlayersRoute
   '/server/$uuid/schedules': typeof AppServerUuidSchedulesRoute
   '/server/$uuid/settings': typeof AppServerUuidSettingsRoute
   '/server/$uuid/startup': typeof AppServerUuidStartupRoute
   '/server/$uuid/subusers': typeof AppServerUuidSubusersRoute
+  '/server/$uuid/worlds': typeof AppServerUuidWorldsRoute
   '/server/$uuid': typeof AppServerUuidIndexRoute
+  '/admin/images/edit/$id': typeof AppAdminImagesEditIdRoute
+  '/admin/node/$id/stats': typeof AppAdminNodeIdStatsRoute
+  '/admin/servers/edit/$id': typeof AppAdminServersEditIdRoute
+  '/admin/users/edit/$id': typeof AppAdminUsersEditIdRoute
+  '/admin/users/view/$id': typeof AppAdminUsersViewIdRoute
+  '/server/$uuid/files/edit/$': typeof AppServerUuidFilesEditSplatRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -155,17 +451,54 @@ export interface FileRoutesById {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/_app/account': typeof AppAccountRouteWithChildren
+  '/_app/admin': typeof AppAdminRouteWithChildren
+  '/_app/create-server': typeof AppCreateServerRoute
+  '/_app/credits': typeof AppCreditsRoute
+  '/_app/my-images': typeof AppMyImagesRouteWithChildren
   '/_app/': typeof AppIndexRoute
+  '/_app/admin/activity': typeof AppAdminActivityRoute
+  '/_app/admin/addons': typeof AppAdminAddonsRouteWithChildren
+  '/_app/admin/analytics': typeof AppAdminAnalyticsRoute
+  '/_app/admin/apikeys': typeof AppAdminApikeysRoute
+  '/_app/admin/databases': typeof AppAdminDatabasesRouteWithChildren
+  '/_app/admin/images': typeof AppAdminImagesRouteWithChildren
+  '/_app/admin/menu': typeof AppAdminMenuRoute
+  '/_app/admin/mounts': typeof AppAdminMountsRoute
+  '/_app/admin/nodes': typeof AppAdminNodesRouteWithChildren
+  '/_app/admin/overview': typeof AppAdminOverviewRoute
+  '/_app/admin/playerstats': typeof AppAdminPlayerstatsRoute
+  '/_app/admin/servers': typeof AppAdminServersRouteWithChildren
+  '/_app/admin/settings': typeof AppAdminSettingsRoute
+  '/_app/admin/users': typeof AppAdminUsersRouteWithChildren
   '/_app/server/$uuid': typeof AppServerUuidRouteWithChildren
+  '/_app/admin/': typeof AppAdminIndexRoute
+  '/_app/account/2fa/setup': typeof AppAccount2faSetupRoute
+  '/_app/admin/addons/store': typeof AppAdminAddonsStoreRoute
+  '/_app/admin/api/docs': typeof AppAdminApiDocsRoute
+  '/_app/admin/databases/create': typeof AppAdminDatabasesCreateRoute
+  '/_app/admin/node/$id': typeof AppAdminNodeIdRouteWithChildren
+  '/_app/admin/nodes/create': typeof AppAdminNodesCreateRoute
+  '/_app/admin/servers/create': typeof AppAdminServersCreateRoute
+  '/_app/admin/users/create': typeof AppAdminUsersCreateRoute
+  '/_app/my-images/edit/$id': typeof AppMyImagesEditIdRoute
   '/_app/server/$uuid/backups': typeof AppServerUuidBackupsRoute
   '/_app/server/$uuid/databases': typeof AppServerUuidDatabasesRoute
-  '/_app/server/$uuid/files': typeof AppServerUuidFilesRoute
+  '/_app/server/$uuid/files': typeof AppServerUuidFilesRouteWithChildren
   '/_app/server/$uuid/logs': typeof AppServerUuidLogsRoute
+  '/_app/server/$uuid/players': typeof AppServerUuidPlayersRoute
   '/_app/server/$uuid/schedules': typeof AppServerUuidSchedulesRoute
   '/_app/server/$uuid/settings': typeof AppServerUuidSettingsRoute
   '/_app/server/$uuid/startup': typeof AppServerUuidStartupRoute
   '/_app/server/$uuid/subusers': typeof AppServerUuidSubusersRoute
+  '/_app/server/$uuid/worlds': typeof AppServerUuidWorldsRoute
   '/_app/server/$uuid/': typeof AppServerUuidIndexRoute
+  '/_app/admin/images/edit/$id': typeof AppAdminImagesEditIdRoute
+  '/_app/admin/node/$id/stats': typeof AppAdminNodeIdStatsRoute
+  '/_app/admin/servers/edit/$id': typeof AppAdminServersEditIdRoute
+  '/_app/admin/users/edit/$id': typeof AppAdminUsersEditIdRoute
+  '/_app/admin/users/view/$id': typeof AppAdminUsersViewIdRoute
+  '/_app/server/$uuid/files/edit/$': typeof AppServerUuidFilesEditSplatRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -176,16 +509,53 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
+    | '/account'
+    | '/admin'
+    | '/create-server'
+    | '/credits'
+    | '/my-images'
+    | '/admin/activity'
+    | '/admin/addons'
+    | '/admin/analytics'
+    | '/admin/apikeys'
+    | '/admin/databases'
+    | '/admin/images'
+    | '/admin/menu'
+    | '/admin/mounts'
+    | '/admin/nodes'
+    | '/admin/overview'
+    | '/admin/playerstats'
+    | '/admin/servers'
+    | '/admin/settings'
+    | '/admin/users'
     | '/server/$uuid'
+    | '/admin/'
+    | '/account/2fa/setup'
+    | '/admin/addons/store'
+    | '/admin/api/docs'
+    | '/admin/databases/create'
+    | '/admin/node/$id'
+    | '/admin/nodes/create'
+    | '/admin/servers/create'
+    | '/admin/users/create'
+    | '/my-images/edit/$id'
     | '/server/$uuid/backups'
     | '/server/$uuid/databases'
     | '/server/$uuid/files'
     | '/server/$uuid/logs'
+    | '/server/$uuid/players'
     | '/server/$uuid/schedules'
     | '/server/$uuid/settings'
     | '/server/$uuid/startup'
     | '/server/$uuid/subusers'
+    | '/server/$uuid/worlds'
     | '/server/$uuid/'
+    | '/admin/images/edit/$id'
+    | '/admin/node/$id/stats'
+    | '/admin/servers/edit/$id'
+    | '/admin/users/edit/$id'
+    | '/admin/users/view/$id'
+    | '/server/$uuid/files/edit/$'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/2fa'
@@ -193,16 +563,52 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
+    | '/account'
+    | '/create-server'
+    | '/credits'
+    | '/my-images'
     | '/'
+    | '/admin/activity'
+    | '/admin/addons'
+    | '/admin/analytics'
+    | '/admin/apikeys'
+    | '/admin/databases'
+    | '/admin/images'
+    | '/admin/menu'
+    | '/admin/mounts'
+    | '/admin/nodes'
+    | '/admin/overview'
+    | '/admin/playerstats'
+    | '/admin/servers'
+    | '/admin/settings'
+    | '/admin/users'
+    | '/admin'
+    | '/account/2fa/setup'
+    | '/admin/addons/store'
+    | '/admin/api/docs'
+    | '/admin/databases/create'
+    | '/admin/node/$id'
+    | '/admin/nodes/create'
+    | '/admin/servers/create'
+    | '/admin/users/create'
+    | '/my-images/edit/$id'
     | '/server/$uuid/backups'
     | '/server/$uuid/databases'
     | '/server/$uuid/files'
     | '/server/$uuid/logs'
+    | '/server/$uuid/players'
     | '/server/$uuid/schedules'
     | '/server/$uuid/settings'
     | '/server/$uuid/startup'
     | '/server/$uuid/subusers'
+    | '/server/$uuid/worlds'
     | '/server/$uuid'
+    | '/admin/images/edit/$id'
+    | '/admin/node/$id/stats'
+    | '/admin/servers/edit/$id'
+    | '/admin/users/edit/$id'
+    | '/admin/users/view/$id'
+    | '/server/$uuid/files/edit/$'
   id:
     | '__root__'
     | '/2fa'
@@ -211,17 +617,54 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
+    | '/_app/account'
+    | '/_app/admin'
+    | '/_app/create-server'
+    | '/_app/credits'
+    | '/_app/my-images'
     | '/_app/'
+    | '/_app/admin/activity'
+    | '/_app/admin/addons'
+    | '/_app/admin/analytics'
+    | '/_app/admin/apikeys'
+    | '/_app/admin/databases'
+    | '/_app/admin/images'
+    | '/_app/admin/menu'
+    | '/_app/admin/mounts'
+    | '/_app/admin/nodes'
+    | '/_app/admin/overview'
+    | '/_app/admin/playerstats'
+    | '/_app/admin/servers'
+    | '/_app/admin/settings'
+    | '/_app/admin/users'
     | '/_app/server/$uuid'
+    | '/_app/admin/'
+    | '/_app/account/2fa/setup'
+    | '/_app/admin/addons/store'
+    | '/_app/admin/api/docs'
+    | '/_app/admin/databases/create'
+    | '/_app/admin/node/$id'
+    | '/_app/admin/nodes/create'
+    | '/_app/admin/servers/create'
+    | '/_app/admin/users/create'
+    | '/_app/my-images/edit/$id'
     | '/_app/server/$uuid/backups'
     | '/_app/server/$uuid/databases'
     | '/_app/server/$uuid/files'
     | '/_app/server/$uuid/logs'
+    | '/_app/server/$uuid/players'
     | '/_app/server/$uuid/schedules'
     | '/_app/server/$uuid/settings'
     | '/_app/server/$uuid/startup'
     | '/_app/server/$uuid/subusers'
+    | '/_app/server/$uuid/worlds'
     | '/_app/server/$uuid/'
+    | '/_app/admin/images/edit/$id'
+    | '/_app/admin/node/$id/stats'
+    | '/_app/admin/servers/edit/$id'
+    | '/_app/admin/users/edit/$id'
+    | '/_app/admin/users/view/$id'
+    | '/_app/server/$uuid/files/edit/$'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -284,12 +727,215 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/account': {
+      id: '/_app/account'
+      path: '/account'
+      fullPath: '/account'
+      preLoaderRoute: typeof AppAccountRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin': {
+      id: '/_app/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AppAdminRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/create-server': {
+      id: '/_app/create-server'
+      path: '/create-server'
+      fullPath: '/create-server'
+      preLoaderRoute: typeof AppCreateServerRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/credits': {
+      id: '/_app/credits'
+      path: '/credits'
+      fullPath: '/credits'
+      preLoaderRoute: typeof AppCreditsRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/my-images': {
+      id: '/_app/my-images'
+      path: '/my-images'
+      fullPath: '/my-images'
+      preLoaderRoute: typeof AppMyImagesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/admin/': {
+      id: '/_app/admin/'
+      path: '/'
+      fullPath: '/admin/'
+      preLoaderRoute: typeof AppAdminIndexRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/activity': {
+      id: '/_app/admin/activity'
+      path: '/activity'
+      fullPath: '/admin/activity'
+      preLoaderRoute: typeof AppAdminActivityRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/addons': {
+      id: '/_app/admin/addons'
+      path: '/addons'
+      fullPath: '/admin/addons'
+      preLoaderRoute: typeof AppAdminAddonsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/analytics': {
+      id: '/_app/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AppAdminAnalyticsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/apikeys': {
+      id: '/_app/admin/apikeys'
+      path: '/apikeys'
+      fullPath: '/admin/apikeys'
+      preLoaderRoute: typeof AppAdminApikeysRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/databases': {
+      id: '/_app/admin/databases'
+      path: '/databases'
+      fullPath: '/admin/databases'
+      preLoaderRoute: typeof AppAdminDatabasesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/images': {
+      id: '/_app/admin/images'
+      path: '/images'
+      fullPath: '/admin/images'
+      preLoaderRoute: typeof AppAdminImagesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/menu': {
+      id: '/_app/admin/menu'
+      path: '/menu'
+      fullPath: '/admin/menu'
+      preLoaderRoute: typeof AppAdminMenuRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/mounts': {
+      id: '/_app/admin/mounts'
+      path: '/mounts'
+      fullPath: '/admin/mounts'
+      preLoaderRoute: typeof AppAdminMountsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/nodes': {
+      id: '/_app/admin/nodes'
+      path: '/nodes'
+      fullPath: '/admin/nodes'
+      preLoaderRoute: typeof AppAdminNodesRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/overview': {
+      id: '/_app/admin/overview'
+      path: '/overview'
+      fullPath: '/admin/overview'
+      preLoaderRoute: typeof AppAdminOverviewRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/playerstats': {
+      id: '/_app/admin/playerstats'
+      path: '/playerstats'
+      fullPath: '/admin/playerstats'
+      preLoaderRoute: typeof AppAdminPlayerstatsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/servers': {
+      id: '/_app/admin/servers'
+      path: '/servers'
+      fullPath: '/admin/servers'
+      preLoaderRoute: typeof AppAdminServersRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/settings': {
+      id: '/_app/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AppAdminSettingsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/users': {
+      id: '/_app/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AppAdminUsersRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
     '/_app/server/$uuid': {
       id: '/_app/server/$uuid'
       path: '/server/$uuid'
       fullPath: '/server/$uuid'
       preLoaderRoute: typeof AppServerUuidRouteImport
       parentRoute: typeof AppRoute
+    }
+    '/_app/account/2fa/setup': {
+      id: '/_app/account/2fa/setup'
+      path: '/2fa/setup'
+      fullPath: '/account/2fa/setup'
+      preLoaderRoute: typeof AppAccount2faSetupRouteImport
+      parentRoute: typeof AppAccountRoute
+    }
+    '/_app/admin/addons/store': {
+      id: '/_app/admin/addons/store'
+      path: '/store'
+      fullPath: '/admin/addons/store'
+      preLoaderRoute: typeof AppAdminAddonsStoreRouteImport
+      parentRoute: typeof AppAdminAddonsRoute
+    }
+    '/_app/admin/api/docs': {
+      id: '/_app/admin/api/docs'
+      path: '/api/docs'
+      fullPath: '/admin/api/docs'
+      preLoaderRoute: typeof AppAdminApiDocsRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/databases/create': {
+      id: '/_app/admin/databases/create'
+      path: '/create'
+      fullPath: '/admin/databases/create'
+      preLoaderRoute: typeof AppAdminDatabasesCreateRouteImport
+      parentRoute: typeof AppAdminDatabasesRoute
+    }
+    '/_app/admin/node/$id': {
+      id: '/_app/admin/node/$id'
+      path: '/node/$id'
+      fullPath: '/admin/node/$id'
+      preLoaderRoute: typeof AppAdminNodeIdRouteImport
+      parentRoute: typeof AppAdminRoute
+    }
+    '/_app/admin/nodes/create': {
+      id: '/_app/admin/nodes/create'
+      path: '/create'
+      fullPath: '/admin/nodes/create'
+      preLoaderRoute: typeof AppAdminNodesCreateRouteImport
+      parentRoute: typeof AppAdminNodesRoute
+    }
+    '/_app/admin/servers/create': {
+      id: '/_app/admin/servers/create'
+      path: '/create'
+      fullPath: '/admin/servers/create'
+      preLoaderRoute: typeof AppAdminServersCreateRouteImport
+      parentRoute: typeof AppAdminServersRoute
+    }
+    '/_app/admin/users/create': {
+      id: '/_app/admin/users/create'
+      path: '/create'
+      fullPath: '/admin/users/create'
+      preLoaderRoute: typeof AppAdminUsersCreateRouteImport
+      parentRoute: typeof AppAdminUsersRoute
+    }
+    '/_app/my-images/edit/$id': {
+      id: '/_app/my-images/edit/$id'
+      path: '/edit/$id'
+      fullPath: '/my-images/edit/$id'
+      preLoaderRoute: typeof AppMyImagesEditIdRouteImport
+      parentRoute: typeof AppMyImagesRoute
     }
     '/_app/server/$uuid/': {
       id: '/_app/server/$uuid/'
@@ -326,6 +972,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppServerUuidLogsRouteImport
       parentRoute: typeof AppServerUuidRoute
     }
+    '/_app/server/$uuid/players': {
+      id: '/_app/server/$uuid/players'
+      path: '/players'
+      fullPath: '/server/$uuid/players'
+      preLoaderRoute: typeof AppServerUuidPlayersRouteImport
+      parentRoute: typeof AppServerUuidRoute
+    }
     '/_app/server/$uuid/schedules': {
       id: '/_app/server/$uuid/schedules'
       path: '/schedules'
@@ -354,30 +1007,251 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppServerUuidSubusersRouteImport
       parentRoute: typeof AppServerUuidRoute
     }
+    '/_app/server/$uuid/worlds': {
+      id: '/_app/server/$uuid/worlds'
+      path: '/worlds'
+      fullPath: '/server/$uuid/worlds'
+      preLoaderRoute: typeof AppServerUuidWorldsRouteImport
+      parentRoute: typeof AppServerUuidRoute
+    }
+    '/_app/admin/images/edit/$id': {
+      id: '/_app/admin/images/edit/$id'
+      path: '/edit/$id'
+      fullPath: '/admin/images/edit/$id'
+      preLoaderRoute: typeof AppAdminImagesEditIdRouteImport
+      parentRoute: typeof AppAdminImagesRoute
+    }
+    '/_app/admin/node/$id/stats': {
+      id: '/_app/admin/node/$id/stats'
+      path: '/stats'
+      fullPath: '/admin/node/$id/stats'
+      preLoaderRoute: typeof AppAdminNodeIdStatsRouteImport
+      parentRoute: typeof AppAdminNodeIdRoute
+    }
+    '/_app/admin/servers/edit/$id': {
+      id: '/_app/admin/servers/edit/$id'
+      path: '/edit/$id'
+      fullPath: '/admin/servers/edit/$id'
+      preLoaderRoute: typeof AppAdminServersEditIdRouteImport
+      parentRoute: typeof AppAdminServersRoute
+    }
+    '/_app/admin/users/edit/$id': {
+      id: '/_app/admin/users/edit/$id'
+      path: '/edit/$id'
+      fullPath: '/admin/users/edit/$id'
+      preLoaderRoute: typeof AppAdminUsersEditIdRouteImport
+      parentRoute: typeof AppAdminUsersRoute
+    }
+    '/_app/admin/users/view/$id': {
+      id: '/_app/admin/users/view/$id'
+      path: '/view/$id'
+      fullPath: '/admin/users/view/$id'
+      preLoaderRoute: typeof AppAdminUsersViewIdRouteImport
+      parentRoute: typeof AppAdminUsersRoute
+    }
+    '/_app/server/$uuid/files/edit/$': {
+      id: '/_app/server/$uuid/files/edit/$'
+      path: '/edit/$'
+      fullPath: '/server/$uuid/files/edit/$'
+      preLoaderRoute: typeof AppServerUuidFilesEditSplatRouteImport
+      parentRoute: typeof AppServerUuidFilesRoute
+    }
   }
 }
+
+interface AppAccountRouteChildren {
+  AppAccount2faSetupRoute: typeof AppAccount2faSetupRoute
+}
+
+const AppAccountRouteChildren: AppAccountRouteChildren = {
+  AppAccount2faSetupRoute: AppAccount2faSetupRoute,
+}
+
+const AppAccountRouteWithChildren = AppAccountRoute._addFileChildren(
+  AppAccountRouteChildren,
+)
+
+interface AppAdminAddonsRouteChildren {
+  AppAdminAddonsStoreRoute: typeof AppAdminAddonsStoreRoute
+}
+
+const AppAdminAddonsRouteChildren: AppAdminAddonsRouteChildren = {
+  AppAdminAddonsStoreRoute: AppAdminAddonsStoreRoute,
+}
+
+const AppAdminAddonsRouteWithChildren = AppAdminAddonsRoute._addFileChildren(
+  AppAdminAddonsRouteChildren,
+)
+
+interface AppAdminDatabasesRouteChildren {
+  AppAdminDatabasesCreateRoute: typeof AppAdminDatabasesCreateRoute
+}
+
+const AppAdminDatabasesRouteChildren: AppAdminDatabasesRouteChildren = {
+  AppAdminDatabasesCreateRoute: AppAdminDatabasesCreateRoute,
+}
+
+const AppAdminDatabasesRouteWithChildren =
+  AppAdminDatabasesRoute._addFileChildren(AppAdminDatabasesRouteChildren)
+
+interface AppAdminImagesRouteChildren {
+  AppAdminImagesEditIdRoute: typeof AppAdminImagesEditIdRoute
+}
+
+const AppAdminImagesRouteChildren: AppAdminImagesRouteChildren = {
+  AppAdminImagesEditIdRoute: AppAdminImagesEditIdRoute,
+}
+
+const AppAdminImagesRouteWithChildren = AppAdminImagesRoute._addFileChildren(
+  AppAdminImagesRouteChildren,
+)
+
+interface AppAdminNodesRouteChildren {
+  AppAdminNodesCreateRoute: typeof AppAdminNodesCreateRoute
+}
+
+const AppAdminNodesRouteChildren: AppAdminNodesRouteChildren = {
+  AppAdminNodesCreateRoute: AppAdminNodesCreateRoute,
+}
+
+const AppAdminNodesRouteWithChildren = AppAdminNodesRoute._addFileChildren(
+  AppAdminNodesRouteChildren,
+)
+
+interface AppAdminServersRouteChildren {
+  AppAdminServersCreateRoute: typeof AppAdminServersCreateRoute
+  AppAdminServersEditIdRoute: typeof AppAdminServersEditIdRoute
+}
+
+const AppAdminServersRouteChildren: AppAdminServersRouteChildren = {
+  AppAdminServersCreateRoute: AppAdminServersCreateRoute,
+  AppAdminServersEditIdRoute: AppAdminServersEditIdRoute,
+}
+
+const AppAdminServersRouteWithChildren = AppAdminServersRoute._addFileChildren(
+  AppAdminServersRouteChildren,
+)
+
+interface AppAdminUsersRouteChildren {
+  AppAdminUsersCreateRoute: typeof AppAdminUsersCreateRoute
+  AppAdminUsersEditIdRoute: typeof AppAdminUsersEditIdRoute
+  AppAdminUsersViewIdRoute: typeof AppAdminUsersViewIdRoute
+}
+
+const AppAdminUsersRouteChildren: AppAdminUsersRouteChildren = {
+  AppAdminUsersCreateRoute: AppAdminUsersCreateRoute,
+  AppAdminUsersEditIdRoute: AppAdminUsersEditIdRoute,
+  AppAdminUsersViewIdRoute: AppAdminUsersViewIdRoute,
+}
+
+const AppAdminUsersRouteWithChildren = AppAdminUsersRoute._addFileChildren(
+  AppAdminUsersRouteChildren,
+)
+
+interface AppAdminNodeIdRouteChildren {
+  AppAdminNodeIdStatsRoute: typeof AppAdminNodeIdStatsRoute
+}
+
+const AppAdminNodeIdRouteChildren: AppAdminNodeIdRouteChildren = {
+  AppAdminNodeIdStatsRoute: AppAdminNodeIdStatsRoute,
+}
+
+const AppAdminNodeIdRouteWithChildren = AppAdminNodeIdRoute._addFileChildren(
+  AppAdminNodeIdRouteChildren,
+)
+
+interface AppAdminRouteChildren {
+  AppAdminActivityRoute: typeof AppAdminActivityRoute
+  AppAdminAddonsRoute: typeof AppAdminAddonsRouteWithChildren
+  AppAdminAnalyticsRoute: typeof AppAdminAnalyticsRoute
+  AppAdminApikeysRoute: typeof AppAdminApikeysRoute
+  AppAdminDatabasesRoute: typeof AppAdminDatabasesRouteWithChildren
+  AppAdminImagesRoute: typeof AppAdminImagesRouteWithChildren
+  AppAdminMenuRoute: typeof AppAdminMenuRoute
+  AppAdminMountsRoute: typeof AppAdminMountsRoute
+  AppAdminNodesRoute: typeof AppAdminNodesRouteWithChildren
+  AppAdminOverviewRoute: typeof AppAdminOverviewRoute
+  AppAdminPlayerstatsRoute: typeof AppAdminPlayerstatsRoute
+  AppAdminServersRoute: typeof AppAdminServersRouteWithChildren
+  AppAdminSettingsRoute: typeof AppAdminSettingsRoute
+  AppAdminUsersRoute: typeof AppAdminUsersRouteWithChildren
+  AppAdminIndexRoute: typeof AppAdminIndexRoute
+  AppAdminApiDocsRoute: typeof AppAdminApiDocsRoute
+  AppAdminNodeIdRoute: typeof AppAdminNodeIdRouteWithChildren
+}
+
+const AppAdminRouteChildren: AppAdminRouteChildren = {
+  AppAdminActivityRoute: AppAdminActivityRoute,
+  AppAdminAddonsRoute: AppAdminAddonsRouteWithChildren,
+  AppAdminAnalyticsRoute: AppAdminAnalyticsRoute,
+  AppAdminApikeysRoute: AppAdminApikeysRoute,
+  AppAdminDatabasesRoute: AppAdminDatabasesRouteWithChildren,
+  AppAdminImagesRoute: AppAdminImagesRouteWithChildren,
+  AppAdminMenuRoute: AppAdminMenuRoute,
+  AppAdminMountsRoute: AppAdminMountsRoute,
+  AppAdminNodesRoute: AppAdminNodesRouteWithChildren,
+  AppAdminOverviewRoute: AppAdminOverviewRoute,
+  AppAdminPlayerstatsRoute: AppAdminPlayerstatsRoute,
+  AppAdminServersRoute: AppAdminServersRouteWithChildren,
+  AppAdminSettingsRoute: AppAdminSettingsRoute,
+  AppAdminUsersRoute: AppAdminUsersRouteWithChildren,
+  AppAdminIndexRoute: AppAdminIndexRoute,
+  AppAdminApiDocsRoute: AppAdminApiDocsRoute,
+  AppAdminNodeIdRoute: AppAdminNodeIdRouteWithChildren,
+}
+
+const AppAdminRouteWithChildren = AppAdminRoute._addFileChildren(
+  AppAdminRouteChildren,
+)
+
+interface AppMyImagesRouteChildren {
+  AppMyImagesEditIdRoute: typeof AppMyImagesEditIdRoute
+}
+
+const AppMyImagesRouteChildren: AppMyImagesRouteChildren = {
+  AppMyImagesEditIdRoute: AppMyImagesEditIdRoute,
+}
+
+const AppMyImagesRouteWithChildren = AppMyImagesRoute._addFileChildren(
+  AppMyImagesRouteChildren,
+)
+
+interface AppServerUuidFilesRouteChildren {
+  AppServerUuidFilesEditSplatRoute: typeof AppServerUuidFilesEditSplatRoute
+}
+
+const AppServerUuidFilesRouteChildren: AppServerUuidFilesRouteChildren = {
+  AppServerUuidFilesEditSplatRoute: AppServerUuidFilesEditSplatRoute,
+}
+
+const AppServerUuidFilesRouteWithChildren =
+  AppServerUuidFilesRoute._addFileChildren(AppServerUuidFilesRouteChildren)
 
 interface AppServerUuidRouteChildren {
   AppServerUuidBackupsRoute: typeof AppServerUuidBackupsRoute
   AppServerUuidDatabasesRoute: typeof AppServerUuidDatabasesRoute
-  AppServerUuidFilesRoute: typeof AppServerUuidFilesRoute
+  AppServerUuidFilesRoute: typeof AppServerUuidFilesRouteWithChildren
   AppServerUuidLogsRoute: typeof AppServerUuidLogsRoute
+  AppServerUuidPlayersRoute: typeof AppServerUuidPlayersRoute
   AppServerUuidSchedulesRoute: typeof AppServerUuidSchedulesRoute
   AppServerUuidSettingsRoute: typeof AppServerUuidSettingsRoute
   AppServerUuidStartupRoute: typeof AppServerUuidStartupRoute
   AppServerUuidSubusersRoute: typeof AppServerUuidSubusersRoute
+  AppServerUuidWorldsRoute: typeof AppServerUuidWorldsRoute
   AppServerUuidIndexRoute: typeof AppServerUuidIndexRoute
 }
 
 const AppServerUuidRouteChildren: AppServerUuidRouteChildren = {
   AppServerUuidBackupsRoute: AppServerUuidBackupsRoute,
   AppServerUuidDatabasesRoute: AppServerUuidDatabasesRoute,
-  AppServerUuidFilesRoute: AppServerUuidFilesRoute,
+  AppServerUuidFilesRoute: AppServerUuidFilesRouteWithChildren,
   AppServerUuidLogsRoute: AppServerUuidLogsRoute,
+  AppServerUuidPlayersRoute: AppServerUuidPlayersRoute,
   AppServerUuidSchedulesRoute: AppServerUuidSchedulesRoute,
   AppServerUuidSettingsRoute: AppServerUuidSettingsRoute,
   AppServerUuidStartupRoute: AppServerUuidStartupRoute,
   AppServerUuidSubusersRoute: AppServerUuidSubusersRoute,
+  AppServerUuidWorldsRoute: AppServerUuidWorldsRoute,
   AppServerUuidIndexRoute: AppServerUuidIndexRoute,
 }
 
@@ -386,11 +1260,21 @@ const AppServerUuidRouteWithChildren = AppServerUuidRoute._addFileChildren(
 )
 
 interface AppRouteChildren {
+  AppAccountRoute: typeof AppAccountRouteWithChildren
+  AppAdminRoute: typeof AppAdminRouteWithChildren
+  AppCreateServerRoute: typeof AppCreateServerRoute
+  AppCreditsRoute: typeof AppCreditsRoute
+  AppMyImagesRoute: typeof AppMyImagesRouteWithChildren
   AppIndexRoute: typeof AppIndexRoute
   AppServerUuidRoute: typeof AppServerUuidRouteWithChildren
 }
 
 const AppRouteChildren: AppRouteChildren = {
+  AppAccountRoute: AppAccountRouteWithChildren,
+  AppAdminRoute: AppAdminRouteWithChildren,
+  AppCreateServerRoute: AppCreateServerRoute,
+  AppCreditsRoute: AppCreditsRoute,
+  AppMyImagesRoute: AppMyImagesRouteWithChildren,
   AppIndexRoute: AppIndexRoute,
   AppServerUuidRoute: AppServerUuidRouteWithChildren,
 }

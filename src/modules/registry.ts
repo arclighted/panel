@@ -28,6 +28,7 @@ import admin_servers from './admin/servers';
 import admin_settings from './admin/settings';
 import admin_uiComponents from './admin/uiComponents';
 import admin_users from './admin/users';
+import admin_context from './admin/context';
 import api_Alternative_api from './api/Alternative/api';
 import api_client_clientApi from './api/client/clientApi';
 import api_v1_api from './api/v1/api';
@@ -90,6 +91,7 @@ const candidates: { module: unknown; name: string }[] = [
   { module: admin_mounts, name: 'admin/mounts' },
   { module: admin_nodes, name: 'admin/nodes' },
   { module: admin_overview, name: 'admin/overview' },
+  { module: admin_context, name: 'admin/context' },
   { module: admin_playerStats, name: 'admin/playerStats' },
   { module: admin_radar, name: 'admin/radar' },
   { module: admin_security, name: 'admin/security' },

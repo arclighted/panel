@@ -28,7 +28,7 @@ const APP_HOST = process.env.APP_INTERNAL_HOST ?? '127.0.0.1'
 
 // ── Proxy path prefixes (must match proxy.config.ts) ───────────────────────
 
-const API_PREFIXES = ['/api', '/ws', '/console', '/addon-assets', '/avatar']
+const API_PREFIXES = ['/api', '/ws', '/console', '/addon-assets', '/avatar', '/admin/images/export']
 
 const STATIC_PREFIXES = [
   '/favicon.ico', '/javascript', '/js', '/fonts', '/styles',
@@ -39,27 +39,29 @@ const STATIC_PREFIXES = [
 
 const LEGACY_PAGE_PREFIXES = [
   '/login', '/register', '/forgot-password', '/reset-password',
-  '/2fa', '/logout', '/create-server', '/my-images',
-  '/user/server', '/admin',
+  '/2fa', '/logout', '/user/server',
 ]
 
 const ALL_PROXY_PREFIXES = [...API_PREFIXES, ...STATIC_PREFIXES, ...LEGACY_PAGE_PREFIXES]
 
 // Migrated server pages served by the TanStack app: `/server/:uuid` (console),
-// `/server/:uuid/files` (file manager) and the seven tab pages. Everything
-// else under `/server/` (tab sub-APIs, worlds, players, files/edit, ws-token,
-// file APIs) belongs to Express. Kept in sync with web/proxy.config.ts
-// isMigratedServerPage.
+// `/server/:uuid/files` (file manager), the seven tab pages, worlds, players,
+// and the file editor splat. Everything else under `/server/` (tab sub-APIs,
+// ws-token, file APIs) belongs to Express. Kept in sync with
+// web/proxy.config.ts isMigratedServerPage.
 const MIGRATED_SERVER_TABS = new Set([
   'files', 'settings', 'startup', 'logs',
   'databases', 'schedules', 'backups', 'subusers',
+  'worlds', 'players',
 ])
 
 function isMigratedServerPage(url) {
   if (!url.startsWith('/server/')) return false
   const rest = url.slice('/server/'.length).split('?')[0]
   const afterUuid = rest.split('/').slice(1).join('/')
-  return afterUuid === '' || MIGRATED_SERVER_TABS.has(afterUuid)
+  if (afterUuid === '' || MIGRATED_SERVER_TABS.has(afterUuid)) return true
+  // The file editor lives at /server/:uuid/files/edit/{*path} (splat).
+  return afterUuid.startsWith('files/edit')
 }
 
 function isProxyPath(url) {

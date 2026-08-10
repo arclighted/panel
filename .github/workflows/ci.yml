@@ -39,6 +39,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec prisma generate
       - run: pnpm run typecheck
+      # TanStack Start frontend: strict typecheck of the web package.
+      - run: pnpm --filter arclight-web typecheck
 
   test:
     name: Test
@@ -57,6 +59,8 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec prisma generate
       - run: pnpm test
+      # TanStack Start frontend: unit + contract tests (cron, realtime, auth…).
+      - run: pnpm --filter arclight-web test
 
   build:
     name: Build
@@ -76,3 +80,5 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm exec prisma generate
       - run: pnpm run build
+      # TanStack Start frontend: full production bundle (Vite + Nitro).
+      - run: pnpm --filter arclight-web build

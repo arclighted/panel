@@ -121,8 +121,7 @@ export function registerWorldsRoutes(router: Router): void {
             req,
             settings,
           });
-        }
-      } catch (error) {
+        }        } catch (error) {
         logger.error('Error getting worlds:', error);
 
         return res.render('user/server/worlds', {
@@ -137,6 +136,68 @@ export function registerWorldsRoutes(router: Router): void {
           req,
           settings: null,
         });
+      }
+    },
+  );
+
+  // Additive JSON endpoint for the React worlds page — mirrors the EJS page
+  // render (same daemon fs-list + isWorld filtering) as data, not a page.
+  router.get(
+    '/api/server/:id/worlds',
+    isAuthenticatedForServer('id'),
+    requireSubUserPermission('files'),
+    async (req: Request, res: Response) => {
+      const serverId = getParamAsString(req.params?.id);
+      try {
+        const server = await prisma.server.findUnique({
+          where: { UUID: serverId },
+          include: { node: true, image: true },
+        });
+        if (!server) {
+          res.status(404).json({ error: 'Server not found' });
+          return;
+        }
+
+        const serverStatusInput = getServerStatusInput(server);
+        const worlds: { name: string }[] = [];
+        let daemonError: string | null = null;
+        try {
+          const response = await daemonRequest<unknown>({
+            method: 'GET',
+            path: '/fs/list',
+            nodeAddress: server.node.address,
+            nodePort: server.node.port,
+            nodeKey: server.node.key,
+            params: { id: server.UUID },
+          });
+          const folders = parseDaemonResponse(fsListSchema, response.data) ?? [];
+          for (const folder of folders) {
+            if (
+              folder.type === 'directory' &&
+              (await isWorld(folder.name, serverStatusInput))
+            ) {
+              worlds.push({ name: folder.name });
+            }
+          }
+        } catch (fileRequestError: unknown) {
+          daemonError =
+            'Failed to fetch worlds. The server may be offline or not responding.';
+        }
+
+        const features = getImageFeatures(server.image);
+        const serverStatus = await getServerStatus(serverStatusInput);
+
+        res.json({
+          success: true,
+          worlds,
+          features,
+          installed: await checkForServerInstallation(serverId),
+          serverStatus,
+          daemonError,
+        });
+      } catch (error) {
+        logger.error('Error getting worlds:', error);
+        res.status(500).json({ error: 'Failed to load worlds.' });
       }
     },
   );

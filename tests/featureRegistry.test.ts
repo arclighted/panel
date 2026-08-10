@@ -49,9 +49,13 @@ describe('feature registry', () => {
   it('preserves the admin → api → auth → core → realtime → user mount order', () => {
     const names = FEATURE_REGISTRY.map((e) => e.name);
 
-    // Admin group is fully contiguous at the head.
+    // Admin group is fully contiguous at the head: 19 modules (indices
+    // 0-18). admin/context — the additive React admin data layer — sits at
+    // index 11; admin/users closes the group at index 18.
+    const contextIdx = names.indexOf('admin/context');
+    expect(contextIdx).toBe(11);
     const adminEnd = names.indexOf('admin/users');
-    expect(adminEnd).toBe(17);
+    expect(adminEnd).toBe(18);
     expect(names.slice(0, adminEnd + 1).every((n) => n.startsWith('admin/'))).toBe(true);
 
     // Api group follows.

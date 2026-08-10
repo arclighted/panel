@@ -47,15 +47,15 @@ export const STATIC_PROXY_PATHS = [
  * `/console` is the panel's WebSocket proxy for container terminal output
  * (browser → panel → daemon). It needs ws: true like `/ws`.
  */
-export const API_PROXY_PATHS = ['/api', '/ws', '/console', '/addon-assets', '/avatar'] as const
+export const API_PROXY_PATHS = ['/api', '/ws', '/console', '/addon-assets', '/avatar', '/admin/images/export'] as const
 
 /**
  * True when a GET under `/server/` is served by the TanStack app instead of
- * Express. Migrated server pages: `/server/:uuid` (console), `/files`, and the
- * seven tab pages below (any query string). Every other `/server/:uuid/*` path
- * — settings/databases/… sub-APIs, worlds, players, files/edit, the WS-token
- * endpoint, and the file APIs — still belongs to Express. Kept in sync with
- * web/server/index.mjs.
+ * Express. Migrated server pages: `/server/:uuid` (console), `/files`, the
+ * seven tab pages, `/worlds`, `/players`, and the file editor
+ * `/files/edit/{*path}` (any query string). Every other `/server/:uuid/*`
+ * path — tab sub-APIs, ws-token, and the file APIs — still belongs to
+ * Express. Kept in sync with web/server/index.mjs.
  */
 const MIGRATED_SERVER_TABS = new Set([
   'files',
@@ -66,13 +66,17 @@ const MIGRATED_SERVER_TABS = new Set([
   'schedules',
   'backups',
   'subusers',
+  'worlds',
+  'players',
 ])
 
 export function isMigratedServerPage(url: string): boolean {
   if (!url.startsWith('/server/')) return false
   const rest = url.slice('/server/'.length).split('?')[0]
   const afterUuid = rest.split('/').slice(1).join('/')
-  return afterUuid === '' || MIGRATED_SERVER_TABS.has(afterUuid)
+  if (afterUuid === '' || MIGRATED_SERVER_TABS.has(afterUuid)) return true
+  // The file editor lives at /server/:uuid/files/edit/{*path} (splat).
+  return afterUuid.startsWith('files/edit')
 }
 
 /**
@@ -83,10 +87,7 @@ export function isMigratedServerPage(url: string): boolean {
  */
 export const LEGACY_PAGE_PREFIXES = [
   '/logout',
-  '/create-server',
-  '/my-images',
   '/user/server',
-  '/admin',
 ] as const
 
 /** All proxy paths combined. */
