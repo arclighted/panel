@@ -28,7 +28,7 @@ const APP_HOST = process.env.APP_INTERNAL_HOST ?? '127.0.0.1'
 
 // ── Proxy path prefixes (must match proxy.config.ts) ───────────────────────
 
-const API_PREFIXES = ['/api', '/ws', '/addon-assets', '/avatar']
+const API_PREFIXES = ['/api', '/ws', '/console', '/addon-assets', '/avatar']
 
 const STATIC_PREFIXES = [
   '/favicon.ico', '/javascript', '/js', '/fonts', '/styles',
@@ -45,8 +45,21 @@ const LEGACY_PAGE_PREFIXES = [
 
 const ALL_PROXY_PREFIXES = [...API_PREFIXES, ...STATIC_PREFIXES, ...LEGACY_PAGE_PREFIXES]
 
+// Migrated server pages served by the TanStack app: `/server/:uuid` (console)
+// and `/server/:uuid/files` (file manager). Everything else under `/server/`
+// (settings, databases, schedules, backups, subusers, logs, worlds, players,
+// files/edit, ws-token, file APIs) belongs to Express. Kept in sync with
+// web/proxy.config.ts isMigratedServerPage.
+function isMigratedServerPage(url) {
+  if (!url.startsWith('/server/')) return false
+  const rest = url.slice('/server/'.length).split('?')[0]
+  const afterUuid = rest.split('/').slice(1).join('/')
+  return afterUuid === '' || afterUuid === 'files'
+}
+
 function isProxyPath(url) {
-  return ALL_PROXY_PREFIXES.some((p) => url.startsWith(p))
+  if (ALL_PROXY_PREFIXES.some((p) => url.startsWith(p))) return true
+  return url.startsWith('/server/') && !isMigratedServerPage(url)
 }
 
 // ── Start Nitro (TanStack Start) server as child ───────────────────────────
@@ -109,8 +122,11 @@ const server = http.createServer((req, res) => {
 // ── WebSocket upgrade forwarding ───────────────────────────────────────────
 
 server.on('upgrade', (req, socket, head) => {
-  // Only forward upgrades for panel WS paths (e.g. /ws or /api WS endpoints)
-  if (!(req.url.startsWith('/ws') || req.url.startsWith('/api'))) {
+  // Only forward upgrades for panel WS paths (e.g. /ws, /console or /api WS
+  // endpoints). The console socket lives at /console/:id?token=...
+  if (
+    !(req.url.startsWith('/ws') || req.url.startsWith('/api') || req.url.startsWith('/console'))
+  ) {
     socket.destroy()
     return
   }

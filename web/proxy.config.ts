@@ -43,8 +43,26 @@ export const STATIC_PROXY_PATHS = [
 
 /**
  * API and real-time paths proxied to Express unchanged.
+ *
+ * `/console` is the panel's WebSocket proxy for container terminal output
+ * (browser → panel → daemon). It needs ws: true like `/ws`.
  */
-export const API_PROXY_PATHS = ['/api', '/ws', '/addon-assets', '/avatar'] as const
+export const API_PROXY_PATHS = ['/api', '/ws', '/console', '/addon-assets', '/avatar'] as const
+
+/**
+ * True when a GET under `/server/` is served by the TanStack app instead of
+ * Express. Migrated server pages: `/server/:uuid` (console) and
+ * `/server/:uuid/files` (file manager, any query string). Every other
+ * `/server/:uuid/*` path — settings, databases, schedules, backups, subusers,
+ * logs, worlds, players, files/edit, the WS-token endpoint, and the file APIs
+ * — still belongs to Express. Kept in sync with web/server/index.mjs.
+ */
+export function isMigratedServerPage(url: string): boolean {
+  if (!url.startsWith('/server/')) return false
+  const rest = url.slice('/server/'.length).split('?')[0]
+  const afterUuid = rest.split('/').slice(1).join('/')
+  return afterUuid === '' || afterUuid === 'files'
+}
 
 /**
  * Unmigrated legacy page prefixes (URL seam). These paths are served by Express

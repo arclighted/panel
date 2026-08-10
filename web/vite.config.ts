@@ -9,21 +9,25 @@ import viteReact from '@vitejs/plugin-react'
 import tailwindcss from '@tailwindcss/vite'
 import { nitro } from 'nitro/vite'
 
-import { createProxyConfig, PANEL_INTERNAL_URL } from './proxy.config'
+import { createProxyConfig, isMigratedServerPage, PANEL_INTERNAL_URL } from './proxy.config'
 
 /**
- * Express is the mutation authority: every non-GET request (login, register,
- * password reset, 2FA, admin actions, …) carries session + CSRF state that only
- * the Express process can validate. Vite's path-based proxy cannot be made
- * method-aware, so this middleware forwards all non-GET requests to Express.
+ * Express is the authority for everything Vite's path-based proxy cannot
+ * express: every non-GET request (login, register, password reset, 2FA, admin
+ * actions, …) carries session + CSRF state only Express can validate, and the
+ * un-migrated `/server/:uuid/*` tabs (settings, databases, schedules, …) are
+ * still rendered by Express as EJS. The migrated server pages (`/server/:uuid`
+ * and `/server/:uuid/files`) stay on the TanStack app.
  */
-function proxyMutationsToExpress(): Plugin {
+function proxyToExpress(): Plugin {
   return {
-    name: 'arclight:proxy-mutations-to-express',
+    name: 'arclight:proxy-to-express',
     configureServer(server) {
       server.middlewares.use((req, res, next) => {
         const method = (req.method ?? 'GET').toUpperCase()
-        if (method === 'GET' || method === 'HEAD' || method === 'OPTIONS') {
+        const url = req.url ?? ''
+        const isGet = method === 'GET' || method === 'HEAD' || method === 'OPTIONS'
+        if (isGet && !(url.startsWith('/server/') && !isMigratedServerPage(url))) {
           return next()
         }
 
@@ -59,7 +63,7 @@ const config = defineConfig({
     tailwindcss(),
     tanstackStart(),
     viteReact(),
-    proxyMutationsToExpress(),
+    proxyToExpress(),
   ],
   server: {
     proxy: createProxyConfig(),

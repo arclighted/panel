@@ -1,5 +1,6 @@
 import { Router } from 'express';
 import type { Module } from '../../../handlers/moduleInit';
+import { registerServerContextRoutes } from './context';
 import { registerConsoleRoutes } from './console';
 import { registerFilesRoutes } from './files';
 import { registerFileDetailRoutes } from './fileDetail';
@@ -25,6 +26,7 @@ const dashboardModule: Module = {
   router: () => {
     const router = Router();
 
+    registerServerContextRoutes(router);
     registerConsoleRoutes(router);
     registerFilesRoutes(router);
     registerFileDetailRoutes(router);

@@ -16,6 +16,9 @@ import { Route as LoginRouteImport } from './routes/login'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
+import { Route as AppServerUuidRouteImport } from './routes/_app/server/$uuid'
+import { Route as AppServerUuidIndexRouteImport } from './routes/_app/server/$uuid/index'
+import { Route as AppServerUuidFilesRouteImport } from './routes/_app/server/$uuid/files'
 
 const R2faRoute = R2faRouteImport.update({
   id: '/2fa',
@@ -51,6 +54,21 @@ const AppIndexRoute = AppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppRoute,
 } as any)
+const AppServerUuidRoute = AppServerUuidRouteImport.update({
+  id: '/server/$uuid',
+  path: '/server/$uuid',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppServerUuidIndexRoute = AppServerUuidIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AppServerUuidRoute,
+} as any)
+const AppServerUuidFilesRoute = AppServerUuidFilesRouteImport.update({
+  id: '/files',
+  path: '/files',
+  getParentRoute: () => AppServerUuidRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/2fa': typeof R2faRoute
@@ -59,6 +77,9 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
+  '/server/$uuid': typeof AppServerUuidRouteWithChildren
+  '/server/$uuid/files': typeof AppServerUuidFilesRoute
+  '/server/$uuid/': typeof AppServerUuidIndexRoute
 }
 export interface FileRoutesByTo {
   '/2fa': typeof R2faRoute
@@ -67,6 +88,8 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/': typeof AppIndexRoute
+  '/server/$uuid/files': typeof AppServerUuidFilesRoute
+  '/server/$uuid': typeof AppServerUuidIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -77,6 +100,9 @@ export interface FileRoutesById {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_app/': typeof AppIndexRoute
+  '/_app/server/$uuid': typeof AppServerUuidRouteWithChildren
+  '/_app/server/$uuid/files': typeof AppServerUuidFilesRoute
+  '/_app/server/$uuid/': typeof AppServerUuidIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -87,6 +113,9 @@ export interface FileRouteTypes {
     | '/login'
     | '/register'
     | '/reset-password'
+    | '/server/$uuid'
+    | '/server/$uuid/files'
+    | '/server/$uuid/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/2fa'
@@ -95,6 +124,8 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/'
+    | '/server/$uuid/files'
+    | '/server/$uuid'
   id:
     | '__root__'
     | '/2fa'
@@ -104,6 +135,9 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/_app/'
+    | '/_app/server/$uuid'
+    | '/_app/server/$uuid/files'
+    | '/_app/server/$uuid/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -166,15 +200,52 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppIndexRouteImport
       parentRoute: typeof AppRoute
     }
+    '/_app/server/$uuid': {
+      id: '/_app/server/$uuid'
+      path: '/server/$uuid'
+      fullPath: '/server/$uuid'
+      preLoaderRoute: typeof AppServerUuidRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/_app/server/$uuid/': {
+      id: '/_app/server/$uuid/'
+      path: '/'
+      fullPath: '/server/$uuid/'
+      preLoaderRoute: typeof AppServerUuidIndexRouteImport
+      parentRoute: typeof AppServerUuidRoute
+    }
+    '/_app/server/$uuid/files': {
+      id: '/_app/server/$uuid/files'
+      path: '/files'
+      fullPath: '/server/$uuid/files'
+      preLoaderRoute: typeof AppServerUuidFilesRouteImport
+      parentRoute: typeof AppServerUuidRoute
+    }
   }
 }
 
+interface AppServerUuidRouteChildren {
+  AppServerUuidFilesRoute: typeof AppServerUuidFilesRoute
+  AppServerUuidIndexRoute: typeof AppServerUuidIndexRoute
+}
+
+const AppServerUuidRouteChildren: AppServerUuidRouteChildren = {
+  AppServerUuidFilesRoute: AppServerUuidFilesRoute,
+  AppServerUuidIndexRoute: AppServerUuidIndexRoute,
+}
+
+const AppServerUuidRouteWithChildren = AppServerUuidRoute._addFileChildren(
+  AppServerUuidRouteChildren,
+)
+
 interface AppRouteChildren {
   AppIndexRoute: typeof AppIndexRoute
+  AppServerUuidRoute: typeof AppServerUuidRouteWithChildren
 }
 
 const AppRouteChildren: AppRouteChildren = {
   AppIndexRoute: AppIndexRoute,
+  AppServerUuidRoute: AppServerUuidRouteWithChildren,
 }
 
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)

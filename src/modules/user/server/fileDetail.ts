@@ -169,6 +169,63 @@ export function registerFileDetailRoutes(router: Router): void {
     },
   );
 
+  // Additive JSON content endpoint for the React file manager's inline
+  // editor. Mirrors the EJS editor guards: files over 1 MiB or with non-UTF-8
+  // content are reported instead of loaded (Monaco would freeze/corrupt them).
+  router.get(
+    '/server/:id/files/content',
+    isAuthenticatedForServer('id'),
+    requireSubUserPermission('files'),
+    async (req: Request, res: Response) => {
+      try {
+        const context = await loadAuthenticatedServerContext(req);
+        if (sendMissingServerContext(res, context)) {
+          return;
+        }
+        const { server } = context;
+
+        const filePath =
+          typeof req.query?.path === 'string' ? req.query.path : String(req.query?.path ?? '');
+        if (!filePath) {
+          res.status(400).json({ error: 'Missing path.' });
+          return;
+        }
+
+        const response = await daemonRequest<string>({
+          method: 'GET',
+          path: '/fs/file/content',
+          nodeAddress: server.node.address,
+          nodePort: server.node.port,
+          nodeKey: server.node.key,
+          params: { id: server.UUID, path: filePath },
+        });
+
+        const raw = response.data ?? '';
+        const bytes = Buffer.byteLength(raw, 'utf8');
+        const tooLarge = bytes > 1024 * 1024;
+        // A UTF-8 round-trip that yields the replacement character means the
+        // content is binary/non-UTF-8 — never load it into the editor.
+        const invalidUtf8 = Buffer.from(raw, 'utf8').toString('utf8').includes('\uFFFD');
+
+        res.json({
+          success: true,
+          name: filePath.split('/').pop() || filePath,
+          path: filePath,
+          extension: filePath.split('.').pop()?.toLowerCase() || '',
+          content: tooLarge || invalidUtf8 ? '' : raw,
+          tooLarge,
+          invalidUtf8,
+          size: bytes,
+        });
+        return;
+      } catch (error) {
+        logger.error('Error fetching file content:', error);
+        res.status(500).json({ error: 'Failed to fetch file content.' });
+        return;
+      }
+    },
+  );
+
   router.post(
     '/server/:id/feature/eula',
     isAuthenticatedForServer('id'),

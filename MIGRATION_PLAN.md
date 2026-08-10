@@ -517,7 +517,46 @@ endpoints with CSRF headers. Shell nav is server-driven (uiComponentStore).
 - Auth-page tests (login/2FA) needed explicit 5s waits: the initial router
   load can exceed the 1000ms default under full-suite CPU contention.
 
+**Phase 1.3 — server pages (console + files), the real-time surfaces**
+
+- Additive `GET /api/server/:id/context` serializes the server shell data for
+  React: identity, primary address, limits, image features (post-EULA),
+  install state, initial daemon status, the addon-driven server menu (with
+  admin/owner/feature/permission filtering and `:uuid`/`:id` placeholders
+  resolved server-side), and subuser permissions for action gating.
+- Additive `GET /server/:id/files/content` (1 MiB + UTF-8 guards) backs the
+  React file editor; the editor uses a textarea (Monaco stays on the EJS
+  editor page — noted future enhancement).
+- Realtime: `web/src/lib/realtime.ts` is a protocol-compatible TS client for
+  `/ws/realtime` (sync cursor, ping/pong, watch/unwatch, reconnect
+  resubscribe) that routes events into the TanStack Query cache
+  (`['server-live', uuid]`) — the console's status/stats/queue render from it
+  with no polling. Console terminal output streams via the existing
+  `/console/:id` WS proxy (short-lived ws-token).
+- Console page: xterm.js (npm `xterm` + fit + web-links addons) with log
+  history, prompt masking, two-tab input ownership (Web Locks, released on
+  unmount), reconnect/backoff, power controls (start/restart/stop + capacity
+  queue + cancel), mandatory EULA gate, install/suspended/daemon-offline
+  banners, and SVG sparkline usage cards.
+- File manager: list/breadcrumb/filter/selection, create/delete/move/
+  duplicate/archive/unzip/pull, XHR upload with progress, image preview, and
+  the inline editor — all reusing the existing `/server/:id/files/*` REST
+  endpoints with CSRF headers, gated by subuser permissions.
+- URL seam: `/server/:uuid` and `/server/:uuid/files` now render in TanStack;
+  every other `/server/*` path (settings, databases, schedules, backups,
+  subusers, logs, worlds, players, files/edit, ws-token, file APIs) still
+  routes to Express (proxy.config.ts + vite plugin + server/index.mjs).
+  `/console` WS is forwarded in dev and prod.
+
+**Known deviations / notes**
+
+- Command autocomplete (`mc-autocomplete`, feature-gated) is not ported;
+  the input remains plain. Monaco editor is not bundled (textarea editor
+  instead). Chart.js sparklines replaced with lightweight SVG sparklines.
+- `useServerStatusSnapshot` (REST `/status` poll) was removed as dead code;
+  the realtime bus owns live state, matching the EJS manage page.
+
 ---
 
-*Phases 1.1–1.2 complete. Next: Phase 1.3 server pages (console, files) —
-the first real-time surfaces.*
+*Phases 1.1–1.3 complete. Next: Phase 1.4 remaining server tabs (settings,
+databases, schedules, backups, subusers) and admin pages.*
