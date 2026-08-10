@@ -51,17 +51,28 @@ export const API_PROXY_PATHS = ['/api', '/ws', '/console', '/addon-assets', '/av
 
 /**
  * True when a GET under `/server/` is served by the TanStack app instead of
- * Express. Migrated server pages: `/server/:uuid` (console) and
- * `/server/:uuid/files` (file manager, any query string). Every other
- * `/server/:uuid/*` path — settings, databases, schedules, backups, subusers,
- * logs, worlds, players, files/edit, the WS-token endpoint, and the file APIs
- * — still belongs to Express. Kept in sync with web/server/index.mjs.
+ * Express. Migrated server pages: `/server/:uuid` (console), `/files`, and the
+ * seven tab pages below (any query string). Every other `/server/:uuid/*` path
+ * — settings/databases/… sub-APIs, worlds, players, files/edit, the WS-token
+ * endpoint, and the file APIs — still belongs to Express. Kept in sync with
+ * web/server/index.mjs.
  */
+const MIGRATED_SERVER_TABS = new Set([
+  'files',
+  'settings',
+  'startup',
+  'logs',
+  'databases',
+  'schedules',
+  'backups',
+  'subusers',
+])
+
 export function isMigratedServerPage(url: string): boolean {
   if (!url.startsWith('/server/')) return false
   const rest = url.slice('/server/'.length).split('?')[0]
   const afterUuid = rest.split('/').slice(1).join('/')
-  return afterUuid === '' || afterUuid === 'files'
+  return afterUuid === '' || MIGRATED_SERVER_TABS.has(afterUuid)
 }
 
 /**

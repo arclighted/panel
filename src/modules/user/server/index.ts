@@ -12,6 +12,7 @@ import { registerWorldsRoutes } from './worlds';
 import { registerSubUserRoutes } from './subusers';
 import { registerScheduleRoutes } from './schedules';
 import { registerDatabaseRoutes } from './databases';
+import { registerServerTabsRoutes } from './tabs';
 
 const dashboardModule: Module = {
   info: {
@@ -38,6 +39,7 @@ const dashboardModule: Module = {
     registerSubUserRoutes(router);
     registerScheduleRoutes(router);
     registerDatabaseRoutes(router);
+    registerServerTabsRoutes(router);
 
     return router;
   },

@@ -546,7 +546,7 @@ function ServerNav({
                 : 'border-transparent text-muted-foreground hover:bg-accent/50 hover:text-foreground',
             )
             const isConsole = item.url === `/server/${serverId}`
-            const isFiles = item.url === `/server/${serverId}/files`
+            const migratedTab = MIGRATED_TAB_ROUTES[item.url]
             if (isConsole) {
               return (
                 <Link
@@ -560,11 +560,11 @@ function ServerNav({
                 </Link>
               )
             }
-            if (isFiles) {
+            if (migratedTab) {
               return (
                 <Link
                   key={item.id}
-                  to="/server/$uuid/files"
+                  to={migratedTab}
                   params={{ uuid: serverId }}
                   className={classes}
                 >
@@ -584,6 +584,18 @@ function ServerNav({
       ))}
     </nav>
   )
+}
+
+/** Tabs now served by the TanStack app — SPA Links instead of anchor reloads. */
+const MIGRATED_TAB_ROUTES: Record<string, string> = {
+  '/files': '/server/$uuid/files',
+  '/settings': '/server/$uuid/settings',
+  '/startup': '/server/$uuid/startup',
+  '/logs': '/server/$uuid/logs',
+  '/databases': '/server/$uuid/databases',
+  '/schedules': '/server/$uuid/schedules',
+  '/backups': '/server/$uuid/backups',
+  '/subusers': '/server/$uuid/subusers',
 }
 
 /** Addon-supplied icons are raw SVG strings (same trust model as EJS). */

@@ -18,7 +18,14 @@ import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AppIndexRouteImport } from './routes/_app/index'
 import { Route as AppServerUuidRouteImport } from './routes/_app/server/$uuid'
 import { Route as AppServerUuidIndexRouteImport } from './routes/_app/server/$uuid/index'
+import { Route as AppServerUuidBackupsRouteImport } from './routes/_app/server/$uuid/backups'
+import { Route as AppServerUuidDatabasesRouteImport } from './routes/_app/server/$uuid/databases'
 import { Route as AppServerUuidFilesRouteImport } from './routes/_app/server/$uuid/files'
+import { Route as AppServerUuidLogsRouteImport } from './routes/_app/server/$uuid/logs'
+import { Route as AppServerUuidSchedulesRouteImport } from './routes/_app/server/$uuid/schedules'
+import { Route as AppServerUuidSettingsRouteImport } from './routes/_app/server/$uuid/settings'
+import { Route as AppServerUuidStartupRouteImport } from './routes/_app/server/$uuid/startup'
+import { Route as AppServerUuidSubusersRouteImport } from './routes/_app/server/$uuid/subusers'
 
 const R2faRoute = R2faRouteImport.update({
   id: '/2fa',
@@ -64,9 +71,44 @@ const AppServerUuidIndexRoute = AppServerUuidIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AppServerUuidRoute,
 } as any)
+const AppServerUuidBackupsRoute = AppServerUuidBackupsRouteImport.update({
+  id: '/backups',
+  path: '/backups',
+  getParentRoute: () => AppServerUuidRoute,
+} as any)
+const AppServerUuidDatabasesRoute = AppServerUuidDatabasesRouteImport.update({
+  id: '/databases',
+  path: '/databases',
+  getParentRoute: () => AppServerUuidRoute,
+} as any)
 const AppServerUuidFilesRoute = AppServerUuidFilesRouteImport.update({
   id: '/files',
   path: '/files',
+  getParentRoute: () => AppServerUuidRoute,
+} as any)
+const AppServerUuidLogsRoute = AppServerUuidLogsRouteImport.update({
+  id: '/logs',
+  path: '/logs',
+  getParentRoute: () => AppServerUuidRoute,
+} as any)
+const AppServerUuidSchedulesRoute = AppServerUuidSchedulesRouteImport.update({
+  id: '/schedules',
+  path: '/schedules',
+  getParentRoute: () => AppServerUuidRoute,
+} as any)
+const AppServerUuidSettingsRoute = AppServerUuidSettingsRouteImport.update({
+  id: '/settings',
+  path: '/settings',
+  getParentRoute: () => AppServerUuidRoute,
+} as any)
+const AppServerUuidStartupRoute = AppServerUuidStartupRouteImport.update({
+  id: '/startup',
+  path: '/startup',
+  getParentRoute: () => AppServerUuidRoute,
+} as any)
+const AppServerUuidSubusersRoute = AppServerUuidSubusersRouteImport.update({
+  id: '/subusers',
+  path: '/subusers',
   getParentRoute: () => AppServerUuidRoute,
 } as any)
 
@@ -78,7 +120,14 @@ export interface FileRoutesByFullPath {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/server/$uuid': typeof AppServerUuidRouteWithChildren
+  '/server/$uuid/backups': typeof AppServerUuidBackupsRoute
+  '/server/$uuid/databases': typeof AppServerUuidDatabasesRoute
   '/server/$uuid/files': typeof AppServerUuidFilesRoute
+  '/server/$uuid/logs': typeof AppServerUuidLogsRoute
+  '/server/$uuid/schedules': typeof AppServerUuidSchedulesRoute
+  '/server/$uuid/settings': typeof AppServerUuidSettingsRoute
+  '/server/$uuid/startup': typeof AppServerUuidStartupRoute
+  '/server/$uuid/subusers': typeof AppServerUuidSubusersRoute
   '/server/$uuid/': typeof AppServerUuidIndexRoute
 }
 export interface FileRoutesByTo {
@@ -88,7 +137,14 @@ export interface FileRoutesByTo {
   '/register': typeof RegisterRoute
   '/reset-password': typeof ResetPasswordRoute
   '/': typeof AppIndexRoute
+  '/server/$uuid/backups': typeof AppServerUuidBackupsRoute
+  '/server/$uuid/databases': typeof AppServerUuidDatabasesRoute
   '/server/$uuid/files': typeof AppServerUuidFilesRoute
+  '/server/$uuid/logs': typeof AppServerUuidLogsRoute
+  '/server/$uuid/schedules': typeof AppServerUuidSchedulesRoute
+  '/server/$uuid/settings': typeof AppServerUuidSettingsRoute
+  '/server/$uuid/startup': typeof AppServerUuidStartupRoute
+  '/server/$uuid/subusers': typeof AppServerUuidSubusersRoute
   '/server/$uuid': typeof AppServerUuidIndexRoute
 }
 export interface FileRoutesById {
@@ -101,7 +157,14 @@ export interface FileRoutesById {
   '/reset-password': typeof ResetPasswordRoute
   '/_app/': typeof AppIndexRoute
   '/_app/server/$uuid': typeof AppServerUuidRouteWithChildren
+  '/_app/server/$uuid/backups': typeof AppServerUuidBackupsRoute
+  '/_app/server/$uuid/databases': typeof AppServerUuidDatabasesRoute
   '/_app/server/$uuid/files': typeof AppServerUuidFilesRoute
+  '/_app/server/$uuid/logs': typeof AppServerUuidLogsRoute
+  '/_app/server/$uuid/schedules': typeof AppServerUuidSchedulesRoute
+  '/_app/server/$uuid/settings': typeof AppServerUuidSettingsRoute
+  '/_app/server/$uuid/startup': typeof AppServerUuidStartupRoute
+  '/_app/server/$uuid/subusers': typeof AppServerUuidSubusersRoute
   '/_app/server/$uuid/': typeof AppServerUuidIndexRoute
 }
 export interface FileRouteTypes {
@@ -114,7 +177,14 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/server/$uuid'
+    | '/server/$uuid/backups'
+    | '/server/$uuid/databases'
     | '/server/$uuid/files'
+    | '/server/$uuid/logs'
+    | '/server/$uuid/schedules'
+    | '/server/$uuid/settings'
+    | '/server/$uuid/startup'
+    | '/server/$uuid/subusers'
     | '/server/$uuid/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -124,7 +194,14 @@ export interface FileRouteTypes {
     | '/register'
     | '/reset-password'
     | '/'
+    | '/server/$uuid/backups'
+    | '/server/$uuid/databases'
     | '/server/$uuid/files'
+    | '/server/$uuid/logs'
+    | '/server/$uuid/schedules'
+    | '/server/$uuid/settings'
+    | '/server/$uuid/startup'
+    | '/server/$uuid/subusers'
     | '/server/$uuid'
   id:
     | '__root__'
@@ -136,7 +213,14 @@ export interface FileRouteTypes {
     | '/reset-password'
     | '/_app/'
     | '/_app/server/$uuid'
+    | '/_app/server/$uuid/backups'
+    | '/_app/server/$uuid/databases'
     | '/_app/server/$uuid/files'
+    | '/_app/server/$uuid/logs'
+    | '/_app/server/$uuid/schedules'
+    | '/_app/server/$uuid/settings'
+    | '/_app/server/$uuid/startup'
+    | '/_app/server/$uuid/subusers'
     | '/_app/server/$uuid/'
   fileRoutesById: FileRoutesById
 }
@@ -214,6 +298,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppServerUuidIndexRouteImport
       parentRoute: typeof AppServerUuidRoute
     }
+    '/_app/server/$uuid/backups': {
+      id: '/_app/server/$uuid/backups'
+      path: '/backups'
+      fullPath: '/server/$uuid/backups'
+      preLoaderRoute: typeof AppServerUuidBackupsRouteImport
+      parentRoute: typeof AppServerUuidRoute
+    }
+    '/_app/server/$uuid/databases': {
+      id: '/_app/server/$uuid/databases'
+      path: '/databases'
+      fullPath: '/server/$uuid/databases'
+      preLoaderRoute: typeof AppServerUuidDatabasesRouteImport
+      parentRoute: typeof AppServerUuidRoute
+    }
     '/_app/server/$uuid/files': {
       id: '/_app/server/$uuid/files'
       path: '/files'
@@ -221,16 +319,65 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppServerUuidFilesRouteImport
       parentRoute: typeof AppServerUuidRoute
     }
+    '/_app/server/$uuid/logs': {
+      id: '/_app/server/$uuid/logs'
+      path: '/logs'
+      fullPath: '/server/$uuid/logs'
+      preLoaderRoute: typeof AppServerUuidLogsRouteImport
+      parentRoute: typeof AppServerUuidRoute
+    }
+    '/_app/server/$uuid/schedules': {
+      id: '/_app/server/$uuid/schedules'
+      path: '/schedules'
+      fullPath: '/server/$uuid/schedules'
+      preLoaderRoute: typeof AppServerUuidSchedulesRouteImport
+      parentRoute: typeof AppServerUuidRoute
+    }
+    '/_app/server/$uuid/settings': {
+      id: '/_app/server/$uuid/settings'
+      path: '/settings'
+      fullPath: '/server/$uuid/settings'
+      preLoaderRoute: typeof AppServerUuidSettingsRouteImport
+      parentRoute: typeof AppServerUuidRoute
+    }
+    '/_app/server/$uuid/startup': {
+      id: '/_app/server/$uuid/startup'
+      path: '/startup'
+      fullPath: '/server/$uuid/startup'
+      preLoaderRoute: typeof AppServerUuidStartupRouteImport
+      parentRoute: typeof AppServerUuidRoute
+    }
+    '/_app/server/$uuid/subusers': {
+      id: '/_app/server/$uuid/subusers'
+      path: '/subusers'
+      fullPath: '/server/$uuid/subusers'
+      preLoaderRoute: typeof AppServerUuidSubusersRouteImport
+      parentRoute: typeof AppServerUuidRoute
+    }
   }
 }
 
 interface AppServerUuidRouteChildren {
+  AppServerUuidBackupsRoute: typeof AppServerUuidBackupsRoute
+  AppServerUuidDatabasesRoute: typeof AppServerUuidDatabasesRoute
   AppServerUuidFilesRoute: typeof AppServerUuidFilesRoute
+  AppServerUuidLogsRoute: typeof AppServerUuidLogsRoute
+  AppServerUuidSchedulesRoute: typeof AppServerUuidSchedulesRoute
+  AppServerUuidSettingsRoute: typeof AppServerUuidSettingsRoute
+  AppServerUuidStartupRoute: typeof AppServerUuidStartupRoute
+  AppServerUuidSubusersRoute: typeof AppServerUuidSubusersRoute
   AppServerUuidIndexRoute: typeof AppServerUuidIndexRoute
 }
 
 const AppServerUuidRouteChildren: AppServerUuidRouteChildren = {
+  AppServerUuidBackupsRoute: AppServerUuidBackupsRoute,
+  AppServerUuidDatabasesRoute: AppServerUuidDatabasesRoute,
   AppServerUuidFilesRoute: AppServerUuidFilesRoute,
+  AppServerUuidLogsRoute: AppServerUuidLogsRoute,
+  AppServerUuidSchedulesRoute: AppServerUuidSchedulesRoute,
+  AppServerUuidSettingsRoute: AppServerUuidSettingsRoute,
+  AppServerUuidStartupRoute: AppServerUuidStartupRoute,
+  AppServerUuidSubusersRoute: AppServerUuidSubusersRoute,
   AppServerUuidIndexRoute: AppServerUuidIndexRoute,
 }
 

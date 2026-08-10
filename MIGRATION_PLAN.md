@@ -555,8 +555,18 @@ endpoints with CSRF headers. Shell nav is server-driven (uiComponentStore).
   instead). Chart.js sparklines replaced with lightweight SVG sparklines.
 - `useServerStatusSnapshot` (REST `/status` poll) was removed as dead code;
   the realtime bus owns live state, matching the EJS manage page.
+- Backup/restore progress toasts (EJS `showProgressToast` job polling) are
+  replaced with simple success toasts + query invalidation; the persisted
+  progress-poll endpoints (`/backups/progress`, `/backups/restore/progress`)
+  remain available on Express if a richer progress UX is wanted later.
+- The subuser permission modal shows labels without the EJS `permMeta`
+  descriptions/icons; the label text is self-describing and the backend
+  enforces all permission checks regardless.
+- Schedule task add/remove posts immediately per task (the EJS batches
+  pending tasks and saves them together); end state is identical.
 
 ---
 
-*Phases 1.1–1.3 complete. Next: Phase 1.4 remaining server tabs (settings,
-databases, schedules, backups, subusers) and admin pages.*
+*Phases 1.1–1.4 complete — all server pages (console, files, settings,
+startup, logs, databases, schedules, backups, subusers) now render in
+TanStack Start. Next: admin pages.*

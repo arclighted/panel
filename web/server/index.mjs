@@ -45,16 +45,21 @@ const LEGACY_PAGE_PREFIXES = [
 
 const ALL_PROXY_PREFIXES = [...API_PREFIXES, ...STATIC_PREFIXES, ...LEGACY_PAGE_PREFIXES]
 
-// Migrated server pages served by the TanStack app: `/server/:uuid` (console)
-// and `/server/:uuid/files` (file manager). Everything else under `/server/`
-// (settings, databases, schedules, backups, subusers, logs, worlds, players,
-// files/edit, ws-token, file APIs) belongs to Express. Kept in sync with
-// web/proxy.config.ts isMigratedServerPage.
+// Migrated server pages served by the TanStack app: `/server/:uuid` (console),
+// `/server/:uuid/files` (file manager) and the seven tab pages. Everything
+// else under `/server/` (tab sub-APIs, worlds, players, files/edit, ws-token,
+// file APIs) belongs to Express. Kept in sync with web/proxy.config.ts
+// isMigratedServerPage.
+const MIGRATED_SERVER_TABS = new Set([
+  'files', 'settings', 'startup', 'logs',
+  'databases', 'schedules', 'backups', 'subusers',
+])
+
 function isMigratedServerPage(url) {
   if (!url.startsWith('/server/')) return false
   const rest = url.slice('/server/'.length).split('?')[0]
   const afterUuid = rest.split('/').slice(1).join('/')
-  return afterUuid === '' || afterUuid === 'files'
+  return afterUuid === '' || MIGRATED_SERVER_TABS.has(afterUuid)
 }
 
 function isProxyPath(url) {
