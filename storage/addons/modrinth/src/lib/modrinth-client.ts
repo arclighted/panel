@@ -48,7 +48,7 @@ export class ModrinthClient {
         'Accept': 'application/json',
       },
       timeout: this.config.requestTimeout,
-      validateStatus: (status) => status < 500,
+      validateStatus: (status: number) => status < 500,
     });
   }
 

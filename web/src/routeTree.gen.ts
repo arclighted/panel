@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as SplatRouteImport } from './routes/$'
 import { Route as R2faRouteImport } from './routes/2fa'
 import { Route as AppRouteImport } from './routes/_app'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
@@ -64,6 +65,11 @@ import { Route as AppAdminUsersEditIdRouteImport } from './routes/_app/admin/use
 import { Route as AppAdminUsersViewIdRouteImport } from './routes/_app/admin/users/view.$id'
 import { Route as AppServerUuidFilesEditSplatRouteImport } from './routes/_app/server/$uuid/files/edit.$'
 
+const SplatRoute = SplatRouteImport.update({
+  id: '/$',
+  path: '/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const R2faRoute = R2faRouteImport.update({
   id: '/2fa',
   path: '/2fa',
@@ -336,6 +342,7 @@ const AppServerUuidFilesEditSplatRoute =
   } as any)
 
 export interface FileRoutesByFullPath {
+  '/$': typeof SplatRoute
   '/2fa': typeof R2faRoute
   '/': typeof AppIndexRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -391,6 +398,7 @@ export interface FileRoutesByFullPath {
   '/server/$uuid/files/edit/$': typeof AppServerUuidFilesEditSplatRoute
 }
 export interface FileRoutesByTo {
+  '/$': typeof SplatRoute
   '/2fa': typeof R2faRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/login': typeof LoginRoute
@@ -445,6 +453,7 @@ export interface FileRoutesByTo {
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
+  '/$': typeof SplatRoute
   '/2fa': typeof R2faRoute
   '/_app': typeof AppRouteWithChildren
   '/forgot-password': typeof ForgotPasswordRoute
@@ -503,6 +512,7 @@ export interface FileRoutesById {
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
+    | '/$'
     | '/2fa'
     | '/'
     | '/forgot-password'
@@ -558,6 +568,7 @@ export interface FileRouteTypes {
     | '/server/$uuid/files/edit/$'
   fileRoutesByTo: FileRoutesByTo
   to:
+    | '/$'
     | '/2fa'
     | '/forgot-password'
     | '/login'
@@ -611,6 +622,7 @@ export interface FileRouteTypes {
     | '/server/$uuid/files/edit/$'
   id:
     | '__root__'
+    | '/$'
     | '/2fa'
     | '/_app'
     | '/forgot-password'
@@ -668,6 +680,7 @@ export interface FileRouteTypes {
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
+  SplatRoute: typeof SplatRoute
   R2faRoute: typeof R2faRoute
   AppRoute: typeof AppRouteWithChildren
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -678,6 +691,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/$': {
+      id: '/$'
+      path: '/$'
+      fullPath: '/$'
+      preLoaderRoute: typeof SplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/2fa': {
       id: '/2fa'
       path: '/2fa'
@@ -1282,6 +1302,7 @@ const AppRouteChildren: AppRouteChildren = {
 const AppRouteWithChildren = AppRoute._addFileChildren(AppRouteChildren)
 
 const rootRouteChildren: RootRouteChildren = {
+  SplatRoute: SplatRoute,
   R2faRoute: R2faRoute,
   AppRoute: AppRouteWithChildren,
   ForgotPasswordRoute: ForgotPasswordRoute,

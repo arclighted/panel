@@ -2,6 +2,7 @@ import { defineConfig } from 'vite';
 import { devtools } from '@tanstack/devtools-vite';
 import type { Plugin } from 'vite';
 import http from 'node:http';
+import { fileURLToPath } from 'node:url';
 
 import { tanstackStart } from '@tanstack/react-start/plugin/vite';
 
@@ -68,7 +69,22 @@ function proxyToExpress(): Plugin {
 }
 
 const config = defineConfig({
-  resolve: { tsconfigPaths: true },
+  resolve: {
+    tsconfigPaths: true,
+    alias: [
+      // base-ui imports use-sync-external-store/shim and
+      // use-sync-external-store/shim/with-selector (CJS with a runtime
+      // require("react")). Alias both to the shared ESM shim so the CJS shim
+      // never reaches the bundle (it throws in browser ESM when react is
+      // externalized in the production build).
+      {
+        find: /^use-sync-external-store\/shim(?:\/with-selector)?$/,
+        replacement: fileURLToPath(
+          new URL("../packages/ui/src/vendor/use-sync-external-store.ts", import.meta.url),
+        ),
+      },
+    ],
+  },
   plugins: [
     proxyToExpress(),
     devtools(),
@@ -92,7 +108,17 @@ const config = defineConfig({
   // documented dev-only caveat; single-instance is guaranteed in production.
   build: {
     rollupOptions: {
-      external: ['react', 'react-dom', 'react-dom/client', 'react/jsx-runtime'],
+      external: [
+        'react',
+        'react-dom',
+        'react-dom/client',
+        'react/jsx-runtime',
+        // react/jsx-dev-runtime MUST be external too: the plugin chain pulls
+        // the CJS jsx-dev-runtime entry into the client graph, whose runtime
+        // require("react") becomes a rolldown shim that throws in browser ESM.
+        // The import map serves jsxDEV from /vendor/react.mjs.
+        'react/jsx-dev-runtime',
+      ],
     },
   },
 });

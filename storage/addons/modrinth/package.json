@@ -6,13 +6,38 @@
   "main": "dist/index.js",
   "router": "/modrinth",
   "enabled": true,
+  "engines": {
+    "panel": ">=2.0.0"
+  },
   "scripts": {
     "build": "tsc",
+    "build:ui": "node scripts/build-ui.mjs",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "watch": "tsc -w"
   },
-
+  "ui": {
+    "bundles": ["/addon-assets/modrinth/ui/bundle.mjs"],
+    "css": ["/addon-assets/modrinth/ui/styles.css"],
+    "slots": {
+      "server:console:toolbar": ["ModrinthConsoleToolbar"]
+    },
+    "routes": [
+      { "path": "/modrinth", "component": "BrowsePage" },
+      { "path": "/modrinth/admin/config", "component": "AdminConfigPage" }
+    ],
+    "adminSidebar": [
+      {
+        "id": "modrinth-admin-config",
+        "label": "Modrinth Admin",
+        "icon": "package",
+        "url": "/modrinth/admin/config",
+        "section": "system"
+      }
+    ],
+    "serverMenu": [],
+    "apiPaths": ["/modrinth/api/"]
+  },
   "migrations": [
     {
       "name": "create_modrinth_cache",
@@ -50,5 +75,9 @@
       "name": "create_modrinth_search_history",
       "sql": "CREATE TABLE IF NOT EXISTS ModrinthSearchHistory (id INTEGER PRIMARY KEY AUTOINCREMENT, userId INTEGER NOT NULL, query TEXT NOT NULL, type TEXT, searchedAt DATETIME DEFAULT CURRENT_TIMESTAMP)"
     }
-  ]
+  ],
+  "dependencies": {
+    "axios": "^1.7.0",
+    "adm-zip": "^0.5.10"
+  }
 }

@@ -22,10 +22,12 @@ export const Route = createRootRoute({
 const VENDOR_IMPORT_MAP = `{"imports":{
   "react": "/vendor/react.mjs",
   "react/jsx-runtime": "/vendor/react.mjs",
+  "react/jsx-dev-runtime": "/vendor/react.mjs",
   "react-dom": "/vendor/react.mjs",
   "react-dom/client": "/vendor/react.mjs",
   "@tanstack/react-router": "/vendor/react-router.mjs",
-  "@tanstack/react-query": "/vendor/react-query.mjs"
+  "@tanstack/react-query": "/vendor/react-query.mjs",
+  "@arclight/ui": "/arclight-ui/index.js"
 }}`
 
 function RootDocument({ children }: { children: ReactNode }) {

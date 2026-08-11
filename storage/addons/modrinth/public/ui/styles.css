@@ -1,0 +1,14 @@
+/* Modrinth store — v3 UI stylesheet.
+ *
+ * The panel already provides the Tailwind preflight + theme variables; this
+ * file only adds addon-specific layout. Use --theme-* (or shadcn's --background
+ * / --foreground / --muted-foreground / --border) so the addon follows the
+ * panel's light/dark themes.
+ */
+
+[data-addon-modrinth] .line-clamp-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}

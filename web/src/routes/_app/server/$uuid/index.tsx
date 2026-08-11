@@ -1,6 +1,7 @@
 import { createFileRoute } from '@tanstack/react-router'
 import { useEffect, useRef } from 'react'
 
+import { AddonSlot } from '@/components/addon-v3/addon-slot'
 import { ServerAddressCard, Sparkline } from '@/components/server/server-shell'
 import { TerminalConsole, type TerminalHandle } from '@/components/server/terminal'
 import { useServerContext, formatRam } from '@/lib/server'
@@ -47,7 +48,11 @@ function ConsolePage() {
   const diskText = stats?.disk?.percentage != null ? `${Math.round(stats.disk.percentage)}%` : '—'
 
   return (
-    <div className="flex flex-col gap-4 lg:flex-row">
+    <div className="flex flex-col gap-4">
+      {/* Addon slot: console toolbar (e.g. modrinth quick-install). */}
+      <AddonSlot slot="server:console:toolbar" uuid={uuid} server={server} online={online} />
+
+      <div className="flex flex-col gap-4 lg:flex-row">
       {/* Console */}
       <div className="min-w-0 flex-1 overflow-hidden rounded-xl border bg-card lg:w-2/3">
         <TerminalConsole
@@ -97,6 +102,7 @@ function ConsolePage() {
             className="text-muted-foreground/50"
           />
         </UsageCard>
+      </div>
       </div>
     </div>
   )
