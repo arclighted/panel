@@ -1,15 +1,39 @@
 {
   "name": "Arclight Cloud",
-  "version": "2.0.0",
+  "version": "3.0.0",
   "description": "Arclight Cloud integration for Arclight - cloud backup settings",
   "author": "Arclight",
   "main": "dist/index.js",
   "router": "/arclight-cloud",
   "enabled": true,
+  "engines": {
+    "panel": ">=2.0.0"
+  },
   "scripts": {
     "build": "tsc",
+    "build:ui": "node scripts/build-ui.mjs",
     "clean": "rm -rf dist",
     "prebuild": "npm run clean",
     "watch": "tsc -w"
+  },
+  "ui": {
+    "bundles": [
+      "/addon-assets/arclight-cloud/ui/bundle.mjs"
+    ],
+    "css": [
+      "/addon-assets/arclight-cloud/ui/styles.css"
+    ],
+    "slots": {},
+    "routes": [
+      {
+        "path": "/arclight-cloud/settings",
+        "component": "SettingsPage"
+      }
+    ],
+    "adminSidebar": [],
+    "serverMenu": [],
+    "apiPaths": [
+      "/arclight-cloud/api/"
+    ]
   }
 }

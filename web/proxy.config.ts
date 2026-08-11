@@ -55,8 +55,22 @@ export const STATIC_PROXY_PATHS = [
  *
  * `/console` is the panel's WebSocket proxy for container terminal output
  * (browser → panel → daemon). It needs ws: true like `/ws`.
+ *
+ * Addon v3 API prefixes (the addon manifest's `ui.apiPaths`) must be listed
+ * here so addon React UIs can call their own Express routers — the Nitro splat
+ * route owns every other path. Kept in sync with web/server/index.mjs.
  */
-export const API_PROXY_PATHS = ['/api', '/ws', '/console', '/addon-assets', '/avatar', '/admin/images/export'] as const
+export const API_PROXY_PATHS = [
+  '/api',
+  '/ws',
+  '/console',
+  '/addon-assets',
+  '/avatar',
+  '/admin/images/export',
+  // Addon v3 apiPaths:
+  '/arclight-cloud/api',
+  '/modrinth/api',
+] as const
 
 /**
  * True when a GET under `/server/` is served by the TanStack app instead of

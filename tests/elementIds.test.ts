@@ -30,7 +30,9 @@ function allSourceFiles(): string[] {
   if (existsSync(addonViews)) {
     for (const addon of readdirSync(addonViews, { withFileTypes: true })) {
       if (!addon.isDirectory()) {continue;}
-      walk(join(addonViews, addon.name, 'views'), files, skip);
+      // Addons that have fully migrated to v3 React UI have no views/ dir.
+      const viewsDir = join(addonViews, addon.name, 'views');
+      if (existsSync(viewsDir)) {walk(viewsDir, files, skip);}
     }
   }
   return files;

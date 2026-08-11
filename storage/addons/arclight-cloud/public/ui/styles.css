@@ -1,0 +1,12 @@
+/* Arclight Cloud — v3 UI stylesheet.
+ *
+ * The panel already provides the Tailwind preflight + theme variables; this
+ * file only adds addon-specific layout. Use --theme-* (or shadcn's
+ * --background / --foreground / --muted-foreground / --border) so the addon
+ * follows the panel's light/dark themes.
+ */
+
+[data-addon-arclight-cloud] input[type='checkbox']:focus-visible {
+  outline: 2px solid var(--theme-accent, #3b82f6);
+  outline-offset: 2px;
+}

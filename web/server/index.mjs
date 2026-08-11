@@ -28,7 +28,17 @@ const APP_HOST = process.env.APP_INTERNAL_HOST ?? '127.0.0.1'
 
 // ── Proxy path prefixes (must match proxy.config.ts) ───────────────────────
 
-const API_PREFIXES = ['/api', '/ws', '/console', '/addon-assets', '/avatar', '/admin/images/export']
+const API_PREFIXES = [
+  '/api',
+  '/ws',
+  '/console',
+  '/addon-assets',
+  '/avatar',
+  '/admin/images/export',
+  // Addon v3 apiPaths (kept in sync with web/proxy.config.ts):
+  '/arclight-cloud/api',
+  '/modrinth/api',
+]
 
 const STATIC_PREFIXES = [
   '/favicon.ico', '/javascript', '/js', '/fonts', '/styles',

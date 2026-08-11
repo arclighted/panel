@@ -6,6 +6,7 @@ import { Toaster } from 'sonner'
 
 import appCss from '../styles.css?url'
 import { queryClient } from '../lib/query-client'
+import { CsrfMeta } from '../components/csrf-meta'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -48,6 +49,7 @@ function RootDocument({ children }: { children: ReactNode }) {
       </head>
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
         <QueryClientProvider client={queryClient}>
+          <CsrfMeta />
           {children}
           <Toaster richColors position="bottom-right" />
         </QueryClientProvider>
