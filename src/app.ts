@@ -42,7 +42,6 @@ import {
 } from './handlers/errorPages';
 
 import { getConfig } from './config';
-import { installRenderResolver } from './handlers/renderResolver';
 import { validationErrorBoundary } from './utils/validation';
 
 loadEnv();
@@ -135,17 +134,10 @@ app.use(
   express.static(path.join(__dirname, '../node_modules', 'chart.js/dist')),
 );
 
-// Load views
-const viewsPath = path.join(__dirname, '../views');
-app.set('views', viewsPath);
-app.set('view engine', 'ejs');
-
-// The global ejs.renderFile monkey-patch used to live here, falling back to
-// addon views for any missing template. It has been replaced by the explicit
-// addon view resolver (src/handlers/addonViewResolver.ts), which validates
-// addon slugs and keeps every resolved path inside the addon's views dir.
-
-const addonViewsDir = path.join(__dirname, '../../storage/addons');
+// The panel UI is a TanStack (React) app; Express no longer renders EJS views.
+// Error pages are self-contained HTML (see handlers/errorPages.ts) and addon
+// views resolve through the explicit addon view resolver
+// (src/handlers/addonViewResolver.ts) without a global views directory.
 
 // Load compression
 app.use(compression());
@@ -417,15 +409,6 @@ app.use((_req, res, next) => {
 
   next();
 });
-
-// Explicit primary/addon view resolver — replaces the old global EJS
-// monkey-patch and the inline res.render override (see renderResolver.ts).
-app.use(
-  installRenderResolver({
-    viewsPath,
-    addonViewsDir,
-  }),
-);
 
 // Catch errors from global middleware registered before modules.
 app.use(errorPageHandler);

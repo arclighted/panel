@@ -25,7 +25,7 @@ vi.mock('../src/handlers/logger', () => ({
   default: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), success: vi.fn() },
 }));
 
-import activityModule from '../src/modules/admin/activity';
+import adminContextModule from '../src/modules/admin/context';
 import prisma from '../src/db';
 
 function makeSession(id: number) {
@@ -102,28 +102,15 @@ describe('admin activity module', () => {
 
   const buildApp = () => {
     const app = express();
-    app.set('views', 'views');
-    app.set('view engine', 'ejs');
     app.use(express.json());
     app.use((req, res, next) => {
       (req as any).session = sessionUser ? { user: sessionUser } : {};
       (req as any).translations = {};
       (req as any).lang = 'en';
-      (req as any).originalUrl = '/admin/activity';
-      res.locals.nonce = 'test-nonce';
-      res.locals.csrfToken = 'test-csrf';
-      res.locals.icon = (name: string, opts?: Record<string, unknown>) =>
-        `<svg data-icon="${name}" ${opts?.class ? `class="${opts.class}"` : ''}></svg>`;
-      res.locals.adminMenuItems = [];
-      res.locals.adminSidebarGroups = [];
-      res.locals.regularMenuItems = [];
-      res.locals.name = 'Arclight';
-      res.locals.arclightVersion = 'test';
-      res.locals.arclightCodename = 'test';
-      res.locals.isMobileViewport = false;
+      (req as any).originalUrl = '/api/admin/page/activity';
       next();
     });
-    app.use('/', activityModule.router());
+    app.use('/', adminContextModule.router());
     return app;
   };
 
@@ -166,25 +153,30 @@ describe('admin activity module', () => {
     app = buildApp();
   });
 
-  it('renders the activity page for an authenticated admin', async () => {
-    const res = await request('/admin/activity');
+  it('serves activity page data for an authenticated admin', async () => {
+    const res = await request('/api/admin/page/activity');
     expect(res.status).toBe(200);
-    const body = await res.text();
-    expect(body).toContain('Activity Log');
-    expect(body).toContain('Test Node');
+    const body = (await res.json()) as {
+      success: boolean;
+      page: string;
+      data: { logs: unknown[]; servers: { UUID: string; name: string }[]; total: number };
+    };
+    expect(body.success).toBe(true);
+    expect(body.page).toBe('activity');
+    expect(body.data.servers).toEqual([{ UUID: 'abc-123', name: 'Test Node' }]);
   });
 
   it('redirects unauthenticated users to login', async () => {
     sessionUser = undefined;
     app = buildApp();
-    const res = await request('/admin/activity');
+    const res = await request('/api/admin/page/activity');
     expect(res.status).toBe(302);
     expect(res.headers.get('location')).toContain('/login');
   });
 
   it('builds a date-range filter from from/to params', async () => {
     prisma.activityLog.count.mockResolvedValue(0);
-    const res = await request('/admin/activity?from=2026-08-01&to=2026-08-07');
+    const res = await request('/api/admin/page/activity?from=2026-08-01&to=2026-08-07');
     expect(res.status).toBe(200);
     const call = prisma.activityLog.findMany.mock.calls[0][0] as {
       where: Record<string, unknown>;
@@ -196,7 +188,7 @@ describe('admin activity module', () => {
   });
 
   it('passes server and actor filters through to the query', async () => {
-    const res = await request('/admin/activity?server=abc-123&actor=bob');
+    const res = await request('/api/admin/page/activity?server=abc-123&actor=bob');
     expect(res.status).toBe(200);
     const call = prisma.activityLog.findMany.mock.calls[0][0] as {
       where: Record<string, unknown>;
