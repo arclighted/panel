@@ -43,8 +43,10 @@ const STATIC_PREFIXES = [
 ]
 
 const LEGACY_PAGE_PREFIXES = [
-  '/login', '/register', '/forgot-password', '/reset-password',
-  '/2fa', '/logout', '/user/server',
+  // Kept in sync with proxy.config.ts: only paths Express still renders as
+  // full EJS pages (logout redirect + legacy server management). Auth pages
+  // (login/register/2fa/…) are TanStack routes and must NOT be proxied.
+  '/logout', '/user/server',
 ]
 
 const ALL_PROXY_PREFIXES = [...API_PREFIXES, ...STATIC_PREFIXES, ...LEGACY_PAGE_PREFIXES]
