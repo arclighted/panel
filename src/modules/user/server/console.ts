@@ -394,7 +394,6 @@ export function registerConsoleRoutes(router: Router): void {
     isAuthenticatedForServer('id'),
     requireSubUserPermission('console'),
     async (req: Request, res: Response): Promise<void> => {
-      const errorMessage: ErrorMessage = {};
       const userId = req.session?.user?.id;
       const serverId = req.params?.id;
       const powerAction = req.params?.poweraction;
@@ -402,8 +401,8 @@ export function registerConsoleRoutes(router: Router): void {
       try {
         const user = await prisma.users.findUnique({ where: { id: userId } });
         if (!user) {
-          errorMessage.message = 'User not found.';
-          return res.render('user/account', { errorMessage, user, req });
+          res.status(401).json({ error: 'User not found.' });
+          return;
         }
 
         const server = await prisma.server.findUnique({
@@ -412,13 +411,8 @@ export function registerConsoleRoutes(router: Router): void {
         });
 
         if (!server) {
-          errorMessage.message = 'Server not found.';
-          return res.render('user/server/manage', {
-            errorMessage,
-            features: [],
-            user,
-            req,
-          });
+          res.status(404).json({ error: 'Server not found.' });
+          return;
         }
 
         if (server.Suspended && (powerAction === 'start' || powerAction === 'restart')) {

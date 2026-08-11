@@ -713,10 +713,15 @@ as the canonical v3 example. This validates the full contract end-to-end: addon
 build, bundle externalization, slot rendering, route registration, and the store
 review checklist.
 
-After Phase 5b:
-- Delete `views/` (the EJS surface is fully replaced).
-- Retire/update the source-inspection tests that assert EJS strings.
-- Phase 5c: parachute + arclight-cloud migration.
+After Phase 5b — **DONE (commit a0f91029)**:
+- `views/` deleted (81 EJS templates). Express no longer sets a view engine or
+  views directory; error pages are self-contained inline HTML (errorPages.ts).
+- `src/handlers/renderResolver.ts` + `tests/renderResolver.test.ts` removed.
+- Source-inspection tests updated to the React surface (responsiveA11y,
+  elementIds, iconVocabulary) or to the live JSON endpoint (activityLogger).
+- 79 legacy `res.render` call sites remain in Express modules as unreachable
+  dead code behind the proxy (only /logout + /user/server are proxied).
+- Remaining: Phase 5c (parachute + arclight-cloud v3 migration).
 
 ### 13.5 Known deviations / notes
 

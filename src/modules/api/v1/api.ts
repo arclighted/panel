@@ -29,7 +29,6 @@ import {
 } from '../../../handlers/utils/core/mysqlProvisioner';
 import { logActivity } from '../../../handlers/utils/activity/activityLogger';
 import { validateVariableRules } from '../../user/server/startup';
-import { apiEndpoints } from './apiDocs';
 import { nextRunFromCron, isValidCron } from '../../../utils/cron';
 
 const POWER_ACTIONS = ['start', 'stop', 'restart', 'kill'] as const;
@@ -159,22 +158,10 @@ const coreModule: Module = {
       });
     });
 
-    router.get('/api', async (req: Request, res: Response) => {
-      try {
-        const settings = await prisma.settings.findFirst();
-        res.render('api/documentation', {
-          req,
-          user: req.session.user,
-          settings,
-          apiEndpoints,
-        });
-      } catch (error) {
-        logger.error('Error rendering API documentation:', error);
-        res.status(500).render('errors/error', {
-          error: 'Failed to load API documentation',
-          req
-        });
-      }
+    router.get('/api', (req: Request, res: Response) => {
+      // The EJS documentation view was removed in the React cutover; the
+      // TanStack app owns API docs at /admin/api/docs.
+      res.redirect('/admin/api/docs');
     });
 
     router.get(
