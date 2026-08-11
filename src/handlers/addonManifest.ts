@@ -141,12 +141,15 @@ export const addonManifestSchema = z.object({
     )
     .optional(),
   dependencies: z
-    .array(
-      z.object({
-        identifier: z.string(),
-        range: z.string().optional(),
-      }),
-    )
+    .union([
+      z.array(
+        z.object({
+          identifier: z.string(),
+          range: z.string().optional(),
+        }),
+      ),
+      z.record(z.string(), z.string()).transform(() => []),
+    ])
     .optional(),
   migrations: z
     .array(

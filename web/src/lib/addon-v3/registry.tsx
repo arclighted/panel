@@ -1,4 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
+import {
+  createContext,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+  type ReactNode,
+} from 'react'
 
 import { useQuery } from '@tanstack/react-query'
 
@@ -44,6 +51,8 @@ export interface AddonRegistryState {
   failed: string[]
 }
 
+const AddonRegistryContext = createContext<AddonRegistryState | null>(null)
+
 /** Fetch the enabled addon v3 UI manifests. */
 async function fetchAddonUIManifests(): Promise<AddonUIManifest[]> {
   const res = await fetch('/api/addons/ui', { credentials: 'same-origin' })
@@ -83,10 +92,11 @@ async function loadBundle(url: string): Promise<AddonBundleModule> {
  * Loads every enabled addon's bundles + CSS once the manifests arrive. Idempotent
  * across re-renders: bundles are only imported once per unique URL.
  */
-export function useAddonRegistry(): AddonRegistryState {
+function useAddonRegistryState(): AddonRegistryState {
   const { data: manifests = EMPTY_MANIFESTS } = useQuery({
     queryKey: ['addon-ui-manifests'],
     queryFn: fetchAddonUIManifests,
+    enabled: typeof window !== 'undefined',
     staleTime: 5 * 60_000,
     // No silent retry: a missing /api/addons/ui (e.g. no addons installed, or
     // a stub in tests) should resolve instantly, not burn the default 3 retries.
@@ -146,6 +156,21 @@ export function useAddonRegistry(): AddonRegistryState {
   }, [manifests, bundles])
 
   return { manifests, bundles, settled, failed }
+}
+
+export function AddonRegistryProvider({ children }: { children: ReactNode }) {
+  const registry = useAddonRegistryState()
+  return (
+    <AddonRegistryContext.Provider value={registry}>
+      {children}
+    </AddonRegistryContext.Provider>
+  )
+}
+
+export function useAddonRegistry(): AddonRegistryState {
+  const registry = useContext(AddonRegistryContext)
+  if (!registry) throw new Error('useAddonRegistry must be used inside AddonRegistryProvider')
+  return registry
 }
 
 /**

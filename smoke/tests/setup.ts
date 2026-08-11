@@ -2,7 +2,7 @@ import { test as setup, expect } from '@playwright/test';
 import fs from 'fs';
 
 setup('authenticate admin user', async ({ page }) => {
-  await page.goto('/login');
+  await page.goto('/login', { waitUntil: 'networkidle' });
   await expect(page.locator('input[name="identifier"]')).toBeVisible();
   await page.fill('input[name="identifier"]', process.env.SMOKE_USER ?? 'smokeadmin');
   await page.fill('input[name="password"]', process.env.SMOKE_PASS ?? 'SmokePass123');

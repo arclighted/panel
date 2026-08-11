@@ -303,6 +303,9 @@ importers:
       '@xterm/addon-web-links':
         specifier: 0.12.0
         version: 0.12.0
+      '@xterm/xterm':
+        specifier: 5.5.0
+        version: 5.5.0
       class-variance-authority:
         specifier: 0.7.1
         version: 0.7.1
@@ -339,9 +342,6 @@ importers:
       tw-animate-css:
         specifier: 1.4.0
         version: 1.4.0
-      xterm:
-        specifier: 5.3.0
-        version: 5.3.0
     devDependencies:
       '@tailwindcss/typography':
         specifier: 0.5.20
@@ -5189,10 +5189,6 @@ packages:
   xmlchars@2.2.0:
     resolution: {integrity: sha512-JZnDKK8B0RCDw84FNdDAIpZK+JuJw+s7Lz8nksI7SIuU3UXJJslUthsi+uWBUYOwPFwW7W7PRLRfUKpxjtjFCw==}
 
-  xterm@5.3.0:
-    resolution: {integrity: sha512-8QqjlekLUFTrU6x7xck1MsPzPA571K5zNqWm0M0oroYEWVOptZ0+ubQSkQ3uxIEhcIHRujJy6emDWX4A7qyFzg==}
-    deprecated: This package is now deprecated. Move to @xterm/xterm instead.
-
   y18n@4.0.3:
     resolution: {integrity: sha512-JKhqTOwSrqNA1NY5lSztJ1GrBiUodLMmIZuLiDaMRJ+itFd+ABVE8XBjOvIWL+rSqNDC74LCSFmlb/U4UZ4hJQ==}
 
@@ -10033,8 +10029,6 @@ snapshots:
       js-yaml: 4.3.1
 
   xmlchars@2.2.0: {}
-
-  xterm@5.3.0: {}
 
   y18n@4.0.3: {}
 

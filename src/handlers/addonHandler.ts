@@ -346,11 +346,7 @@ async function withAddonLock<T>(
   fn: () => Promise<T>,
 ): Promise<T> {
   const prev = addonMutexes.get(slug) ?? Promise.resolve();
-  let release!: () => void;
-  const wait = new Promise<void>((r) => {
-    release = r;
-  });
-  const chain = prev.then(() => wait).then(fn);
+  const chain = prev.then(fn);
   const entry = chain.then(
     () => {},
     () => {},
@@ -359,7 +355,6 @@ async function withAddonLock<T>(
   try {
     return await chain;
   } finally {
-    release();
     if (addonMutexes.get(slug) === entry) {
       addonMutexes.delete(slug);
     }

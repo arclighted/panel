@@ -43,7 +43,7 @@ export function AuthLayout({
           <div className="mb-8">
             {settings.logo ? (
               <img
-                src={settings.logo}
+                src={settings.logo.startsWith('/') ? settings.logo : `/${settings.logo}`}
                 alt={`${settings.title} logo`}
                 className="mb-5 h-10 w-10 rounded-xl object-contain"
               />

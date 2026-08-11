@@ -35,6 +35,16 @@ describe('parseAddonManifest', () => {
     expect(result.success).toBe(true);
   });
 
+  it('accepts npm dependency maps without treating them as addon dependencies', () => {
+    const dir = writeAddon('demo-addon', {
+      ...goodManifest,
+      dependencies: { axios: '^1.7.0' },
+    });
+    const result = parseAddonManifest(path.join(dir, 'package.json'), 'demo-addon');
+    expect(result.success).toBe(true);
+    if (result.success) {expect(result.manifest.dependencies).toEqual([]);}
+  });
+
   it('rejects a folder name that is not a valid slug', () => {
     const dir = writeAddon('has spaces', { ...goodManifest, identifier: 'has-spaces' });
     const result = parseAddonManifest(path.join(dir, 'package.json'), 'has spaces');

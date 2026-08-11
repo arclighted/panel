@@ -40,7 +40,7 @@ const addonUIModule: Module = {
         for (const dbEntry of dbAddons) {
           if (!dbEntry.enabled) continue;
 
-          const slug = dbEntry.name || dbEntry.slug || '';
+          const slug = dbEntry.slug || '';
           const addonDir = path.join(ADDONS_DIR, slug);
           const pkgPath = path.join(addonDir, 'package.json');
 

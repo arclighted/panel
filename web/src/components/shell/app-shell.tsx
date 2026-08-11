@@ -84,7 +84,7 @@ function BrandLogo({
     <a href="/" className={cn('flex min-w-0 items-center gap-2.5', className)}>
       {settings.logo ? (
         <img
-          src={settings.logo}
+          src={settings.logo.startsWith('/') ? settings.logo : `/${settings.logo}`}
           alt={`${settings.title} logo`}
           className="size-8 shrink-0 rounded-lg object-contain"
         />

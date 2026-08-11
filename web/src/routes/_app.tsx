@@ -1,23 +1,12 @@
 import { Navigate, Outlet, createFileRoute } from '@tanstack/react-router'
 
 import { AppShell } from '@/components/shell/app-shell'
-import { useAddonRegistry } from '@/lib/addon-v3/registry'
+import { AddonRegistryProvider } from '@/lib/addon-v3/registry'
 import { useAuthConfig, isAuthenticatedUser } from '@/lib/auth-config'
 
 export const Route = createFileRoute('/_app')({
   component: AppLayout,
 })
-
-/**
- * Kick off addon v3 bundle loading for the authenticated session. The registry
- * is lazy by nature (hooks pull manifests/bundles on demand), but starting it
- * here means addon UI is typically ready before the first addon slot/page
- * renders. Harmless no-op when no addons declare a `ui` field.
- */
-function AddonRegistryLoader() {
-  useAddonRegistry()
-  return null
-}
 
 function AppLayout() {
   const auth = useAuthConfig()
@@ -38,9 +27,10 @@ function AppLayout() {
   }
 
   return (
-    <AppShell user={user} settings={auth.data.settings}>
-      <AddonRegistryLoader />
-      <Outlet />
-    </AppShell>
+    <AddonRegistryProvider>
+      <AppShell user={user} settings={auth.data.settings}>
+        <Outlet />
+      </AppShell>
+    </AddonRegistryProvider>
   )
 }

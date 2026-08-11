@@ -88,6 +88,16 @@ const expressWsInstance = expressWs(app);
 // Load static files
 app.use(express.static(path.join(__dirname, '../public')));
 
+app.use('/addon-assets/:slug', (req, res, next) => {
+  const slug = req.params.slug;
+  if (!/^[a-z0-9][a-z0-9-]{0,47}$/.test(slug)) {
+    return next();
+  }
+  return express.static(
+    path.join(__dirname, '../storage/addons', slug, 'public'),
+  )(req, res, next);
+});
+
 app.use(
   '/monaco',
   express.static(path.join(__dirname, '../node_modules', 'monaco-editor/min')),

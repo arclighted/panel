@@ -5,10 +5,10 @@ import {
   useRef,
   useState,
 } from 'react'
-import { Terminal } from 'xterm'
+import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
 import { WebLinksAddon } from '@xterm/addon-web-links'
-import 'xterm/css/xterm.css'
+import '@xterm/xterm/css/xterm.css'
 
 /**
  * Live container console, ported from views/user/server/manage.ejs.
@@ -409,8 +409,8 @@ export const TerminalConsole = forwardRef<TerminalHandle, TerminalProps>(
         }
         socketRef.current?.close(1000, 'page navigating')
         socketRef.current = null
-        term.dispose()
         termRef.current = null
+        setTimeout(() => term.dispose(), 0)
       }
       // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [serverId])

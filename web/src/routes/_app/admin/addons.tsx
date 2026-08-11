@@ -105,6 +105,7 @@ function AdminAddonsPage() {
           <Button
             variant="secondary"
             size="sm"
+            nativeButton={false}
             render={<a href="/admin/addons/store" />}
           >
             <Store className="size-4" />

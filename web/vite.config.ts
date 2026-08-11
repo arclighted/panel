@@ -36,6 +36,9 @@ function proxyToExpress(): Plugin {
       server.middlewares.use((req, res, next) => {
         const method = (req.method ?? 'GET').toUpperCase();
         const url = req.url ?? '';
+        if (url.startsWith('/__tsd/')) {
+          return next();
+        }
         const isGet = method === 'GET' || method === 'HEAD' || method === 'OPTIONS';
         const isLegacyServerPage =
           url.startsWith('/server/') && !isMigratedServerPage(url);

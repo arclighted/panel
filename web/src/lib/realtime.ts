@@ -473,6 +473,7 @@ export function useServerLive(serverId: string) {
 
   return useQuery<ServerLiveState>({
     queryKey: ['server-live', serverId],
+    queryFn: () => Promise.resolve(EMPTY_LIVE),
     enabled: false,
     initialData: EMPTY_LIVE,
   })

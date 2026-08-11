@@ -10,7 +10,7 @@ export const settingsLoader = async () => {
         data: {
           title:                 'Arclight',
           description:           'Arclight is a free and open source game server management panel.',
-          logo:                  '../assets/logo.png',
+          logo:                 '/assets/logo.png',
           theme:                 'default',
           lightTheme:            'default',
           darkTheme:             'default',

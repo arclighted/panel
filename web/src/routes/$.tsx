@@ -1,8 +1,16 @@
 import { Navigate, createFileRoute, useLocation } from '@tanstack/react-router'
 
 import { AppShell } from '@/components/shell/app-shell'
-import { useAuthConfig, isAuthenticatedUser } from '@/lib/auth-config'
-import { useAddonRouteForPath, useAddonComponent } from '@/lib/addon-v3/registry'
+import {
+  useAuthConfig,
+  isAuthenticatedUser,
+  type SessionUser,
+} from '@/lib/auth-config'
+import {
+  AddonRegistryProvider,
+  useAddonRouteForPath,
+  useAddonComponent,
+} from '@/lib/addon-v3/registry'
 
 /**
  * Addon v3 page catch-all.
@@ -18,13 +26,7 @@ export const Route = createFileRoute('/$')({
 })
 
 function AddonSplatPage() {
-  const location = useLocation()
   const auth = useAuthConfig()
-
-  // Hooks must run unconditionally (Rules of Hooks) — resolve the addon route
-  // match before any early return so re-renders stay consistent.
-  const match = useAddonRouteForPath(location.pathname)
-  const component = useAddonComponent(match?.slug ?? '', match?.componentName ?? '')
 
   if (!auth.isSuccess) {
     return (
@@ -39,9 +41,27 @@ function AddonSplatPage() {
     return <Navigate to="/login" />
   }
 
+  return (
+    <AddonRegistryProvider>
+      <AddonPage user={user} settings={auth.data.settings} />
+    </AddonRegistryProvider>
+  )
+}
+
+function AddonPage({
+  user,
+  settings,
+}: {
+  user: SessionUser
+  settings: NonNullable<ReturnType<typeof useAuthConfig>['data']>['settings']
+}) {
+  const location = useLocation()
+  const match = useAddonRouteForPath(location.pathname)
+  const component = useAddonComponent(match?.slug ?? '', match?.componentName ?? '')
+
   if (!match || !component) {
     return (
-      <AppShell user={user} settings={auth.data.settings}>
+      <AppShell user={user} settings={settings}>
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <p className="text-4xl font-semibold text-foreground">404</p>
           <p className="mt-2 text-sm text-muted-foreground">
@@ -54,7 +74,7 @@ function AddonSplatPage() {
 
   const Page = component
   return (
-    <AppShell user={user} settings={auth.data.settings}>
+    <AppShell user={user} settings={settings}>
       <Page />
     </AppShell>
   )
