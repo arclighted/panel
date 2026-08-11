@@ -129,12 +129,39 @@ export const ALL_PROXY_PATHS = [
  * mutation authority (CSRF + session) for every endpoint, including those that
  * share a path with a migrated TanStack route (e.g. POST /login).
  */
+export const NITRO_OWNED_PATHS = [
+  '/api/auth-config',
+] as const
+
+export function isNitroOwnedPath(p: string): boolean {
+  return NITRO_OWNED_PATHS.some(prefix => p === prefix || p.startsWith(prefix + '/'))
+}
+
+/**
+ * Vite treats proxy keys starting with `^` as regexes (first matching key in
+ * insertion order wins). `/api` is a broad prefix that would also swallow the
+ * Nitro-owned `/api/auth-config` route, so the `/api` entry is emitted as a
+ * regex that excludes every Nitro-owned `/api/*` path — those GETs fall
+ * through to the TanStack (Nitro) dev middleware instead of Express.
+ */
+function nitroApiProxyKey(): string {
+  // The key MUST start with `^` for Vite's proxy to treat it as a regex
+  // (first matching key wins in insertion order). Each excluded entry is the
+  // path AFTER `/api/` (e.g. `auth-config`), escaped for the regex, so the
+  // negative lookahead checks the text right after the consumed `/api`.
+  const excluded = NITRO_OWNED_PATHS
+    .filter((p) => p.startsWith('/api/'))
+    .map((p) => p.slice('/api/'.length).replace(/\//g, '\\/'))
+  return `^\\/api(?!\\/${excluded.join('|')})`
+}
+
 export function createProxyConfig(): Record<string, string | { target: string; changeOrigin: boolean; ws: boolean }> {
   const config: Record<string, string | { target: string; changeOrigin: boolean; ws: boolean }> = {}
 
   // API and WS paths need ws: true for WebSocket upgrade forwarding
   for (const path of API_PROXY_PATHS) {
-    config[path] = {
+    const key = path === '/api' ? nitroApiProxyKey() : path
+    config[key] = {
       target: PANEL_INTERNAL_URL,
       changeOrigin: true,
       ws: path === '/ws',

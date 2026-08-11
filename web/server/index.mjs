@@ -17,6 +17,11 @@ import net from 'node:net'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
+import { loadEnvFile } from './env-loader.mjs'
+
+// Load .env (repo root) so SESSION_SECRET / DATABASE_URL are available to the
+// Nitro child — the same values the Express panel reads (--env-file=.env).
+loadEnvFile()
 
 // ── Ports ──────────────────────────────────────────────────────────────────
 
@@ -81,7 +86,14 @@ function isMigratedServerPage(url) {
   return afterUuid.startsWith('files/edit')
 }
 
+const NITRO_OWNED_PREFIXES = ['/api/auth-config']
+
+function isNitroOwnedPath(url) {
+  return NITRO_OWNED_PREFIXES.some(p => url === p || url.startsWith(p + '/'))
+}
+
 function isProxyPath(url) {
+  if (isNitroOwnedPath(url)) return false
   if (ALL_PROXY_PREFIXES.some((p) => url.startsWith(p))) return true
   return url.startsWith('/server/') && !isMigratedServerPage(url)
 }

@@ -19,6 +19,7 @@
     "noEmit": true,
 
     /* Linting */
+    "esModuleInterop": true,
     "skipLibCheck": true,
     "strict": true,
     "noUnusedLocals": true,

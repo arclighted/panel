@@ -14,6 +14,7 @@ import {
   ALL_PROXY_PATHS,
   createProxyConfig,
   isMigratedServerPage,
+  isNitroOwnedPath,
   PANEL_INTERNAL_URL,
 } from './proxy.config';
 
@@ -43,7 +44,11 @@ function proxyToExpress(): Plugin {
         const isLegacyServerPage =
           url.startsWith('/server/') && !isMigratedServerPage(url);
         const isProxyPath = ALL_PROXY_PATHS.some((p) => url.startsWith(p));
-        if (isGet && !isLegacyServerPage && !isProxyPath) {
+        // Nitro-owned paths (e.g. GET /api/auth-config) must reach the
+        // TanStack (Nitro) dev middleware, not Express. Non-GET requests to
+        // them still proxy to Express (mutation authority) — same as prod.
+        const isNitroOwned = isGet && isNitroOwnedPath(url.split('?')[0] ?? url);
+        if (isNitroOwned || (isGet && !isLegacyServerPage && !isProxyPath)) {
           return next();
         }
 
@@ -91,7 +96,11 @@ const config = defineConfig({
   plugins: [
     proxyToExpress(),
     devtools(),
-    nitro({ rollupConfig: { external: [/^@sentry\//] } }),
+    // serverDir: Nitro 3 defaults serverDir to false (no input server dir
+    // scanned). Enable it so `server/routes/**` (e.g. the Nitro-owned
+    // GET /api/auth-config) and `server/middleware/**` (session loader) are
+    // compiled into the Nitro server alongside the TanStack SSR renderer.
+    nitro({ serverDir: true, rollupConfig: { external: [/^@sentry\//] } }),
     tailwindcss(),
     tanstackStart(),
     viteReact(),

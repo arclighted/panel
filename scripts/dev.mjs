@@ -20,6 +20,34 @@
  * Usage: pnpm run dev
  */
 import { spawn } from 'node:child_process'
+import crypto from 'node:crypto'
+import { loadEnvFile } from '../web/server/env-loader.mjs'
+
+// Load .env (repo root) so both children see DATABASE_URL / SESSION_SECRET.
+loadEnvFile()
+
+// The session cookie + CSRF tokens are shared across processes: Express and
+// the Vite (Nitro) dev server must use the SAME SESSION_SECRET. If the env
+// secret is missing or a known-insecure placeholder (example.env ships
+// "change_me"), generate one here so both children inherit it — otherwise
+// each process would mint its own ephemeral secret and sessions would break.
+const INSECURE_SECRETS = new Set([
+  'change_me',
+  'dev-only-insecure-secret-change-me',
+  'secret',
+  'changeme',
+  'insecure',
+])
+if (
+  !process.env.SESSION_SECRET ||
+  process.env.SESSION_SECRET.length < 32 ||
+  INSECURE_SECRETS.has(process.env.SESSION_SECRET)
+) {
+  process.env.SESSION_SECRET = crypto.randomBytes(32).toString('hex')
+  console.warn(
+    '[dev] SESSION_SECRET missing/insecure — generated a shared dev secret for this boot.',
+  )
+}
 
 const INTERNAL_PORT = process.env.PANEL_INTERNAL_PORT ?? '3001'
 const PUBLIC_PORT = process.env.PORT ?? '3000'
