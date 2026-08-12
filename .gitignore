@@ -31,6 +31,14 @@ coverage/
 storage/dev.db
 storage/dev.db-wal
 storage/dev.db-shm
+dev.db-shm
+dev.db-wal
+
+# Runtime uploads (avatar images etc.)
+web/public/uploads/
+
+# Runtime DB created when booting with cwd=web
+web/storage/
 
 # Storage (keep structure, ignore data)
 storage/eggs

@@ -131,7 +131,10 @@ async function request<T = unknown>(
       if (typeof body === 'string') {
         fetchOptions.body = body;
       } else if (Buffer.isBuffer(body)) {
-        fetchOptions.body = body;
+        // Buffer is accepted at runtime; the DOM BodyInit type in the web
+        // tsconfig doesn't list it (undici's does), so cast via RequestInit's
+        // own body type (resolves correctly under both lib sets).
+        fetchOptions.body = body as unknown as NonNullable<RequestInit['body']>;
       } else if (isStreamLike(body)) {
         fetchOptions.body = body as unknown as ReadableStream;
       } else {

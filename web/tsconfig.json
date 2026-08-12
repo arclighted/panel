@@ -1,5 +1,12 @@
 {
-  "include": ["**/*.ts", "**/*.tsx"],
+  "include": [
+    "**/*.ts",
+    "**/*.tsx",
+    // Nitro routes import real root Express sources (startup.ts, shared.ts,
+    // schedulerWorker) whose req.session/subUser typing needs the root
+    // express-session augmentation — pull it into the program explicitly.
+    "../src/types/express.d.ts"
+  ],
   "exclude": ["node_modules", "src/__tests__"],
   "compilerOptions": {
     "target": "ES2022",
@@ -10,7 +17,14 @@
       "@/*": ["./src/*"]
     },
     "lib": ["ES2022", "DOM", "DOM.Iterable"],
-    "types": ["vite/client"],
+    "types": ["vite/client", "express-session"],
+    // The Nitro server imports framework-free root helpers (logger → consola,
+    // daemonRequest → node http). Resolving the `node` package condition keeps
+    // their types consistent with the Node runtime (consola's browser entry
+    // drops the `fancy` option, and node types are what the server actually
+    // runs). Client-only code is unaffected: no client import chain touches
+    // the packages that split on this condition.
+    "customConditions": ["node"],
 
     /* Bundler mode */
     "moduleResolution": "bundler",

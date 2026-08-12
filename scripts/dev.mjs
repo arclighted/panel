@@ -21,10 +21,14 @@
  */
 import { spawn } from 'node:child_process'
 import crypto from 'node:crypto'
-import { loadEnvFile } from '../web/server/env-loader.mjs'
+import { loadEnvFile, normalizeDatabaseUrl } from '../web/server/env-loader.mjs'
 
 // Load .env (repo root) so both children see DATABASE_URL / SESSION_SECRET.
+// DATABASE_URL is normalized to an absolute path so root modules bundled into
+// the Vite (Nitro) dev server resolve the same SQLite file from web/ that
+// Express resolves from the repo root.
 loadEnvFile()
+normalizeDatabaseUrl()
 
 // The session cookie + CSRF tokens are shared across processes: Express and
 // the Vite (Nitro) dev server must use the SAME SESSION_SECRET. If the env

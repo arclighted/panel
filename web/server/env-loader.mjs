@@ -39,3 +39,23 @@ export function loadEnvFile() {
   }
   return root
 }
+
+/**
+ * Resolves `file:./storage/dev.db` (relative to the project root) to an
+ * absolute `file:/abs/path` URL in process.env.
+ *
+ * The web processes run from `web/`, but root modules bundled into the Nitro
+ * server (e.g. src/db.ts, pulled in by daemonRequest → checkNodeStatus /
+ * getServerStatus) resolve relative `file:` URLs against process.cwd().
+ * Normalizing here makes every process agree on the same SQLite file.
+ */
+export function normalizeDatabaseUrl() {
+  const raw = process.env.DATABASE_URL || 'file:./storage/dev.db'
+  if (!raw.startsWith('file:')) return raw
+  const rel = raw.slice('file:'.length)
+  if (path.isAbsolute(rel)) return raw
+  const root = findProjectRoot(process.env.INIT_CWD || process.cwd())
+  const abs = path.resolve(root, rel)
+  process.env.DATABASE_URL = `file:${abs}`
+  return process.env.DATABASE_URL
+}

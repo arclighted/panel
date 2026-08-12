@@ -1,4 +1,3 @@
-import logger from '../../logger';
 import { fetchPublic } from '../../../utils/ssrf';
 
 export interface EggVariable {

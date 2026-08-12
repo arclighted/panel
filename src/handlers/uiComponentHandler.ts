@@ -257,7 +257,7 @@ export class UIComponentStore {
 
   public renderComponent(
     name: string,
-    locals: Record<string, unknown> = {},
+    _locals: Record<string, unknown> = {},
   ): string {
     return `components/ui/${name}`;
   }

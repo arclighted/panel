@@ -66,7 +66,6 @@ export const API_PROXY_PATHS = [
   '/console',
   '/addon-assets',
   '/avatar',
-  '/admin/images/export',
   // Addon v3 apiPaths:
   '/arclight-cloud/api',
   '/modrinth/api',
@@ -107,9 +106,9 @@ export function isMigratedServerPage(url: string): boolean {
  * as full EJS pages on GET. Remove each prefix from this list when its
  * TanStack route is ready (the route then owns GETs; non-GETs always go to
  * Express regardless of this list — see createProxyConfig / server/index.mjs).
+ * (logout migrated to Nitro in Phase 2 — see NITRO_OWNED_PATHS below.)
  */
 export const LEGACY_PAGE_PREFIXES = [
-  '/logout',
   '/user/server',
 ] as const
 
@@ -131,10 +130,96 @@ export const ALL_PROXY_PATHS = [
  */
 export const NITRO_OWNED_PATHS = [
   '/api/auth-config',
+  // Phase 2: Nitro owns the auth mutations and logout for ALL methods
+  // (dev proxyToExpress and prod server/index.mjs both route these to Nitro).
+  '/login',
+  '/register',
+  '/2fa',
+  '/logout',
+  // Phase 2 group 4: Nitro owns the ported admin mutation + read surfaces
+  // for ALL methods. /admin/addons/* is intentionally NOT here — the addon
+  // runtime (toggle/uninstall/reload) needs the Express app instance, so it
+  // stays Express-owned. Kept in sync with web/server/index.mjs.
+  '/admin/users',
+  '/admin/nodes',
+  '/admin/node',
+  '/admin/servers',
+  '/admin/server',
+  '/admin/apikeys',
+  '/admin/databases',
+  '/admin/mounts',
+  '/admin/locations',
+  '/admin/location',
+  '/admin/settings',
+  '/admin/radar',
+  '/admin/images',
+  '/admin/check-update',
+  '/admin/perform-update',
+  '/api/admin/playerstats',
+  '/api/admin/analytics',
+  // Phase 2 group 5: Nitro owns the ported external APIs (api/v1 + client)
+  // for ALL methods — Bearer/api-key auth via the apiValidator twin, no
+  // session needed. Kept in sync with web/server/index.mjs.
+  '/api/v1',
+  '/api/client',
+  // Phase 2 group 6: Nitro owns the user-facing create-server, my-images and
+  // avatar surfaces for ALL methods. GET /create-server and GET /my-images are
+  // TanStack pages (Nitro renders them); POST/DELETE hit the Nitro twins. The
+  // /api/my-images GET (edit payload) is a Nitro read.
+  '/create-server',
+  '/my-images',
+  '/api/my-images',
+  '/upload-avatar',
+  '/remove-avatar',
 ] as const
 
-export function isNitroOwnedPath(p: string): boolean {
-  return NITRO_OWNED_PATHS.some(prefix => p === prefix || p.startsWith(prefix + '/'))
+/**
+ * Phase 2 group 2: read/context endpoints Nitro owns for GET only. Sibling
+ * mutations under the same prefixes (POST /api/folders, PATCH/DELETE
+ * /api/folders/:id, POST /api/system/test-node-connection, and the
+ * /api/server/:id tab sub-APIs) must still reach Express.
+ */
+export const NITRO_OWNED_GET_PATHS = [
+  '/api/account/context',
+  '/api/folders',
+  '/api/create-server/context',
+  '/api/system/status',
+  '/api/admin/context',
+  '/api/admin/page',
+] as const
+
+// /api/server/:id/{context,settings,startup,databases,schedules,backups,
+// subusers,worlds} are dynamic — matched structurally (not by prefix) so
+// sibling /api/server/:id/* mutations stay Express-owned. All of these are
+// GET reads; the tab mutations live under /server/:id/* (no /api prefix) so
+// GET-only ownership never shadows them.
+const NITRO_OWNED_SERVER_GET_RE =
+  /^\/api\/server\/[^/]+\/(?:context|settings|startup|databases|schedules|backups|subusers|worlds)$/
+
+export function isNitroOwnedPath(p: string, method = 'GET'): boolean {
+  // Phase 2 group 3: the ENTIRE /server/:id/* namespace is Nitro-owned now.
+  // Pages (console, files, editor, all tab pages) are TanStack routes; every
+  // API under /server/:id/* — console/power/status/logs/ws-token/players/
+  // eula, the whole files surface, and all tab CRUD mutations — has a Nitro
+  // twin (web/server/routes/server). Nothing under /server/ needs Express
+  // anymore, so claim it for all methods (pages + GETs + mutations alike).
+  if (p === '/server' || p.startsWith('/server/')) {
+    return true
+  }
+  if (NITRO_OWNED_PATHS.some(prefix => p === prefix || p.startsWith(prefix + '/'))) {
+    return true
+  }
+  // Phase 2 group 6: user self-delete of a server is Nitro-owned (DELETE
+  // only — GET /user/server/* pages are still legacy EJS on Express).
+  if (method === 'DELETE' && /^\/user\/server\/[^/]+$/.test(p)) {
+    return true
+  }
+  const isGet = method === 'GET' || method === 'HEAD' || method === 'OPTIONS'
+  if (!isGet) return false
+  if (NITRO_OWNED_GET_PATHS.some(prefix => p === prefix || p.startsWith(prefix + '/'))) {
+    return true
+  }
+  return NITRO_OWNED_SERVER_GET_RE.test(p)
 }
 
 /**
@@ -149,9 +234,14 @@ function nitroApiProxyKey(): string {
   // (first matching key wins in insertion order). Each excluded entry is the
   // path AFTER `/api/` (e.g. `auth-config`), escaped for the regex, so the
   // negative lookahead checks the text right after the consumed `/api`.
-  const excluded = NITRO_OWNED_PATHS
+  // GET-only group-2 endpoints are excluded too, plus the dynamic
+  // /api/server/:id/context shape, so those GETs fall through to Nitro.
+  const excluded = [...NITRO_OWNED_PATHS, ...NITRO_OWNED_GET_PATHS]
     .filter((p) => p.startsWith('/api/'))
     .map((p) => p.slice('/api/'.length).replace(/\//g, '\\/'))
+  excluded.push(
+    'server/[^/]+/(?:context|settings|startup|databases|schedules|backups|subusers|worlds)'.replace(/\//g, '\\/'),
+  )
   return `^\\/api(?!\\/${excluded.join('|')})`
 }
 

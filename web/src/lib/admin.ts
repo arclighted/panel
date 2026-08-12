@@ -136,12 +136,15 @@ export async function adminDelete(
 
 export const createUser = (body: Record<string, unknown>, csrf: string | null) =>
   adminPost('/admin/users/create-user', body, csrf)
+// NOTE: no trailing slashes — Nitro's router (unjs/radix3) matches exact
+// paths, while Express tolerates both forms, so bare :id URLs work on both
+// sides of the seam.
 export const updateUser = (id: number, body: Record<string, unknown>, csrf: string | null) =>
-  adminPost(`/admin/users/update/${id}/`, body, csrf)
+  adminPost(`/admin/users/update/${id}`, body, csrf)
 export const deleteUser = (id: number, csrf: string | null) =>
-  adminDelete(`/admin/users/delete/${id}/`, csrf)
+  adminDelete(`/admin/users/delete/${id}`, csrf)
 export const transferOwner = (id: number, body: Record<string, unknown>, csrf: string | null) =>
-  adminPost(`/admin/users/transfer-owner/${id}/`, body, csrf)
+  adminPost(`/admin/users/transfer-owner/${id}`, body, csrf)
 
 /* ── Nodes ───────────────────────────────────────────────────────────────── */
 

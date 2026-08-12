@@ -63,10 +63,10 @@ const SENSITIVE_QUERY = /([?&](?:token|key|secret|api_key|access_token|password|
 
 const redact = (input: string): string => {
   return input
-    .replace(SENSITIVE_HEADERS, (match, prefix) => `${prefix}${REDACTED}`)
-    .replace(SENSITIVE_QUERY, (match, prefix) => `${prefix}${REDACTED}`)
-    .replace(SENSITIVE_KEYS, (match, prefix) => `${prefix}${REDACTED}`)
-    .replace(SENSITIVE_KEYS_UNQUOTED, (match, prefix) => `${prefix}${REDACTED}`);
+    .replace(SENSITIVE_HEADERS, (_match, prefix) => `${prefix}${REDACTED}`)
+    .replace(SENSITIVE_QUERY, (_match, prefix) => `${prefix}${REDACTED}`)
+    .replace(SENSITIVE_KEYS, (_match, prefix) => `${prefix}${REDACTED}`)
+    .replace(SENSITIVE_KEYS_UNQUOTED, (_match, prefix) => `${prefix}${REDACTED}`);
 };
 
 export { redact };

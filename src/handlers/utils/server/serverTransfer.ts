@@ -11,9 +11,7 @@ import {
 import { assertNodeCapacity } from './resourceCheck';
 import { safeClientMessage } from '../../../utils/errors';
 import {
-  normalizeServerPorts,
   parseImagePortRequirements,
-  parseServerPorts,
   serializeServerPorts,
   validatePortAssignments,
   getUsedExternalPorts,
@@ -92,7 +90,6 @@ export async function startTransfer(
   serverId: number,
   targetNodeId: number,
   targetPorts: { externalPort: number; internalPort: number; primary: boolean; name: string }[],
-  req: { session?: { user?: { id?: number } } },
 ): Promise<TransferState> {
   const server = await prisma.server.findUnique({
     where: { id: serverId },
@@ -129,7 +126,7 @@ export async function startTransfer(
   transferStates.set(serverId, state);
 
   // Run the transfer in background — the UI polls /transfer/status
-  runTransfer(server, targetNode, targetPorts, state, req).catch((err) => {
+  runTransfer(server, targetNode, targetPorts, state).catch((err) => {
     logger.error(`Transfer failed for server ${server.UUID}:`, err);
     updateStatus(serverId, 'failed', safeClientMessage(err, 'The transfer failed.'));
   });
@@ -144,7 +141,6 @@ async function runTransfer(
   targetNode: { id: number; address: string; port: number; key: string },
   targetPorts: { externalPort: number; internalPort: number; primary: boolean; name: string }[],
   state: TransferState,
-  req: { session?: { user?: { id?: number } } },
 ): Promise<void> {
   const srcDaemon = server.node;
   let backupFilePath: string | undefined;

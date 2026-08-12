@@ -228,6 +228,13 @@ export async function loadSession(event: H3Event): Promise<SessionPayload> {
  * Persists the session payload and (re)issues the `connect.sid` cookie.
  * Reuses the existing sid when the request already carries one; otherwise a
  * fresh sid is generated (anonymous first touch).
+ *
+ * h3's getCookie() only ever reads REQUEST-time headers, so a cookie that was
+ * just set by regenerateSession() in the same request is invisible here. The
+ * sid tracked on `event.context.nitroSessionSid` (set by regenerateSession)
+ * therefore wins over the request cookie — this is what keeps a regenerate →
+ * save sequence writing to the NEW session row instead of resurrecting the
+ * old one (which would defeat session regeneration / fix the session).
  */
 export async function saveSession(
   event: H3Event,
@@ -235,8 +242,11 @@ export async function saveSession(
 ): Promise<string> {
   const secret = getSessionSecret()
   const cookie = getCookie(event, sessionCookieName)
-  const sid = cookie ? unsignSessionCookie(cookie, secret) : null
+  const sidFromContext = (event.context as Record<string, unknown>)
+    .nitroSessionSid as string | undefined
+  const sid = sidFromContext ?? (cookie ? unsignSessionCookie(cookie, secret) : null)
   const nextSid = sid ?? randomBytes(16).toString('hex')
+  ;(event.context as Record<string, unknown>).nitroSessionSid = nextSid
   const expires = new Date(Date.now() + MAX_AGE_MS)
   const data = serializeSessionData(payload)
   await nitroPrisma.session.upsert({
@@ -368,4 +378,77 @@ export function validateCsrfToken(
     return false
   }
   return csrfCookieValid(cookie, getSessionSecret(), ensureCsrfSessionId(session))
+}
+
+/**
+ * Reads the request CSRF token, falling back to the `_csrf` field in a parsed
+ * JSON body when the header is absent (some legacy forms posted it that way).
+ * Mirror of Express's doubleCsrfProtection token getter (header first).
+ */
+export function readCsrfTokenFromRequest(
+  event: H3Event,
+  body?: unknown,
+): string | null {
+  const fromHeader = getCsrfTokenFromRequest(event)
+  if (fromHeader) {
+    return fromHeader
+  }
+  if (body && typeof body === 'object' && !Array.isArray(body)) {
+    const field = (body as Record<string, unknown>)._csrf
+    if (typeof field === 'string' && field.length > 0) {
+      return field
+    }
+  }
+  return null
+}
+
+/**
+ * Enforces double-submit CSRF for a mutation route, exactly like Express's
+ * global doubleCsrfProtection middleware runs before every non-GET route:
+ * missing/mismatched tokens get a 403. Returns true when the request passes.
+ */
+export function requireCsrf(
+  event: H3Event,
+  session: SessionPayload,
+  body?: unknown,
+): boolean {
+  return validateCsrfToken(
+    event,
+    session,
+    readCsrfTokenFromRequest(event, body),
+  )
+}
+
+/**
+ * Regenerates the session like express-session's `req.session.regenerate()`:
+ * the old session row is destroyed (store.destroy), a fresh session id is
+ * minted with an empty payload, and the `connect.sid` cookie is re-issued.
+ * The caller then fills the returned payload (session.user / pendingUserId)
+ * and persists it with saveSession(). The CSRF session id is intentionally
+ * lost — the next GET /api/auth-config mints a fresh token for the new
+ * session, exactly like Express's addCsrfTokenToLocals does after login.
+ */
+export async function regenerateSession(
+  event: H3Event,
+): Promise<SessionPayload> {
+  const secret = getSessionSecret()
+  const cookie = getCookie(event, sessionCookieName)
+  const oldSid = cookie ? unsignSessionCookie(cookie, secret) : null
+  if (oldSid) {
+    await nitroPrisma.session
+      .delete({ where: { session_id: oldSid } })
+      .catch(() => {})
+  }
+
+  const sid = randomBytes(16).toString('hex')
+  const expires = new Date(Date.now() + MAX_AGE_MS)
+  const fresh: SessionPayload = {}
+  await nitroPrisma.session.create({
+    data: { session_id: sid, data: serializeSessionData(fresh), expires },
+  })
+  setCookie(event, sessionCookieName, `s:${sign(sid, secret)}`, sessionCookieOptions())
+  // Remember the sid for the caller's follow-up saveSession() — h3 getCookie
+  // can't see the cookie we just set (see saveSession for the full story).
+  ;(event.context as Record<string, unknown>).nitroSessionSid = sid
+  return fresh
 }

@@ -1076,7 +1076,7 @@ const adminModule: Module = {
             primary: p.primary === true,
           }));
 
-          const state = await startTransfer(serverId, targetNodeIdNum, normalizedPorts, req);
+          const state = await startTransfer(serverId, targetNodeIdNum, normalizedPorts);
 
           await logActivity(req, 'server:transfer', {
             serverId: String(state.serverUUID),

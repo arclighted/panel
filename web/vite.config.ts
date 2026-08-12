@@ -44,10 +44,20 @@ function proxyToExpress(): Plugin {
         const isLegacyServerPage =
           url.startsWith('/server/') && !isMigratedServerPage(url);
         const isProxyPath = ALL_PROXY_PATHS.some((p) => url.startsWith(p));
-        // Nitro-owned paths (e.g. GET /api/auth-config) must reach the
-        // TanStack (Nitro) dev middleware, not Express. Non-GET requests to
-        // them still proxy to Express (mutation authority) — same as prod.
-        const isNitroOwned = isGet && isNitroOwnedPath(url.split('?')[0] ?? url);
+        // Nitro-owned paths (GET /api/auth-config, GET /logout and the auth
+        // mutations POST /login, /register, /2fa, plus the Phase 2 group 2
+        // GET-only context endpoints /api/account/context, /api/folders,
+        // /api/create-server/context, /api/system/status, /api/admin/context,
+        // /api/admin/page/* and /api/server/:id/context) must reach the
+        // TanStack (Nitro) dev middleware — same as prod (web/server/index.mjs
+        // routes nitro-owned paths before the non-GET-to-Express rule). The
+        // method is passed so GET-only ownership never steals the sibling
+        // mutations (POST /api/folders, PATCH/DELETE /api/folders/:id, POST
+        // /api/system/test-node-connection).
+        const isNitroOwned = isNitroOwnedPath(
+          url.split('?')[0] ?? url,
+          method,
+        )
         if (isNitroOwned || (isGet && !isLegacyServerPage && !isProxyPath)) {
           return next();
         }

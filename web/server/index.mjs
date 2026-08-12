@@ -17,11 +17,22 @@ import net from 'node:net'
 import { spawn } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { dirname, join } from 'node:path'
-import { loadEnvFile } from './env-loader.mjs'
+import { loadEnvFile, normalizeDatabaseUrl } from './env-loader.mjs'
 
 // Load .env (repo root) so SESSION_SECRET / DATABASE_URL are available to the
 // Nitro child — the same values the Express panel reads (--env-file=.env).
+// DATABASE_URL is normalized to an absolute path so root modules bundled into
+// the Nitro server (src/db.ts via daemonRequest) resolve the same SQLite file
+// from web/ that Express resolves from the repo root.
 loadEnvFile()
+normalizeDatabaseUrl()
+
+// Production entrypoint: always serve production React builds.
+// The repo .env ships NODE_ENV="development"; if that leaks into the Nitro
+// child, the SSR bundle resolves react/jsx-runtime to the dev build, whose
+// getOwner() calls against the production react-server dispatcher crash every
+// page render ("dispatcher.getOwner is not a function").
+process.env.NODE_ENV = 'production'
 
 // ── Ports ──────────────────────────────────────────────────────────────────
 
@@ -39,7 +50,6 @@ const API_PREFIXES = [
   '/console',
   '/addon-assets',
   '/avatar',
-  '/admin/images/export',
   // Addon v3 apiPaths (kept in sync with web/proxy.config.ts):
   '/arclight-cloud/api',
   '/modrinth/api',
@@ -59,9 +69,9 @@ const STATIC_PREFIXES = [
 
 const LEGACY_PAGE_PREFIXES = [
   // Kept in sync with proxy.config.ts: only paths Express still renders as
-  // full EJS pages (logout redirect + legacy server management). Auth pages
-  // (login/register/2fa/…) are TanStack routes and must NOT be proxied.
-  '/logout', '/user/server',
+  // full EJS pages (legacy server management). Auth pages and logout are
+  // owned by the TanStack app / Nitro and must NOT be proxied.
+  '/user/server',
 ]
 
 const ALL_PROXY_PREFIXES = [...API_PREFIXES, ...STATIC_PREFIXES, ...LEGACY_PAGE_PREFIXES]
@@ -86,10 +96,94 @@ function isMigratedServerPage(url) {
   return afterUuid.startsWith('files/edit')
 }
 
-const NITRO_OWNED_PREFIXES = ['/api/auth-config']
+// Phase 2: Nitro owns the auth mutations (POST /login, /register, /2fa) and
+// GET /logout — the query string is stripped so ?err=… never breaks matching.
+// Kept in sync with web/proxy.config.ts NITRO_OWNED_PATHS.
+const NITRO_OWNED_PREFIXES = [
+  '/api/auth-config',
+  '/login',
+  '/register',
+  '/2fa',
+  '/logout',
+  // Phase 2 group 4: ported admin mutation + read surfaces (ALL methods).
+  // /admin/addons/* stays Express-owned (addon runtime needs the Express app
+  // instance). Kept in sync with web/proxy.config.ts NITRO_OWNED_PATHS.
+  '/admin/users',
+  '/admin/nodes',
+  '/admin/node',
+  '/admin/servers',
+  '/admin/server',
+  '/admin/apikeys',
+  '/admin/databases',
+  '/admin/mounts',
+  '/admin/locations',
+  '/admin/location',
+  '/admin/settings',
+  '/admin/radar',
+  '/admin/images',
+  '/admin/check-update',
+  '/admin/perform-update',
+  '/api/admin/playerstats',
+  '/api/admin/analytics',
+  // Phase 2 group 5: Nitro owns the ported external APIs (api/v1 + client)
+  // for ALL methods — Bearer/api-key auth via the apiValidator twin, no
+  // session needed. Kept in sync with web/proxy.config.ts.
+  '/api/v1',
+  '/api/client',
+  // Phase 2 group 6: Nitro owns the user-facing create-server, my-images and
+  // avatar surfaces for ALL methods. GET /create-server and GET /my-images are
+  // TanStack pages (Nitro renders them); POST/DELETE hit the Nitro twins. The
+  // /api/my-images GET (edit payload) is a Nitro read.
+  '/create-server',
+  '/my-images',
+  '/api/my-images',
+  '/upload-avatar',
+  '/remove-avatar',
+]
 
-function isNitroOwnedPath(url) {
-  return NITRO_OWNED_PREFIXES.some(p => url === p || url.startsWith(p + '/'))
+// Phase 2 group 2: read/context endpoints Nitro owns for GET only. Sibling
+// mutations under the same prefixes stay Express-owned. Kept in sync with
+// web/proxy.config.ts NITRO_OWNED_GET_PATHS.
+const NITRO_OWNED_GET_PREFIXES = [
+  '/api/account/context',
+  '/api/folders',
+  '/api/create-server/context',
+  '/api/system/status',
+  '/api/admin/context',
+  '/api/admin/page',
+]
+
+// /api/server/:id/{context,settings,startup,databases,schedules,backups,
+// subusers,worlds} are dynamic — matched structurally so the sibling
+// /api/server/:id/* mutations stay Express-owned. All of these are GET reads;
+// the tab mutations live under /server/:id/* (no /api prefix).
+const NITRO_OWNED_SERVER_GET_RE =
+  /^\/api\/server\/[^/]+\/(?:context|settings|startup|databases|schedules|backups|subusers|worlds)$/
+
+function isNitroOwnedPath(url, method) {
+  const path = (url ?? '').split('?')[0]
+  // Phase 2 group 3: the ENTIRE /server/:id/* namespace is Nitro-owned now
+  // (TanStack pages + Nitro API twins for console/files/tab CRUD). Kept in
+  // sync with web/proxy.config.ts isNitroOwnedPath.
+  if (path === '/server' || path.startsWith('/server/')) {
+    return true
+  }
+  if (NITRO_OWNED_PREFIXES.some(p => path === p || path.startsWith(p + '/'))) {
+    return true
+  }
+  const m = (method ?? 'GET').toUpperCase()
+  // Phase 2 group 6: user self-delete of a server is Nitro-owned (DELETE
+  // only — GET /user/server/* pages are still legacy EJS on Express). Kept in
+  // sync with web/proxy.config.ts isNitroOwnedPath.
+  if (m === 'DELETE' && /^\/user\/server\/[^/]+$/.test(path)) {
+    return true
+  }
+  const isGet = m === 'GET' || m === 'HEAD' || m === 'OPTIONS'
+  if (!isGet) return false
+  if (NITRO_OWNED_GET_PREFIXES.some(p => path === p || path.startsWith(p + '/'))) {
+    return true
+  }
+  return NITRO_OWNED_SERVER_GET_RE.test(path)
 }
 
 function isProxyPath(url) {
@@ -110,8 +204,17 @@ const child = spawn(process.execPath, [nitroEntry], {
 })
 
 process.on('exit', () => child.kill())
-process.on('SIGTERM', () => child.kill())
-process.on('SIGINT', () => child.kill())
+process.on('SIGTERM', () => {
+  child.kill()
+  // Default SIGTERM behavior is overridden by the handler above; exit
+  // explicitly so systemd / process managers see a clean stop instead of a
+  // launcher that outlives its child and keeps the port bound.
+  process.exit(0)
+})
+process.on('SIGINT', () => {
+  child.kill()
+  process.exit(0)
+})
 
 // ── Shared HTTP proxy helper ───────────────────────────────────────────────
 
@@ -139,9 +242,19 @@ function proxyHttp(req, res, targetHost, targetPort) {
 // ── HTTP server ────────────────────────────────────────────────────────────
 
 const server = http.createServer((req, res) => {
-  // Express is the mutation authority: non-GET requests always go to Express
-  // (they carry session + CSRF state only Express can validate), even when the
-  // path is a migrated TanStack GET route (e.g. POST /login).
+  // Nitro-owned paths (Phase 1 + 2 + 2 group 2) are handled by the TanStack
+  // app: GET /api/auth-config (session+CSRF), GET /logout, the auth mutations
+  // POST /login, /register, /2fa, and the GET-only context endpoints
+  // (/api/account/context, /api/folders, /api/create-server/context,
+  // /api/system/status, /api/admin/context, /api/admin/page/*,
+  // /api/server/:id/context). Everything else follows the legacy seam:
+  // Express stays the mutation authority for non-GET requests (session + CSRF
+  // state only it can validate) and owns the proxy paths.
+  if (isNitroOwnedPath(req.url, req.method)) {
+    proxyHttp(req, res, APP_HOST, APP_PORT) // TanStack / Nitro app
+    return
+  }
+
   const method = (req.method ?? 'GET').toUpperCase()
   if (method !== 'GET' && method !== 'HEAD' && method !== 'OPTIONS') {
     proxyHttp(req, res, PANEL_HOST, PANEL_PORT)
