@@ -129,7 +129,6 @@ export default async (router: Router, api: any) => {
     prisma,
     createAuthMiddleware: () => authMiddleware,
     createAdminMiddleware: () => adminMiddleware,
-    getComponents: api.getComponents,
   });
 
   router.use('/', routes);

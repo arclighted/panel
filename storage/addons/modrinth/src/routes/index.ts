@@ -9,8 +9,6 @@ import { createHealthRoutes } from './api/health';
 import { createCacheRoutes } from './api/cache';
 import { createStatisticsRoutes } from './api/statistics';
 import { createInstallationsRoutes } from './api/installations';
-import { createBrowseRoutes } from './pages/browse';
-import { createAdminRoutes } from './pages/admin';
 
 interface RouteDeps {
   modrinthClient: any;
@@ -21,14 +19,13 @@ interface RouteDeps {
   prisma: any;
   createAuthMiddleware: () => any;
   createAdminMiddleware: () => any;
-  getComponents: (viewport?: string) => Record<string, string>;
 }
 
 export function createRoutes(deps: RouteDeps): Router {
   const router = Router();
   const {
     modrinthClient, installer, settingsStore, progressTracker,
-    cache, prisma, createAuthMiddleware, createAdminMiddleware, getComponents,
+    cache, prisma, createAuthMiddleware, createAdminMiddleware,
   } = deps;
 
   // API routes
@@ -45,12 +42,6 @@ export function createRoutes(deps: RouteDeps): Router {
   router.use('/api/cache', createCacheRoutes({ cache, createAdminMiddleware }));
   router.use('/api/statistics', createStatisticsRoutes({ prisma, createAdminMiddleware }));
   router.use('/api/installations', createInstallationsRoutes({ prisma, createAuthMiddleware }));
-
-  // Page routes
-  router.use('/admin/config', createAdminRoutes({
-    settingsStore, prisma, createAdminMiddleware, getComponents,
-  }));
-  router.use('/', createBrowseRoutes({ modrinthClient, settingsStore, prisma, getComponents } as any));
 
   return router;
 }

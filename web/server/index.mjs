@@ -51,24 +51,18 @@ const APP_HOST = process.env.APP_INTERNAL_HOST ?? '127.0.0.1'
 // those prefixes.
 const API_PREFIXES = [
   '/api',
-  '/addon-assets',
-  '/avatar',
   // Addon v3 apiPaths (kept in sync with web/proxy.config.ts):
   '/arclight-cloud/api',
   '/modrinth/api',
 ]
 
-const STATIC_PREFIXES = [
-  '/favicon.ico', '/javascript', '/js', '/fonts', '/styles',
-  '/styles.css', '/themes', '/uploads', '/assets', '/addons',
-  '/monaco', '/tw.css', '/layout-animations.css',
-  // NOT a bare /vendor — see proxy.config.ts for the reasoning. Express
-  // serves these node_modules subpaths for legacy EJS pages; the TanStack
-  // app serves the new v3 runtime files from /vendor/*.mjs (Nitro public).
-  '/vendor/xterm', '/vendor/marked', '/vendor/xterm-addon-fit',
-  '/vendor/xterm-addon-web-links', '/vendor/chartjs',
-  '/monaco-editor', '/xterm', '/marked', '/chart.js',
-]
+// Phase 4: no static prefixes remain — Nitro owns the whole root public/
+// surface (02.static middleware), /avatar/:seed and /addon-assets/:slug (Nitro
+// routes), and the TanStack app's own assets (web/public, baked into the Nitro
+// build). The old node_modules vendor mounts (/monaco, /xterm, /marked,
+// /chart.js, /vendor/xterm…) had no live consumers after the EJS cutover and
+// the modrinth v2 views were deleted, so they were retired rather than moved.
+const STATIC_PREFIXES = []
 
 const LEGACY_PAGE_PREFIXES = [
   // Kept in sync with proxy.config.ts: only paths Express still renders as
@@ -142,6 +136,11 @@ const NITRO_OWNED_PREFIXES = [
   '/api/my-images',
   '/upload-avatar',
   '/remove-avatar',
+  // Phase 4: Nitro owns the static surface — /avatar/:seed (dicebear SVG
+  // route) and /addon-assets/:slug/{*path} (addon public dirs) for ALL
+  // methods. Kept in sync with web/proxy.config.ts NITRO_OWNED_PATHS.
+  '/avatar',
+  '/addon-assets',
 ]
 
 // Phase 2 group 2: read/context endpoints Nitro owns for GET only. Sibling

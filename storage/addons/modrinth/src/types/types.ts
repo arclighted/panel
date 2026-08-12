@@ -21,8 +21,6 @@ export interface AddonAPI {
   logger: any;
   prisma: any;
   addonPath: string;
-  viewsPath: string;
-  renderView: (viewName: string, data?: any) => string;
   getComponentPath: (componentPath: string) => string;
   ui?: {
     addSidebarItem?: (item: any) => void;

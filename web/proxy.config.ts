@@ -17,38 +17,17 @@ export const PANEL_INTERNAL_HOST =
 export const PANEL_INTERNAL_URL = `http://${PANEL_INTERNAL_HOST}:${PANEL_INTERNAL_PORT}`
 
 /**
- * Legacy static paths that Express serves from `public/` — proxy these for any
- * passthrough page that references them.
+ * Phase 4: the static surface is fully Nitro-owned. The root public/ dir is
+ * served by the 02.static middleware (assets, themes, uploads, favicon, the
+ * legacy dirs), /avatar/:seed and /addon-assets/:slug are Nitro routes, and
+ * the TanStack app's own assets come from web/public (Vite in dev, baked
+ * into the Nitro build in prod). The old node_modules vendor mounts
+ * (/monaco, /xterm, /marked, /chart.js, /vendor/xterm…) had no live
+ * consumers after the EJS cutover and the modrinth v2 views were deleted,
+ * so they were retired rather than moved. Nothing here is proxied to
+ * Express anymore.
  */
-export const STATIC_PROXY_PATHS = [
-  '/favicon.ico',
-  '/javascript',
-  '/js',
-  '/fonts',
-  '/styles',
-  '/styles.css',
-  '/themes',
-  '/uploads',
-  '/assets',
-  '/addons',
-  '/monaco',
-  '/tw.css',
-  '/layout-animations.css',
-  // NOTE: NOT a bare `/vendor` — only the specific subpaths Express serves
-  // from node_modules for legacy EJS pages. The broad `/vendor` would
-  // intercept the TanStack app's vendor runtime files (`/vendor/*.mjs`)
-  // which Express has no copy of. New runtime files live in web/public/vendor/
-  // and are served by Vite (dev) / Nitro (prod).
-  '/vendor/xterm',
-  '/vendor/marked',
-  '/vendor/xterm-addon-fit',
-  '/vendor/xterm-addon-web-links',
-  '/vendor/chartjs',
-  '/monaco-editor',
-  '/xterm',
-  '/marked',
-  '/chart.js',
-] as const
+export const STATIC_PROXY_PATHS = [] as const
 
 /**
  * API paths proxied to Express unchanged.
@@ -60,14 +39,16 @@ export const STATIC_PROXY_PATHS = [
  * Nitro dev server's crossws upgrade handler (`features.websocket`), the
  * same path every other migrated endpoint takes.
  *
+ * Phase 4: `/avatar` and `/addon-assets` were REMOVED from this list — Nitro
+ * owns the static surface now (`/avatar/:seed` dicebear route and the
+ * `/addon-assets/:slug/{*path}` addon public-dir route).
+ *
  * Addon v3 API prefixes (the addon manifest's `ui.apiPaths`) must be listed
  * here so addon React UIs can call their own Express routers — the Nitro splat
  * route owns every other path. Kept in sync with web/server/index.mjs.
  */
 export const API_PROXY_PATHS = [
   '/api',
-  '/addon-assets',
-  '/avatar',
   // Addon v3 apiPaths:
   '/arclight-cloud/api',
   '/modrinth/api',
@@ -173,6 +154,11 @@ export const NITRO_OWNED_PATHS = [
   '/api/my-images',
   '/upload-avatar',
   '/remove-avatar',
+  // Phase 4: Nitro owns the static surface — /avatar/:seed (dicebear SVG
+  // route) and /addon-assets/:slug/{*path} (addon public dirs) for ALL
+  // methods. Kept in sync with web/server/index.mjs.
+  '/avatar',
+  '/addon-assets',
 ] as const
 
 /**

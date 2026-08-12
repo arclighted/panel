@@ -711,19 +711,43 @@ proxy entries). A `pnpm dev` run connecting a `ws` client to
 `ws://localhost:3000/ws/realtime` should show `realtime.ready` with a
 session cookie before Phase 4.
 
-### Phase 4 — Static, uploads, addon assets
+### Phase 4 — Static, uploads, addon assets  ✅ DONE (`39038eff` + `Phase 4` commit)
 
-1. `public/` (root) → Nitro `public/` or `NitroAssets` mount; verify
-   `/uploads`, `/avatar`, `/favicon.ico`, `/styles.css`.
-2. node_modules vendor paths (`/monaco`, `/xterm`, `/marked`, `/chart.js`,
-   `/vendor/...`) → move into `web/public/vendor/` (build script already
-   exists: `scripts/build-vendor.mjs`) and serve from Nitro.
-3. `/addon-assets/:slug` → Nitro handler (or keep in Nitro public w/ symlink.
-   mirror current Express logic).
-4. Delete addon v2 `views/` dirs + retired render code (verify no v2 callers).
+Done: **the root `public/` surface, avatars, and addon assets are fully
+Nitro-owned.** Express still runs behind the launcher, but no static request
+reaches it — the network panel shows zero Express hits for assets.
 
-**Gate:** full page load → all assets 200, no Express hits in the network
-panel; avatars and addon assets visible.
+1. `public/` (root) → Nitro via a filesystem-backed `serveStatic` adapter
+   (`web/server/utils/static-fs.ts`): `createFsStatic(baseDir, { stripPrefix })`
+   answers `getMeta`/`getContents` from disk with Express-compatible ETag
+   (`W/"<size>-<mtime>"`), Last-Modified, Content-Type, Content-Length and a
+   containment guard (refuses any path that escapes `baseDir`).
+2. `web/server/middleware/02.static.ts` (runs before Nitro's baked assets)
+   serves root `public/` (assets/wallpapers, themes, uploads/favicons,
+   favicon.ico, styles.css, tw.css, legacy dirs), user themes from
+   `storage/themes` (`/themes/*`), and the LIVE `web/public/uploads` written
+   by the Nitro upload twins (`/uploads/*`). Missing files fall through to
+   baked assets / the SSR catch-all (never a 500).
+3. `/avatar/:seed` → `web/server/routes/avatar/[seed].get.ts` — local dicebear
+   SVG twin of `src/modules/core/index.ts` (seed validation incl. decoded
+   control chars, `image/svg+xml`, 400/500 shapes). `@dicebear/core` +
+   `@dicebear/thumbs` added to `web` deps.
+4. `/addon-assets/:slug/{*path}` → `web/server/routes/addon-assets/[...].get.ts`
+   — serves `storage/addons/<slug>/public` with the same two guards Express
+   used (slug regex + realpath containment, so symlink escapes 404).
+5. Addon v2 UI retired: deleted `modrinth`/`arclight-cloud` `views/` dirs,
+   removed the dead v2 page routes (`routes/pages/{browse,admin}`, src + dist)
+   and the `renderView`/`viewsPath`/`AddonViewData` machinery in
+   `addonHandler.ts`; `addonViewResolver.ts` trimmed to `isValidAddonSlug`.
+6. Vendor paths (`/monaco`, `/xterm`, `/marked`, `/chart.js`, `/vendor/*`):
+   the EJS cutover left them with no live consumers, so they were retired
+   rather than moved (the TanStack app ships its own editor/deps).
+
+**Gate:** ✅ 19 new integration tests (`nitro-static.test.ts` — middleware
+surface, ETag/304, avatar, addon-assets guards) + 15-check prod smoke
+(`web/arclight-smoke-phase4.mjs` — launcher boot with NO Express, assets 200,
+304, avatar SVG/400, modrinth ui assets, SSR fallthrough) — all green; web
++ root tsc clean; web suite 250/250 serially.
 
 ### Phase 5 — Delete Express
 

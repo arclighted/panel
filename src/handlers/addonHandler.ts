@@ -22,7 +22,7 @@ import {
   isVersionInRange,
   isReservedRoutePrefix,
 } from './addonManifest';
-import { resolveAddonViewPath, isValidAddonSlug } from './addonViewResolver';
+import { isValidAddonSlug } from './addonViewResolver';
 import { registerAddonPermission, clearAddonPermissions } from './permissions';
 import { containPath } from '../utils/pathSecurity';
 import { isPrivateHostname } from '../utils/ssrf';
@@ -193,28 +193,6 @@ export interface AddonServerPort {
   [key: string]: unknown;
 }
 
-/** View data passed to addon EJS templates */
-export interface AddonViewData extends Record<string, unknown> {
-  title?: string;
-  user?: {
-    id: number;
-    username: string | null;
-    email: string;
-    avatar: string | null;
-    isAdmin: boolean;
-    description?: string | null;
-  };
-  settings?: Record<string, unknown>;
-  req?: {
-    translations: Record<string, string>;
-    path: string;
-    query: Record<string, string>;
-    session?: Record<string, unknown>;
-  };
-  nonce?: string;
-  [key: string]: unknown;
-}
-
 export interface AddonAPI {
   registerRoute: (path: string, router: Router) => void;
   logger: typeof logger;
@@ -252,15 +230,6 @@ export interface AddonAPI {
   };
 
   addonPath: string;
-  viewsPath: string;
-  desktopViewsPath: string;
-  mobileViewsPath: string;
-
-  renderView: (
-    viewName: string,
-    data?: AddonViewData,
-    isMobile?: boolean,
-  ) => Promise<string>;
 
   getComponentPath: (componentPath: string) => string;
 
@@ -374,10 +343,6 @@ function buildAddonAPI(
   addonPath: string,
   _manifest?: AddonManifestV2,
 ): AddonAPI {
-  const addonViewsPath = path.join(addonPath, 'views');
-  const addonDesktopViewsPath = path.join(addonViewsPath, 'desktop');
-  const addonMobileViewsPath = path.join(addonViewsPath, 'mobile');
-
   const panelViewsPath = path.join(__dirname, '../../views');
   const { AddonComponentResolver } =
     require('./addonComponentResolver') as typeof import('./addonComponentResolver');
@@ -399,9 +364,6 @@ function buildAddonAPI(
     logger,
     prisma,
     addonPath,
-    viewsPath: addonViewsPath,
-    desktopViewsPath: addonDesktopViewsPath,
-    mobileViewsPath: addonMobileViewsPath,
     getComponentPath: (componentPath: string) => {
       return path.join(__dirname, '../..', componentPath);
     },
@@ -481,160 +443,6 @@ function buildAddonAPI(
       requireAuth: (isAdmin?: boolean, permission?: string) =>
         createRequireAuth(isAdmin, permission),
       requireCsrf: () => createRequireCsrf(),
-    },
-    renderView: async (
-      viewName: string,
-      data: AddonViewData = {},
-      isMobile = false,
-    ): Promise<string> => {
-      const ejs = require('ejs');
-      // Resolve through the validated addon view resolver so view names from
-      // any source cannot escape the addon's views directory. The viewport
-      // split (views/desktop vs views/mobile) is honoured when present.
-      const subdir = isMobile ? 'mobile' : 'desktop';
-      const viewportPath = resolveAddonViewPath(
-        addonPath,
-        slug,
-        `${subdir}/${viewName}`,
-      );
-      const fallbackPath = resolveAddonViewPath(addonPath, slug, viewName);
-      const viewPath = viewportPath ?? fallbackPath;
-
-      if (!viewPath) {
-        throw new Error(`View ${viewName} not found in addon ${slug}`);
-      }
-
-      let panelSettings: Record<string, unknown> = {};
-      try {
-        const row = await (prisma as any).settings.findUnique({
-          where: { id: 1 },
-        });
-        if (row) {
-          panelSettings = row;
-        }
-      } catch {
-        // settings table may not exist yet
-      }
-
-      // Inject all template vars into data so addon views (and their includes) have access
-      data.nonce = data.nonce || '';
-      data.settings = { ...panelSettings, ...(data.settings || {}) };
-      data.user = data.user || {
-        id: 0,
-        username: 'Guest',
-        email: '',
-        avatar: null,
-        isAdmin: false,
-        description: '',
-      };
-      data.req = data.req || { translations: {}, path: '', query: {} };
-
-      const content = await new Promise<string>((resolve, reject) => {
-        ejs.renderFile(viewPath, data, {}, (err: any, str: string) => {
-          if (err) {
-            logger.error(`Error rendering view ${viewName}:`, err);
-            reject(err);
-          } else {
-            resolve(str);
-          }
-        });
-      });
-
-      const viewsBase = isMobile
-        ? path.join(__dirname, '../../views/mobile')
-        : path.join(__dirname, '../../views/desktop');
-      const headerPath = path.join(viewsBase, 'components/header.ejs');
-      const footerPath = path.join(viewsBase, 'components/footer.ejs');
-      const templatePath = path.join(viewsBase, 'components/template.ejs');
-
-      const hasHeader = fs.existsSync(headerPath);
-      const hasFooter = fs.existsSync(footerPath);
-      const hasTemplate = fs.existsSync(templatePath);
-
-      if (!hasHeader && !hasFooter) {
-        return content;
-      }
-
-      const templateData: AddonViewData & {
-        regularMenuItems: SidebarItem[];
-        adminMenuItems: SidebarItem[];
-        addonSidebarIds: Set<string>;
-        addonUrls: string[];
-        icon: (name: string, opts?: Record<string, unknown>) => string;
-      } = {
-        ...data,
-        settings: { ...panelSettings, ...(data.settings || {}) },
-        user: data.user!,
-        req: data.req!,
-        nonce: data.nonce || '',
-        regularMenuItems: uiComponentStore.getSidebarItems(undefined, false),
-        adminMenuItems: uiComponentStore.getSidebarItems('admin', true),
-        addonSidebarIds: uiComponentStore.getAddonSidebarIds(),
-        addonUrls: uiComponentStore
-          .getSidebarItems(undefined, false)
-          .filter((item) => uiComponentStore.getAddonSidebarIds().has(item.id))
-          .map((item) => item.url),
-        icon: (name: string, opts: any = {}) => renderIcon(name, opts),
-      };
-
-      let header = '';
-      if (hasHeader) {
-        header = await new Promise<string>((resolve) => {
-          ejs.renderFile(
-            headerPath,
-            templateData,
-            {},
-            (err: any, str: string) => {
-              if (err) {
-                resolve('');
-              } else {
-                resolve(str);
-              }
-            },
-          );
-        });
-      }
-
-      let template = '';
-      if (hasTemplate) {
-        template = await new Promise<string>((resolve) => {
-          ejs.renderFile(
-            templatePath,
-            templateData,
-            {},
-            (err: any, str: string) => {
-              if (err) {
-                resolve('');
-              } else {
-                resolve(str);
-              }
-            },
-          );
-        });
-      }
-
-      let footer = '';
-      if (hasFooter) {
-        footer = await new Promise<string>((resolve) => {
-          ejs.renderFile(
-            footerPath,
-            templateData,
-            {},
-            (err: any, str: string) => {
-              if (err) {
-                resolve('');
-              } else {
-                resolve(str);
-              }
-            },
-          );
-        });
-      }
-
-      if (isMobile) {
-        return `${header}\n<main id="page-content" class="">\n${template}\n${content}\n</main>\n${footer}`;
-      }
-      return `${header}\n<main class="min-h-screen m-auto"><div class="flex min-h-screen"><div class="w-60 h-full">\n${template}\n</div><div id="page-content" class="flex-1 overflow-y-auto pt-16">\n${content}\n</div></div></main>\n${footer}`;
     },
     config: createConfigStore(slug),
     ui: {
@@ -939,20 +747,6 @@ export async function loadAddons(appExpress: Express | any) {
         `Addon ${manifest.name} main file escapes addon directory, skipping`,
       );
       continue;
-    }
-
-    const addonViewsPath = path.join(addonPath, 'views');
-    const addonDesktopViewsPath = path.join(addonViewsPath, 'desktop');
-    const addonMobileViewsPath = path.join(addonViewsPath, 'mobile');
-
-    if (!fs.existsSync(addonViewsPath)) {
-      fs.mkdirSync(addonViewsPath, { recursive: true });
-    }
-    if (!fs.existsSync(addonDesktopViewsPath)) {
-      fs.mkdirSync(addonDesktopViewsPath, { recursive: true });
-    }
-    if (!fs.existsSync(addonMobileViewsPath)) {
-      fs.mkdirSync(addonMobileViewsPath, { recursive: true });
     }
 
     const addonRouter = Router();
