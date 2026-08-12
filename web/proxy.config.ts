@@ -51,10 +51,14 @@ export const STATIC_PROXY_PATHS = [
 ] as const
 
 /**
- * API and real-time paths proxied to Express unchanged.
+ * API paths proxied to Express unchanged.
  *
- * `/console` is the panel's WebSocket proxy for container terminal output
- * (browser → panel → daemon). It needs ws: true like `/ws`.
+ * Phase 3: `/ws`, `/console`, `/status`, `/events` and `/online-check` are
+ * intentionally NOT here — Nitro owns every WebSocket now (the realtime bus,
+ * online-check presence, and the console/status/events proxies). Removing
+ * `/ws` and `/console` from this list lets WS upgrades fall through to the
+ * Nitro dev server's crossws upgrade handler (`features.websocket`), the
+ * same path every other migrated endpoint takes.
  *
  * Addon v3 API prefixes (the addon manifest's `ui.apiPaths`) must be listed
  * here so addon React UIs can call their own Express routers — the Nitro splat
@@ -62,8 +66,6 @@ export const STATIC_PROXY_PATHS = [
  */
 export const API_PROXY_PATHS = [
   '/api',
-  '/ws',
-  '/console',
   '/addon-assets',
   '/avatar',
   // Addon v3 apiPaths:
@@ -245,16 +247,17 @@ function nitroApiProxyKey(): string {
   return `^\\/api(?!\\/${excluded.join('|')})`
 }
 
-export function createProxyConfig(): Record<string, string | { target: string; changeOrigin: boolean; ws: boolean }> {
-  const config: Record<string, string | { target: string; changeOrigin: boolean; ws: boolean }> = {}
+export function createProxyConfig(): Record<string, string | { target: string; changeOrigin: boolean }> {
+  const config: Record<string, string | { target: string; changeOrigin: boolean }> = {}
 
-  // API and WS paths need ws: true for WebSocket upgrade forwarding
+  // Phase 3: no Express-owned WebSocket paths remain (see API_PROXY_PATHS), so
+  // no proxy entry needs the `ws: true` upgrade flag — WS upgrades fall
+  // through to the Nitro dev server's crossws handler.
   for (const path of API_PROXY_PATHS) {
     const key = path === '/api' ? nitroApiProxyKey() : path
     config[key] = {
       target: PANEL_INTERNAL_URL,
       changeOrigin: true,
-      ws: path === '/ws',
     }
   }
 

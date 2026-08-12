@@ -2,7 +2,8 @@
  * Arclight panel production server.
  *
  * Spawns the TanStack Start (Nitro) server on `APP_INTERNAL_PORT` and proxies
- * API/WS/legacy paths to the Express panel on `PANEL_INTERNAL_PORT`.
+ * API/legacy paths to the Express panel on `PANEL_INTERNAL_PORT`. Since Phase
+ * 3, every WebSocket upgrade is forwarded to the Nitro child (crossws) too.
  * Listens on `PORT` (default 3000).
  *
  * Used via: node web/server/index.mjs
@@ -44,10 +45,12 @@ const APP_HOST = process.env.APP_INTERNAL_HOST ?? '127.0.0.1'
 
 // ── Proxy path prefixes (must match proxy.config.ts) ───────────────────────
 
+// Phase 3: '/ws' and '/console' were removed — Nitro owns every WebSocket
+// (realtime bus, online-check, console/status/events proxies). WS upgrades
+// are routed to the Nitro child below; no Express HTTP surface remains under
+// those prefixes.
 const API_PREFIXES = [
   '/api',
-  '/ws',
-  '/console',
   '/addon-assets',
   '/avatar',
   // Addon v3 apiPaths (kept in sync with web/proxy.config.ts):
@@ -269,19 +272,31 @@ const server = http.createServer((req, res) => {
 })
 
 // ── WebSocket upgrade forwarding ───────────────────────────────────────────
+// Phase 3: Nitro owns every panel WebSocket (realtime bus, online-check
+// presence, and the console/status/events proxies), so ALL panel WS upgrades
+// are forwarded to the TanStack (Nitro) child, which runs crossws when
+// features.websocket is enabled. Express WS is retired. Kept in sync with
+// web/proxy.config.ts (no WS entries there anymore) and the route files under
+// server/routes (ws/realtime.ts, online-check.ts, console/[id].ts,
+// status/[id].ts, events/[id].ts).
+
+const WS_UPGRADE_PREFIXES = [
+  '/ws',
+  '/console',
+  '/status',
+  '/events',
+  '/online-check',
+]
 
 server.on('upgrade', (req, socket, head) => {
-  // Only forward upgrades for panel WS paths (e.g. /ws, /console or /api WS
-  // endpoints). The console socket lives at /console/:id?token=...
-  if (
-    !(req.url.startsWith('/ws') || req.url.startsWith('/api') || req.url.startsWith('/console'))
-  ) {
+  const path = (req.url ?? '').split('?')[0]
+  if (!WS_UPGRADE_PREFIXES.some((p) => path === p || path.startsWith(p + '/'))) {
     socket.destroy()
     return
   }
 
-  const proxy = net.connect(PANEL_PORT, PANEL_HOST, () => {
-    // Reconstruct the upgrade request and forward it to Express
+  const proxy = net.connect(APP_PORT, APP_HOST, () => {
+    // Reconstruct the upgrade request and forward it to the Nitro child
     const requestHead = [
       `${req.method} ${req.url} HTTP/${req.httpVersion}`,
       ...Object.entries(req.headers).map(([k, v]) => `${k}: ${v}`),

@@ -110,7 +110,16 @@ const config = defineConfig({
     // scanned). Enable it so `server/routes/**` (e.g. the Nitro-owned
     // GET /api/auth-config) and `server/middleware/**` (session loader) are
     // compiled into the Nitro server alongside the TanStack SSR renderer.
-    nitro({ serverDir: true, rollupConfig: { external: [/^@sentry\//] } }),
+    // Phase 3: features.websocket wires crossws upgrade handling into the
+    // production node server AND the Vite dev server (see vite.dev.mjs), so
+    // the migrated WebSocket handlers (server/routes/ws/realtime.ts,
+    // online-check.ts, console/status/events/[id].ts) actually receive
+    // upgrades in both environments.
+    nitro({
+      serverDir: true,
+      features: { websocket: true },
+      rollupConfig: { external: [/^@sentry\//] },
+    }),
     tailwindcss(),
     tanstackStart(),
     viteReact(),

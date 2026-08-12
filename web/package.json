@@ -46,6 +46,7 @@
     "cookie-signature": "1.2.2",
     "csrf-csrf": "4.0.3",
     "h3": "2.0.1-rc.22",
+    "ws": "^8.21.0",
     "lucide": "1.27.0",
     "otpauth": "9.5.1",
     "zod": "4.4.3"

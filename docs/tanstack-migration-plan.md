@@ -651,6 +651,66 @@ the trailing-slash normalization below).
 **Gate:** console connect + streaming works in browser; realtime presence
 updates; `playwright` terminal smoke passes.
 
+### Phase 3 — delivered (all WebSockets to Nitro, Aug 2026)
+
+Nitro (crossws via `defineWebSocketHandler`) now serves every panel
+WebSocket. The prod launcher (`web/server/index.mjs`) forwards all WS
+upgrades to the Nitro child instead of Express; the dev proxy no longer
+proxies `/ws` or `/console` to Express (Vite's dev server handles the
+upgrades through Nitro's `features.websocket` wiring).
+
+**Routes (all crossws handlers, `peer.websocket` is the raw `ws` socket so
+the Express logic ports 1:1):**
+
+- `server/routes/ws/realtime.ts` — the realtime bus. Session-cookie auth via
+  the `01.session` middleware (the full h3 chain runs before the WS hooks),
+  heartbeat/pong, `sync` resynchronization, per-server `watch`/`watchEvents`
+  with the session-can-see gate, `watchAll`, and per-session release. Reuses
+  the root `realtime/hub`, `access`, `serverStatusWatcher` and
+  `serverEventWatcher` modules unchanged.
+- `server/routes/online-check.ts` — presence; sets now live in the Nitro
+  process (nothing in the migrated surface consumes them).
+- `server/routes/console/[id].ts`, `status/[id].ts`, `events/[id].ts` — the
+  console proxy. `server/utils/console-proxy.ts` ports `proxyConsole`
+  verbatim (binary-preserving frames, capability-token daemon auth, pending
+  queue, command extraction → REST `/container/command`) and mirrors
+  `isAuthenticatedForServerWS('id')` + the subuser `console` permission gate
+  for the interactive route.
+
+**Config / seams:** `nitro({ features: { websocket: true } })` in
+`vite.config.ts` (required — it gates crossws upgrade wiring in both the
+prod node server and the Vite dev server); `ws@^8.21.0` added to
+`web/package.json`; `web/proxy.config.ts` drops `/ws` + `/console` from
+`API_PROXY_PATHS` (and the now-unused `ws: true` proxy flag);
+`web/server/index.mjs` routes upgrades for `/ws`, `/console`, `/status`,
+`/events`, `/online-check` to the Nitro child (Express WS is retired).
+
+**Split-brain resolved:** the realtime hub now lives in the Nitro process
+alongside every React-app mutation and the daemon watchers, so React sockets
+receive the full event stream (status/stats/lifecycle + mutation events).
+The Phase 2 note above (“events don't reach connected clients yet”) no
+longer applies to the React client. Events emitted by legacy Express-process
+mutations remain invisible to the Nitro hub — the documented migration seam
+(the EJS client never connects to this endpoint).
+
+**Validation:** 11 new integration tests
+(`web/src/__tests__/nitro-websocket.test.ts`) drive the real crossws hooks
+through the composed app — realtime handshake/close codes, presence
+bookkeeping, console token + permission + daemon-down paths; 230/230 web
+tests pass serially. Prod smoke (`web/arclight-smoke-phase3.mjs`) boots the
+launcher WITHOUT Express and connects real `ws` clients through the upgrade
+seam: realtime.ready/synced, 4401 without a cookie, `{online:true}`, console
+error JSON, and the daemon-unreachable message — all green.
+
+**Remaining (Phase 5):** delete `express-ws` + the Express WS modules.
+
+**Not yet verified:** the DEV seam end-to-end (prod smoke + unit tests cover
+the handlers and the prod upgrade path; dev relies on the same
+`features.websocket` wiring in `vite.dev.mjs` + the removed `/ws`/`/console`
+proxy entries). A `pnpm dev` run connecting a `ws` client to
+`ws://localhost:3000/ws/realtime` should show `realtime.ready` with a
+session cookie before Phase 4.
+
 ### Phase 4 — Static, uploads, addon assets
 
 1. `public/` (root) → Nitro `public/` or `NitroAssets` mount; verify
