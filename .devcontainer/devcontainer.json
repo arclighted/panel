@@ -1,4 +1,23 @@
-{
-  "image": "mcr.microsoft.com/devcontainers/base:ubuntu",
-  "features": {}
-}
+#!/usr/bin/env bash
+set -e
+
+echo "==> Setup Omee Panel dev environment"
+
+# --- Project setup ---
+pnpm install
+
+if [ ! -f .env ]; then
+  cp example.env .env
+  echo "==> .env is generated from example.env — don't forget to fill in DATABASE_URL, SESSION_SECRET, etc."
+fi
+
+# pnpm run setup: generate prisma client + push schema + build ts/css
+pnpm run setup || echo "==> ‘pnpm run setup’ failed / won't run; check .env first, then run it manually"
+
+# --- AI tooling ---
+echo "==> Install AI tools"
+npm install -g freebuff
+
+curl -fsSL https://qoder.com/install | bash
+
+echo "==> Setup complete. Run ‘pnpm run dev’ to start development."
