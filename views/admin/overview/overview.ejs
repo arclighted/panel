@@ -1,34 +1,13 @@
 <%- include('../../components/header', { title: req.translations.adminOverviewTitle || 'Overview' }) %>
 
-<style>
-  #page-content.admin-overview-bg {
-    position: relative;
-    isolation: isolate;
-  }
-  #page-content.admin-overview-bg::before {
-    content: '';
-    position: fixed;
-    inset: 0;
-    z-index: -1;
-    background-image: var(--vcode-bg, none);
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
-    pointer-events: none;
-    opacity: 0.5;
-  }
-  html.dark #page-content.admin-overview-bg::before {
-    filter: invert(1);
-    opacity: 0.4;
-  }
-</style>
+
 
 <main class="min-h-screen m-auto">
   <div class="flex min-h-screen">
     <div class="hidden lg:block w-60 h-full">
       <%- include('../../components/template') %>
     </div>
-    <div id="page-content" class="admin-overview-bg flex-1 overflow-y-auto pt-16 pb-12"<% if (vcodeBg) { %> style="--vcode-bg: url('<%= vcodeBg %>');"<% } %>>
+    <div id="page-content" class="flex-1 overflow-y-auto pt-16 pb-12">
       <%- include('../../components/ui/breadcrumb', { items: [
         { label: 'Admin' },
         { label: 'Overview' }

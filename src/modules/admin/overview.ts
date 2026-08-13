@@ -68,7 +68,6 @@ const adminModule: Module = {
           });
 
           let arclightCodename = String(res.locals.arclightCodename || '');
-          let vcodeBg: string | null = null;
 
           try {
             const configPath = path.join(process.cwd(), 'storage', 'config.json');
@@ -82,21 +81,6 @@ const adminModule: Module = {
             logger.error('Error reading storage/config.json for codename:', error);
           }
 
-          if (arclightCodename) {
-            try {
-              const vcodeDir = path.join(process.cwd(), 'public', 'assets', 'vcode');
-              if (fs.existsSync(vcodeDir)) {
-                const target = `${arclightCodename.toLowerCase()  }.svg`;
-                const match = fs.readdirSync(vcodeDir).find((f) => f.toLowerCase() === target);
-                if (match) {
-                  vcodeBg = `/assets/vcode/${  match}`;
-                }
-              }
-            } catch (error: unknown) {
-              logger.error('Error scanning vcode assets:', error);
-            }
-          }
-
           res.render('admin/overview/overview', {
             errorMessage,
             user,
@@ -108,7 +92,6 @@ const adminModule: Module = {
             settings,
             arclightVersion: res.locals.arclightVersion,
             arclightCodename,
-            vcodeBg,
           });
         } catch (error: unknown) {
           logger.error('Error fetching user:', error);

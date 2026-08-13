@@ -137,9 +137,6 @@
   window.addEventListener('al:themechange', function () {
     applyChipTheme();
   });
-      chipEl.style.transform = 'translateY(-4px)';
-    }, 200);
-  }
 
   // ── Content fade ─────────────────────────────────────────────────────────
 
@@ -334,6 +331,7 @@
 
   function revealAfterStuckLoad() {
     if (document.documentElement.classList.contains('js-loading')) {
+    console.warn('AL-Loader: Content reveal timed out. Forcing fade-in to prevent blank page.');
       releaseActivity();
       fadeContentIn();
     }

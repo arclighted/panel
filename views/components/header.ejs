@@ -16,6 +16,7 @@ const wallpaperExcluded = req && req.path && (
     <% if (typeof csrfToken !== 'undefined') { %>
     <meta name="csrf-token" content="<%= csrfToken %>">
     <% } %>
+    <meta name="csp-nonce" content="<%= nonce %>">
     <title><%= settings.title %> - <%= title %></title>
     <link rel="stylesheet" href="/styles.css?v=8">
     <link rel="stylesheet" href="/layout-animations.css?v=8">
