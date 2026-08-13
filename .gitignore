@@ -31,6 +31,9 @@ coverage/
 storage/dev.db
 storage/dev.db-wal
 storage/dev.db-shm
+/dev.db
+/dev.db-wal
+/dev.db-shm
 
 # Storage (keep structure, ignore data)
 storage/eggs
@@ -39,9 +42,15 @@ storage/eggs
 .agents/
 .claude/
 .codex/
+.commandcode/
 .impeccable/
 .opencode/
+.omo/
 agent/
 backups/
 docs/tmp/
 /dist/*.map
+
+# Web frontend build output / runtime data
+/web/
+!/web/package.json
