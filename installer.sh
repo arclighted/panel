@@ -1307,9 +1307,6 @@ phase_panel_deps() {
         || die "Panel dependency install failed"
 
     "$PNPM" approve-builds --all || true
-
-    "$PNPM" add chalk form-data --store-dir "$PNPM_STORE" \
-        || die "chalk/form-data install failed"
 }
 
 phase_panel_build() {

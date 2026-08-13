@@ -6,11 +6,12 @@
  * same issuer, same window, same recovery-code hashing (sha256 hex in
  * `totpRecoveryCodes`).
  */
-import { createHash } from 'node:crypto'
+import { createHash, randomBytes } from 'node:crypto'
 import * as OTPAuth from 'otpauth'
 import { nitroPrisma } from './auth-session'
 
 const TOTP_ISSUER = 'Arclight'
+const RECOVERY_CODE_COUNT = 10
 
 export function createTotp(secretBase32: string, label: string): OTPAuth.TOTP {
   return new OTPAuth.TOTP({
@@ -38,8 +39,25 @@ export function normalizeRecoveryCode(token: unknown): string | null {
   return /^[A-F0-9]{12}$/.test(clean) ? clean : null
 }
 
-function hashRecoveryCode(code: string): string {
+export function hashRecoveryCode(code: string): string {
   return createHash('sha256').update(code).digest('hex')
+}
+
+/** "ABCDEF123456" → "ABCD-EF12-3456" (mirrors twoFactor.ts). */
+export function formatRecoveryCode(raw: string): string {
+  return `${raw.slice(0, 4)}-${raw.slice(4, 8)}-${raw.slice(8, 12)}`
+}
+
+/**
+ * Generates `count` fresh recovery codes (12 hex chars each) — mirrors
+ * generateRecoveryCodes in twoFactor.ts.
+ */
+export function generateRecoveryCodes(
+  count = RECOVERY_CODE_COUNT,
+): string[] {
+  return Array.from({ length: count }, () =>
+    randomBytes(6).toString('hex').toUpperCase(),
+  )
 }
 
 /**

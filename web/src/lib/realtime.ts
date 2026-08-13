@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 import { useQuery } from '@tanstack/react-query'
+import ReconnectingWebSocket from 'reconnecting-websocket'
 
 import { queryClient } from './query-client'
 
@@ -195,9 +196,12 @@ let singleton: RealtimeClient | null = null
  * client. Tests call it directly with injected WebSocket implementations.
  */
 export function createRealtimeClient(opts: CreateRealtimeOptions = {}): RealtimeClient {
+  // The EJS-era global (public/javascript/vendor/reconnecting-websocket.js)
+  // was pruned with the rest of the legacy UI — import the package directly
+  // so the browser keeps a working transport. Tests inject a mock instead.
   const RWS =
     opts.ReconnectingWebSocket ??
-    (typeof window !== 'undefined' ? (window as unknown as { ReconnectingWebSocket?: CreateRealtimeOptions['ReconnectingWebSocket'] }).ReconnectingWebSocket : undefined)
+    (typeof window !== 'undefined' ? ReconnectingWebSocket : undefined)
   const WS = opts.WebSocket ?? (typeof window !== 'undefined' ? window.WebSocket : undefined)
 
   if (!RWS || !WS) {

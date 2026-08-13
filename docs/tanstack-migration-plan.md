@@ -838,6 +838,62 @@ the Nitro runtime; everything else was deleted.
 contention; green in isolation), production build, phase-5 smoke 15/15
 (Express deleted end-to-end still holds).
 
+### Phase 6.5 — Deep dependency audit (Aug 2026) ✅
+
+**Done:** a package-by-package usage scan of the surviving tree (root `src`/
+`tests`/`scripts`/`tui` + `web/server`/`web/src` + addon bundles + installer)
+against every declared dependency. Dead deps removed, two real regressions
+found and fixed, and the installer/scripts cleaned up.
+
+**Dead deps removed (21):**
+
+| Scope | Removed |
+|---|---|
+| Root deps (15) | `@formkit/auto-animate`, `@hotwired/stimulus`, `@hotwired/turbo`, `@tanstack/query-core`, `@xterm/addon-fit`, `@xterm/addon-web-links`, `@xterm/xterm`, `bcryptjs`, `chalk`, `chart.js`, `helmet`, `marked`, `monaco-editor`, `otpauth`, `reconnecting-websocket` |
+| Root devDeps (2) | `nodemon` (stale `nodemon.json` referenced deleted `src/app.ts` — file also deleted), `tsx` |
+| Web deps (3) | `@tanstack/react-devtools`, `@tanstack/react-router-devtools`, `shadcn` (CLI only; `components.json` kept) |
+| Web devDeps (1) | `msw` |
+| Scripts | `build:vendor` + `verify:vendor` (deleted `scripts/build-vendor.mjs` — its output dir `public/javascript/` was deleted in Phase 6) |
+| Installer | dropped the deploy-time `pnpm add chalk form-data` (nothing requires them; addon bundles externalize `express`/`adm-zip`/`axios`/`zod` only) |
+
+**False negatives verified LIVE (kept, with evidence):** `validator` +
+`@types/validator` (web server routes import it), `qrcode` + `@types/qrcode`
+(the ported 2FA setup route renders the QR), `express` (addon SDK — the
+bundles `require('express')`), `adm-zip` (addon bundles + web hoist),
+`csrf-csrf` (root `csrfProtection.ts` is the addon-bridge middleware),
+`lucide` (`src/utils/icon.ts` `require('lucide')`, bundled into web),
+`@dicebear/*` (root `src/utils/avatar.ts`, bundled into web), `ws` (root
+realtime watchers + web console proxy), `dotenv` (prisma.config),
+`mysql2` (`/promise` subpath), `nitro` (`/vite`), `@base-ui/react`
+(`/dialog` subpaths), `@fontsource-variable/geist` + `tw-animate-css` +
+`@tailwindcss/typography` (CSS imports), `@testing-library/jest-dom`
+(`/vitest`), `jsdom`, `@tailwindcss/forms` (`@plugin` in `public/tw.css`),
+`@types/express-session` + `@types/express` (`req.session` still used),
+`bun-types` + `@opentui/core` (TUI), `@types/adm-zip`.
+
+**Regression fixed #1 — browser realtime transport silently degraded:**
+`web/src/lib/realtime.ts` looked up `window.ReconnectingWebSocket`, the global
+that the EJS vendor bundle used to install. Phase 6 deleted `public/
+javascript/` (the global's only provider) while the client kept reading it —
+so the browser realtime client had been returning the no-op
+`status: 'unsupported'` singleton. Fixed by importing the package directly
+(`import ReconnectingWebSocket from 'reconnecting-websocket'`); tests inject
+their own mock, so nothing else changed.
+
+**Regression fixed #2 — 2FA setup/enable/disable endpoints were never ported:**
+the React account page calls `GET /api/account/2fa/setup` (expects
+`qrDataUrl` + `secretBase32`) and `POST /account/2fa/{enable,disable}`, but
+those Express routes (`src/modules/user/twoFactor.ts`) were deleted in Phase 2
+without a Nitro twin — the setup page rendered a QR that 404'd. Ported all
+three routes (`web/server/routes/api/account/2fa/setup.get.ts`,
+`account/2fa/{enable,disable}.post.ts`) against the shared `auth-session`
+store + `two-factor.ts` helpers (TOTP validate window 1, sha256-hashed
+recovery codes persisted to `users.totpRecoveryCodes`, password-confirmed
+disable). `qrcode` + `@types/qrcode` (root) are the QR renderer.
+
+**Gate:** root tsc (3 configs), web tsc, root vitest, web vitest, production
+build — all green; phase-5 smoke re-run.
+
 ---
 
 ## 4. Verification gates (shared)
@@ -849,7 +905,6 @@ Applied at every phase, not just the end:
 | Root typecheck | `pnpm build` (tsc) |
 | Web typecheck | `pnpm typecheck:web` |
 | Web tests | `pnpm test:web` |
-| Vendor build integrity | `pnpm verify:vendor` |
 | Prod boot smoke | `pnpm build:web && pnpm start:web` → curl pages/API/WS |
 | E2E | playwright suite for auth + server tabs (extend per phase) |
 
