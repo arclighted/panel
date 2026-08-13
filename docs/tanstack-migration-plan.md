@@ -749,22 +749,41 @@ surface, ETag/304, avatar, addon-assets guards) + 15-check prod smoke
 304, avatar SVG/400, modrinth ui assets, SSR fallthrough) — all green; web
 + root tsc clean; web suite 250/250 serially.
 
-### Phase 5 — Delete Express
+### Phase 5 — Delete Express ✅
 
-1. Remove `web/server/index.mjs` + `web/proxy.config.ts` + the
-   `proxyToExpress()` vite plugin; dev proxy config deleted.
-2. Delete `src/app.ts` Express app + `express`/`express-session`/`express-ws`/
-   `multer`/`compression`/`cookie-parser` deps from root `package.json`.
-3. Single `pnpm --filter arclight-web start` serves everything; root
-   `start:panel`/`dev` scripts repointed.
-4. Remove the now-dead 75 `res.render` sites noted in `39fd3f60` (they're
-   unreachable today; after Express dies they're unreachable forever — delete
-   with the modules).
-5. Update `installer.sh` + systemd unit (`arclight-web.service`) if it points
-   at the proxy.
+**Done** (commit …): the launcher seam is gone. `web/server/index.mjs` is a
+thin entry that loads env + `NODE_ENV` and imports the Nitro server directly;
+`web/proxy.config.ts` and the `proxyToExpress()` vite plugin are deleted;
+`scripts/dev.mjs` runs the single Nitro process. `src/app.ts` is deleted and
+root `start:panel` → `web start`; `installer.sh` `ExecStart` repointed to
+`start:panel`. The express-ws type augmentation survives via a bare type-only
+import (`src/types/express-ws.d.ts`) so the dormant WS modules still compile.
 
-**Gate:** `pnpm build && build:web`, boot from clean install, end-to-end
-smoke (auth → dashboard → create server → console → admin → API-key call).
+**Addon runtime in Nitro** (`web/server/utils/addon-runtime.ts` +
+`middleware/03.addons.ts`): the express-SDK addons (modrinth, arclight-cloud)
+run inside Nitro through an in-process Express bridge — `express` stays a
+**dependency purely as the addon SDK** (the addon API contract is
+`express.Router`; the bundles `require('express')` directly). Async mains are
+`await`ed before the bridge mount (no mount race). Per request the bridge
+injects `req.session`/`req.user` from the Nitro session, enforces CSRF on addon
+mutations (apiPaths are NOT csrf-exempt), then dispatches via
+`fromNodeMiddleware`. `toggle`/`reload`/`uninstall` unmount + reboot addons;
+the v3 UI manifest (`GET /api/addons/ui`), the admin addons APIs
+(`/admin/addons/*`), and the store 410 stubs are Nitro routes. Background
+workers (scheduler, player stats, install queue, egg catalogue, security
+cache) boot in `web/server/utils/background.ts`.
+
+Legacy `/user/server/*` bookmarks 302 → `/server/:uuid` (query preserved).
+The dormant Express source tree stays green (architecture-first): the 75
+`res.render` sites and the 13 Express-handler test files are unreachable but
+kept for the next pass.
+
+**Gate:** `pnpm build && build:web`, `NODE_ENV=production` boot from the
+launcher with no Express, phase-5 smoke (`web/arclight-smoke-phase5.mjs`,
+15 checks: addon bridge anonymous + admin, ui manifest, admin guard/toggle
+unmount-reload cycle, legacy redirects, static regression), web suite
+261/261 (at reduced parallelism — the default parallel run is timing-flaky
+under CPU contention in untouched client tests), root + web tsc clean.
 
 ---
 

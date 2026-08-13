@@ -1332,7 +1332,7 @@ Type=simple
 User=root
 WorkingDirectory=/var/www/panel
 EnvironmentFile=/var/www/panel/.env
-ExecStart=${pnpm_bin} run start
+ExecStart=${pnpm_bin} run start:panel
 Restart=on-failure
 RestartSec=5
 Environment=NODE_ENV=production

@@ -1,0 +1,15 @@
+{
+  "name": "Test Express Addon",
+  "version": "1.0.0",
+  "description": "Test fixture for the Phase 5 addon runtime (Express-bridge) tests",
+  "author": "Arclight",
+  "main": "index.js",
+  "router": "/test-express",
+  "enabled": true,
+  "ui": {
+    "bundles": ["/addon-assets/test-express/ui/bundle.mjs"],
+    "css": ["/addon-assets/test-express/ui/styles.css"],
+    "routes": [{ "path": "/test-express/page", "component": "Page" }],
+    "apiPaths": ["/test-express/api/"]
+  }
+}

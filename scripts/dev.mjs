@@ -1,21 +1,13 @@
 #!/usr/bin/env node
 /**
- * TanStack-first development runner.
+ * Single-process development runner (Phase 5 — Express is deleted).
  *
  * Boots the whole stack with one command:
  *
- *   browser ──▶ Vite dev server (public, :3000) ── serves the TanStack app
- *                   └─ proxies /api, /ws, /console, static assets and any
- *                      unmigrated legacy pages to the Express panel
- *   Express panel on PANEL_INTERNAL_PORT (default :3001)
- *   One-shot Tailwind build → public/styles.css (legacy EJS passthrough pages)
- *
- * Ports: the public `PORT` (default 3000) belongs to the TanStack app; Express
- * is internal on `PANEL_INTERNAL_PORT` (default 3001) — the same split used in
- * production (`web/server/index.mjs`). Express reads its listen port from
- * `PORT`, so the child is spawned with PORT=PANEL_INTERNAL_PORT; `loadEnv()`
- * only fills vars that are not already set, so .env's PORT=3000 does not
- * clobber it.
+ *   browser ──▶ Vite dev server (public, :3000) ── serves the TanStack app,
+ *               every API, the WebSockets, the static surface, the addon
+ *               runtime and the background workers — one process, one port,
+ *               identical to production (web/server/index.mjs).
  *
  * Usage: pnpm run dev
  */
@@ -23,18 +15,16 @@ import { spawn } from 'node:child_process'
 import crypto from 'node:crypto'
 import { loadEnvFile, normalizeDatabaseUrl } from '../web/server/env-loader.mjs'
 
-// Load .env (repo root) so both children see DATABASE_URL / SESSION_SECRET.
+// Load .env (repo root) so the dev server sees DATABASE_URL / SESSION_SECRET.
 // DATABASE_URL is normalized to an absolute path so root modules bundled into
-// the Vite (Nitro) dev server resolve the same SQLite file from web/ that
-// Express resolves from the repo root.
+// the Vite (Nitro) dev server resolve the same SQLite file from web/ that the
+// repo root uses.
 loadEnvFile()
 normalizeDatabaseUrl()
 
-// The session cookie + CSRF tokens are shared across processes: Express and
-// the Vite (Nitro) dev server must use the SAME SESSION_SECRET. If the env
-// secret is missing or a known-insecure placeholder (example.env ships
-// "change_me"), generate one here so both children inherit it — otherwise
-// each process would mint its own ephemeral secret and sessions would break.
+// If the env secret is missing or a known-insecure placeholder (example.env
+// ships "change_me"), generate a shared dev secret for this boot — sessions
+// won't survive a restart, but that's expected in dev.
 const INSECURE_SECRETS = new Set([
   'change_me',
   'dev-only-insecure-secret-change-me',
@@ -53,7 +43,6 @@ if (
   )
 }
 
-const INTERNAL_PORT = process.env.PANEL_INTERNAL_PORT ?? '3001'
 const PUBLIC_PORT = process.env.PORT ?? '3000'
 
 const children = new Map()
@@ -109,8 +98,8 @@ if (genCode !== 0) process.exit(genCode)
 console.log('')
 console.log('──────────────────────────────────────────────────────────────')
 console.log('  Arclight dev stack')
-console.log(`  TanStack app (Vite)  → http://localhost:${PUBLIC_PORT}`)
-console.log(`  Express panel (API)  → http://localhost:${INTERNAL_PORT}`)
+console.log(`  TanStack app (Nitro) → http://localhost:${PUBLIC_PORT}`)
+console.log('  Single process — no Express, no proxy seam')
 console.log('  Ctrl+C stops everything')
 console.log('──────────────────────────────────────────────────────────────')
 console.log('')
@@ -129,13 +118,9 @@ run('tailwind', 'pnpm', [
   './public/styles.css',
 ])
 
-// 3. Express panel on the internal port (nodemon reloads on src changes).
-run('express', 'pnpm', ['exec', 'nodemon'], {
-  PORT: INTERNAL_PORT,
-  PANEL_INTERNAL_PORT: INTERNAL_PORT,
-})
-
-// 4. TanStack Start dev server (Vite) on the public port.
+// 3. TanStack Start dev server (Vite/Nitro) on the public port — the only
+//    server. The addon runtime + background workers boot inside it
+//    (web/server/middleware/03.addons.ts).
 run('vite', 'pnpm', ['--filter', 'arclight-web', 'dev'], {
   PORT: PUBLIC_PORT,
 })

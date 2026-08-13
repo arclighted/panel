@@ -77,10 +77,14 @@ describe('2fa page', () => {
     await userEvent.type(input, '123456')
     await userEvent.click(screen.getByRole('button', { name: 'Verify and sign in' }))
 
-    // Land on the dashboard with the fresh post-2FA session.
-    await waitFor(() => {
-      expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
-    })
+    // Land on the dashboard with the fresh post-2FA session. Generous
+    // timeout: under full-suite CPU load the default 1s is too tight.
+    await waitFor(
+      () => {
+        expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
 
     // POST /2fa carried the CSRF token and the JSON body.
     const twoFaCall = fetchMock.mock.calls.find(([url]) => String(url) === '/2fa')
