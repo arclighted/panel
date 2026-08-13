@@ -23,6 +23,9 @@ export interface AuthConfigSettingsRow {
   allowRegistration?: boolean | null
   loginWallpaper?: string | null
   registerWallpaper?: string | null
+  /** Theme override hrefs — 'default' (or null) means the builtin B&W theme. */
+  lightTheme?: string | null
+  darkTheme?: string | null
 }
 
 export interface AuthConfigPayload {
@@ -36,6 +39,8 @@ export interface AuthConfigPayload {
     allowRegistration: boolean
     loginWallpaper: string | null
     registerWallpaper: string | null
+    lightTheme: string | null
+    darkTheme: string | null
   }
 }
 
@@ -56,6 +61,14 @@ export function buildAuthConfigPayload(opts: {
       allowRegistration: settings?.allowRegistration ?? false,
       loginWallpaper: settings?.loginWallpaper ?? null,
       registerWallpaper: settings?.registerWallpaper ?? null,
+      lightTheme:
+        settings?.lightTheme && settings.lightTheme !== 'default'
+          ? settings.lightTheme
+          : null,
+      darkTheme:
+        settings?.darkTheme && settings.darkTheme !== 'default'
+          ? settings.darkTheme
+          : null,
     },
   }
 }

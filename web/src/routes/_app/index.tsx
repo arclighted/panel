@@ -126,7 +126,7 @@ function DashboardPage() {
             New folder
           </Button>
           {servers.length > 0 ? (
-            <div className="flex items-center gap-1 rounded-xl border bg-background p-1">
+            <div className="flex items-center gap-1 rounded-xl border bg-muted p-1">
               <button
                 type="button"
                 onClick={() => setView('grid')}
@@ -134,7 +134,7 @@ function DashboardPage() {
                 className={cn(
                   'flex min-h-8 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-colors',
                   view === 'grid'
-                    ? 'bg-accent text-accent-foreground'
+                    ? 'bg-card text-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground',
                 )}
               >
@@ -148,7 +148,7 @@ function DashboardPage() {
                 className={cn(
                   'flex min-h-8 items-center gap-1.5 rounded-lg px-3 text-sm font-medium transition-colors',
                   view === 'list'
-                    ? 'bg-accent text-accent-foreground'
+                    ? 'bg-card text-foreground shadow-sm'
                     : 'text-muted-foreground hover:text-foreground',
                 )}
               >

@@ -7,6 +7,14 @@ import { Toaster } from 'sonner'
 import appCss from '../styles.css?url'
 import { queryClient } from '../lib/query-client'
 import { CsrfMeta } from '../components/csrf-meta'
+import { useAuthConfig } from '../lib/auth-config'
+
+// The Express-era theme system: default-light/default-dark are always loaded
+// and define the --theme-* token set (B&W defaults). Admin-configured
+// overrides (solarized, material, user themes) layer on top and win by
+// cascade order — matching the legacy header exactly.
+export const DEFAULT_LIGHT_THEME = '/themes/default-light.css'
+export const DEFAULT_DARK_THEME = '/themes/default-dark.css'
 
 export const Route = createRootRoute({
   head: () => ({
@@ -63,11 +71,34 @@ function RootDocument({ children }: { children: ReactNode }) {
       <body className="min-h-dvh bg-background font-sans text-foreground antialiased">
         <QueryClientProvider client={queryClient}>
           <CsrfMeta />
+          {/* Theme stylesheets — default B&W + admin-configured overrides. */}
+          <ThemeStyles />
           {children}
           <Toaster richColors position="bottom-right" />
         </QueryClientProvider>
         <Scripts />
       </body>
     </html>
+  )
+}
+
+/**
+ * The Express theme system: default-light/default-dark are always loaded and
+ * define the --theme-* token set (B&W defaults). Admin-configured overrides
+ * (solarized/material/user themes) layer on top and win by cascade order —
+ * matching the legacy header. React 19 hoists <link rel="stylesheet"> into
+ * <head>; rendering them here (not via the router head API) keeps jsdom
+ * tests fast (the head manager's stylesheet handling hangs under jsdom).
+ */
+function ThemeStyles() {
+  const { data } = useAuthConfig()
+  const { lightTheme, darkTheme } = data?.settings ?? {}
+  return (
+    <>
+      <link rel="stylesheet" href={DEFAULT_LIGHT_THEME} />
+      <link rel="stylesheet" href={DEFAULT_DARK_THEME} />
+      {lightTheme ? <link rel="stylesheet" href={lightTheme} /> : null}
+      {darkTheme ? <link rel="stylesheet" href={darkTheme} /> : null}
+    </>
   )
 }

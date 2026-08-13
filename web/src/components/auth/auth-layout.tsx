@@ -1,7 +1,6 @@
 import type { ReactNode } from 'react'
 import { Link } from '@tanstack/react-router'
 
-import { Card } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { cn } from '@/lib/utils'
 import type { AuthSettings } from '@/lib/auth-config'
@@ -33,12 +32,34 @@ export function AuthLayout({
   const bg = wallpaper ?? settings.loginWallpaper ?? DEFAULT_WALLPAPER
 
   return (
-    <div className="flex min-h-dvh bg-background">
+    /*
+     * Express auth split: a fixed 420px form panel on --theme-bg-card with a
+     * right border, wallpaper filling the rest. On mobile the wallpaper sits
+     * behind a translucent panel (legacy .auth-split/.auth-panel/.auth-image).
+     */
+    <div className="relative flex min-h-dvh bg-background">
+      {/* Wallpaper */}
+      <div
+        aria-hidden
+        className="fixed inset-0 z-0 md:static md:z-auto md:flex-1"
+        style={{
+          backgroundImage: `url('${bg}')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
+
       {/* Form panel */}
-      <div className={cn(
-        'flex w-full flex-col justify-center px-6 py-12 sm:px-12 lg:w-1/2 lg:px-16',
-        className,
-      )}>
+      <div
+        className={cn(
+          'relative z-10 flex min-h-dvh w-full flex-col justify-center',
+          'bg-[color-mix(in_srgb,var(--theme-bg-card)_95%,transparent)]',
+          'px-6 py-12 sm:px-10',
+          'md:z-auto md:min-h-0 md:w-auto md:max-w-[420px] md:shrink-0',
+          'md:border-r md:border-border md:bg-card',
+          className,
+        )}
+      >
         <div className="mx-auto w-full max-w-sm">
           <div className="mb-8">
             {settings.logo ? (
@@ -60,22 +81,11 @@ export function AuthLayout({
             </Alert>
           ) : null}
 
-          <Card className="p-6">{children}</Card>
+          {children}
 
           {footer ? <div className="mt-6 text-center text-sm text-muted-foreground">{footer}</div> : null}
         </div>
       </div>
-
-      {/* Wallpaper panel (hidden on small screens) */}
-      <div
-        aria-hidden
-        className="hidden lg:block lg:w-1/2"
-        style={{
-          backgroundImage: `url('${bg}')`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-        }}
-      />
     </div>
   )
 }

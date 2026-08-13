@@ -943,6 +943,59 @@ client bundle: the class is bundled into the client assets and the
 12/12, 2FA page 2/2, realtime 4/4) + full web suite, production build,
 phase-5 smoke, dev-seam smoke 5/5.
 
+### Phase 8 — Restore the Express visual identity (Aug 2026) ✅
+
+**Done:** the TanStack app now looks like the Express panel again. The
+Express-era `--theme-*` token system is loaded and drives every shadcn
+component, so the B&W default theme (and admin-configured solarized/material
+overrides) render exactly as before — with TanStack Start + shadcn underneath.
+
+**1. Theme stylesheets are loaded again.** `web/src/routes/__root.tsx` renders
+`/themes/default-light.css` + `/themes/default-dark.css` (served by the Phase 4
+static middleware) and, once `GET /api/auth-config` resolves, the admin-
+configured `lightTheme`/`darkTheme` overrides — the same link order as the
+legacy EJS header, so overrides win the cascade. The links render as React
+19-hoisted `<link>` elements in the shell body rather than via the router
+head API: TanStack's head-manager stylesheet handling hangs jsdom tests, and
+React 19 hoists `<link rel="stylesheet">` into `<head>` anyway.
+
+**2. All shadcn tokens remapped onto the Express palette.** `web/src/styles.css`
+now defines `--background: var(--theme-bg)`, `--card: var(--theme-bg-card)`,
+`--primary: var(--theme-accent)`, `--sidebar: var(--theme-nav-bg)`, `--muted:
+var(--theme-bg-secondary)`, `--border: var(--theme-border)`, `--input: var(
+--theme-border-input)`, `--destructive: var(--theme-danger)` etc. (light and
+dark), each with the old oklch value as a `var()` fallback so a missing theme
+file can never blank the UI. `--radius` is 0.75rem (Express `rounded-xl`
+cards / `--theme-radius-input`) and a `--color-border-accent` utility was
+added so the `hover:border-border-accent` card hover (previously a no-op)
+now draws the strong Express border. Font stays Geist (user decision).
+
+**3. Auth layout matches Express.** `web/src/components/auth/auth-layout.tsx`
+is the legacy split again: a fixed 420px form panel on `--theme-bg-card`
+with a right border and the wallpaper flexing to fill the rest; on mobile
+the wallpaper sits behind a translucent panel (`.auth-split`/
+`.auth-panel`/`.auth-image` behavior, 95% color-mix). The Card wrapper is
+gone — inputs sit on the panel background like EJS.
+
+**4. Shell chrome + dashboard fidelity.** The sidebar, mobile top bar and
+bottom nav use `bg-sidebar`/`border-sidebar-border` (→ `--theme-nav-*`),
+matching the white-on-light / `#111111` dark nav. The dashboard's grid/list
+toggle matches `.vt-active` (white active tile + shadow inside a muted
+container).
+
+**5. Settings payload carries the theme overrides.** `web/server/utils/
+auth-config.ts` now emits `settings.lightTheme`/`darkTheme` (normalizing
+`'default'` to `null`) and the client `AuthSettings` type + `DEFAULT_SETTINGS`
+were extended — the pieces the legacy admin settings page already writes to
+the `settings` table now take effect in the React app.
+
+**Gate:** web tsc clean; `nitro-auth-config.test.ts` updated (payload shape);
+full web suite green serially (2fa/dashboard/login flakes only under parallel
+CPU contention, pass in isolation); production build; `web/arclight-smoke-
+theme.mjs` probe 7/7 — SSR shell links both default themes, `/themes/*` serve
+200 with tokens (incl. solarized override), and the bundled CSS remaps tokens
+to `var(--theme-*)`.
+
 ---
 
 ## 4. Verification gates (shared)

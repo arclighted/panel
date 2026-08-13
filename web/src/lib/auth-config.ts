@@ -16,6 +16,9 @@ export interface AuthSettings {
   allowRegistration: boolean
   loginWallpaper: string | null
   registerWallpaper: string | null
+  /** Admin-configured theme override hrefs (e.g. /themes/solarized-light.css). */
+  lightTheme: string | null
+  darkTheme: string | null
 }
 
 export interface AuthConfig {
@@ -32,6 +35,8 @@ export const DEFAULT_SETTINGS: AuthSettings = {
   allowRegistration: false,
   loginWallpaper: null,
   registerWallpaper: null,
+  lightTheme: null,
+  darkTheme: null,
 }
 
 /**

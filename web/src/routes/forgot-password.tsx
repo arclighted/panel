@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { AuthLayout } from '@/components/auth/auth-layout'
-import { useAuthConfig } from '@/lib/auth-config'
+import { useAuthConfig, DEFAULT_SETTINGS } from '@/lib/auth-config'
 import { submitForgotPassword } from '@/lib/auth'
 
 export const Route = createFileRoute('/forgot-password')({
@@ -48,7 +48,7 @@ function ForgotPasswordPage() {
     <AuthLayout
       title="Forgot password"
       subtitle="We'll email you a reset link."
-      settings={settings ?? { title: 'Arclight', logo: null, allowRegistration: false, loginWallpaper: null, registerWallpaper: null }}
+      settings={settings ?? DEFAULT_SETTINGS}
       error={error}
       footer={
         <Link to="/login" className="text-sm font-medium text-primary hover:underline">

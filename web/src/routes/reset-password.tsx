@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { AuthLayout } from '@/components/auth/auth-layout'
-import { useAuthConfig } from '@/lib/auth-config'
+import { useAuthConfig, DEFAULT_SETTINGS } from '@/lib/auth-config'
 import { submitResetPassword } from '@/lib/auth'
 import { resetErrorMessage } from '@/lib/errors'
 
@@ -68,7 +68,7 @@ function ResetPasswordPage() {
     <AuthLayout
       title="Reset password"
       subtitle="Choose a new password for your account."
-      settings={settings ?? { title: 'Arclight', logo: null, allowRegistration: false, loginWallpaper: null, registerWallpaper: null }}
+      settings={settings ?? DEFAULT_SETTINGS}
       error={error}
       footer={
         <Link to="/login" className="text-sm font-medium text-primary hover:underline">

@@ -46,7 +46,7 @@ function NavLinkItem({
       className={cn(
         'flex items-center gap-3 rounded-xl px-4 py-2 text-sm transition-colors',
         active
-          ? 'bg-accent font-medium text-accent-foreground'
+          ? 'bg-sidebar-accent font-medium text-sidebar-accent-foreground'
           : 'text-muted-foreground hover:bg-accent/50 hover:text-foreground',
       )}
     >
@@ -119,7 +119,7 @@ export function AppShell({
   return (
     <div className="min-h-dvh">
       {/* ── Desktop sidebar ─────────────────────────────────────────────── */}
-      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r bg-background lg:flex">
+      <aside className="fixed inset-y-0 left-0 z-40 hidden w-60 flex-col border-r border-sidebar-border bg-sidebar lg:flex">
         <div className="flex h-16 shrink-0 items-center border-b px-4">
           <BrandLogo settings={settings} />
         </div>
@@ -196,7 +196,7 @@ export function AppShell({
       </aside>
 
       {/* ── Mobile top bar ──────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b bg-background px-4 lg:hidden">
+      <header className="sticky top-0 z-40 flex h-14 items-center justify-between border-b border-sidebar-border bg-sidebar px-4 lg:hidden">
         <BrandLogo settings={settings} />
         <div className="flex items-center gap-1">
           <ThemeToggle />
@@ -217,7 +217,7 @@ export function AppShell({
       {/* ── Mobile bottom nav ───────────────────────────────────────────── */}
       <nav
         aria-label="Mobile navigation"
-        className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-stretch border-t bg-background px-2 lg:hidden"
+        className="fixed inset-x-0 bottom-0 z-40 flex h-16 items-stretch border-t border-sidebar-border bg-sidebar px-2 lg:hidden"
       >
         {regular.slice(0, 4).map((item) => (
           <a

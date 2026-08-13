@@ -66,6 +66,8 @@ describe('GET /api/auth-config (Nitro)', () => {
       allowRegistration: true,
       loginWallpaper: '/wall.jpg',
       registerWallpaper: null,
+      lightTheme: '/themes/solarized-light.css',
+      darkTheme: 'default',
     })
     mocks.nitroPrisma.users.count.mockResolvedValue(1)
 
@@ -87,6 +89,8 @@ describe('GET /api/auth-config (Nitro)', () => {
           allowRegistration: true,
           loginWallpaper: '/wall.jpg',
           registerWallpaper: null,
+          lightTheme: '/themes/solarized-light.css',
+          darkTheme: null,
         },
       })
     })
@@ -108,6 +112,8 @@ describe('GET /api/auth-config (Nitro)', () => {
           allowRegistration: false,
           loginWallpaper: null,
           registerWallpaper: null,
+          lightTheme: null,
+          darkTheme: null,
         },
       })
     })
