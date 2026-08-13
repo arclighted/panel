@@ -785,6 +785,59 @@ unmount-reload cycle, legacy redirects, static regression), web suite
 261/261 (at reduced parallelism — the default parallel run is timing-flaky
 under CPU contention in untouched client tests), root + web tsc clean.
 
+### Phase 6 — Prune the dormant Express tree ✅
+
+**Done** (commit pending): the Express-era source is gone. The survival closure
+(import walker from the Nitro entry) determined exactly what `src/` still feeds
+the Nitro runtime; everything else was deleted.
+
+**Deleted — 152 files, 4 categories:**
+
+1. **Dormant Express modules + handlers (66 files):** `src/modules/*` routers
+   (user/server/*, admin/*, api/v1, api/client, auth, realtime, registry,
+   twoFactor, createServer, sftp, wsUsers, …), `src/handlers/*`
+   (addonHandler, modulesLoader, moduleInit, sessionStore, envLoader,
+   settingsLoader, databaseLoader, errorPages' helper deps, …), `src/utils/
+   validation.ts`, `src/types/{daemon,ejs,express-ws,global}.d.ts`. The 75
+   `res.render` sites and the Express app assembly die with them.
+2. **Express-routing tests (30 files):** `sessionStore`, `csrfRouting`/
+   `csrfEnforcement`, `realtime`, `filesBackend`, `sftpBackend`, `backupsBackend`,
+   `admin*`, `apiAlternativeValidator`, `clientApi`, `al*` (legacy UI drivers),
+   `toast*`, `state`, `operations`, `settingsWallpaper`, `cspHeaders`/
+   `responsiveA11y` (read the deleted `public/javascript`/`src/app.ts`). The
+   borderline cases (`elementIds`, `iconVocabulary`, `designMotion`,
+   `security/{wsToken,hmacForgery}`) were reviewed individually — they scan
+   live dirs or are self-contained, so they survive.
+3. **Legacy `public/javascript/` (56 files):** the EJS-era Turbo/Stimulus UI
+   layer (admin/*, shared/*, user/*, vendor/*) — unreachable since the React
+   cutover; its only consumers were the deleted tests.
+4. **Root Express runtime deps:** `express-session`, `express-ws`,
+   `express-rate-limit`, `ejs`, `compression`, `cookie-parser`, `multer` +
+   their `@types/*`. `express` itself **stays** in root dependencies — it is
+   the addon SDK: `web/server/utils/addon-runtime.ts` bridges the express
+   `Router`-based addon bundles (`storage/addons/*/dist` `require('express')`
+   directly) into Nitro. `@types/express` + `@types/express-session` also
+   survive to type the remaining `req.session`/`Request` code.
+
+**Surgical edits that kept the closure green:**
+
+- `src/modules/user/server/{backups,startup}.ts` mixed live shared helpers
+  (`persistBackupRecord`, `validateVariableRules`) with dead router
+  registration — routers stripped, helpers kept.
+- `tests/authSchemas.test.ts` lost its Express-boot describe block (it
+  imported the deleted `authService.router()`); the pure Zod schema tests
+  remain.
+- `src/types/better-sqlite3.d.ts` restored (`src/db.ts` still opens the
+  store).
+- `src/types/express.d.ts` now side-effect imports `express-session` so
+  `@types/express-session`'s `declare global` Request augmentation stays in
+  the program (nothing else imports it anymore).
+
+**Gate:** root tsc (`pnpm typecheck` — all 3 tsconfigs), web tsc, root vitest
+315/315, web vitest 261/261 (2fa/dashboard flaky only under full-parallel CPU
+contention; green in isolation), production build, phase-5 smoke 15/15
+(Express deleted end-to-end still holds).
+
 ---
 
 ## 4. Verification gates (shared)

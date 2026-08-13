@@ -1,4 +1,9 @@
 import type { ApiKey, SubUser } from '../generated/prisma/client';
+// Pull @types/express-session's `declare global` Request augmentation into the
+// program. The session runtime (PrismaSessionStore, express-session) was pruned
+// in Phase 6, so no module imports 'express-session' anymore — without this
+// side-effect import, `req.session` silently loses its type.
+import 'express-session';
 
 export interface PanelSessionUser {
   id: number;

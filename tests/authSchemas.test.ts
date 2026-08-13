@@ -1,6 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import express from 'express';
-import type { AddressInfo } from 'node:net';
+import { describe, it, expect } from 'vitest';
 import {
   loginSchema,
   registerSchema,
@@ -88,53 +86,6 @@ describe('registerSchema', () => {
     expect(r.success).toBe(false);
     if (!r.success) {
       expect(authValidationErrorCode(r.error.issues)).toBe('missing');
-    }
-  });
-});
-
-describe('auth route validation boundary', () => {
-  let app: express.Express;
-  let server: ReturnType<typeof app.listen>;
-  let baseUrl: string;
-
-  beforeEach(async () => {
-    vi.resetModules();
-  });
-
-  it('login redirects to invalid_credentials for malformed body', async () => {
-    vi.doMock('../src/db', () => ({
-      default: {
-        settings: { findUnique: vi.fn().mockResolvedValue({}) },
-        users: { findUnique: vi.fn(), findFirst: vi.fn(), count: vi.fn().mockResolvedValue(1) },
-      },
-    }));
-    vi.doMock('../src/handlers/logger', () => ({
-      default: { error: vi.fn(), info: vi.fn(), warn: vi.fn(), success: vi.fn() },
-    }));
-
-    const authServiceModule = (await import('../src/modules/auth/authService')).default;
-    app = express();
-    app.use(express.urlencoded({ extended: false }));
-    app.use(authServiceModule.router());
-    server = await new Promise((resolve) => {
-      const s = app.listen(0, () => resolve(s));
-    });
-    baseUrl = `http://127.0.0.1:${(server.address() as AddressInfo).port}`;
-
-    const resp = await fetch(`${baseUrl}/login`, {
-      method: 'POST',
-      headers: { 'content-type': 'application/x-www-form-urlencoded' },
-      body: 'identifier=&password=',
-      redirect: 'manual',
-    });
-
-    expect(resp.status).toBe(302);
-    expect(resp.headers.get('location')).toBe('/login?err=invalid_credentials');
-  });
-
-  afterEach(async () => {
-    if (server) {
-      await new Promise<void>((resolve) => server.close(() => resolve()));
     }
   });
 });
