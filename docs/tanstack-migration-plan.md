@@ -787,7 +787,7 @@ under CPU contention in untouched client tests), root + web tsc clean.
 
 ### Phase 6 — Prune the dormant Express tree ✅
 
-**Done** (commit pending): the Express-era source is gone. The survival closure
+**Done** (commit `b86c2327`): the Express-era source is gone. The survival closure
 (import walker from the Nitro entry) determined exactly what `src/` still feeds
 the Nitro runtime; everything else was deleted.
 
