@@ -751,7 +751,7 @@ surface, ETag/304, avatar, addon-assets guards) + 15-check prod smoke
 
 ### Phase 5 — Delete Express ✅
 
-**Done** (commit …): the launcher seam is gone. `web/server/index.mjs` is a
+**Done** (commit `ab0e795a`): the launcher seam is gone. `web/server/index.mjs` is a
 thin entry that loads env + `NODE_ENV` and imports the Nitro server directly;
 `web/proxy.config.ts` and the `proxyToExpress()` vite plugin are deleted;
 `scripts/dev.mjs` runs the single Nitro process. `src/app.ts` is deleted and
