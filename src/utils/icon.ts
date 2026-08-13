@@ -8,8 +8,15 @@
  */
 
 // lucide exports icons as arrays of [tag, attrs, children?] tuples
- 
-const lucideIcons = require('lucide') as Record<string, unknown>;
+import * as lucideIconsNamespace from 'lucide';
+
+type IconExportRecord = Record<string, unknown>;
+type LucideModule = IconExportRecord & { default?: IconExportRecord };
+
+const lucideIcons: IconExportRecord = {
+  ...(lucideIconsNamespace as unknown as LucideModule).default,
+  ...lucideIconsNamespace,
+} satisfies IconExportRecord;
 
 interface IconOptions {
   /** Element id (for JS targeting) */

@@ -894,6 +894,55 @@ disable). `qrcode` + `@types/qrcode` (root) are the QR renderer.
 **Gate:** root tsc (3 configs), web tsc, root vitest, web vitest, production
 build — all green; phase-5 smoke re-run.
 
+### Phase 7 — Loose ends: 2FA disable UI + dev-seam & realtime verification ✅
+
+**Done** (commit `…`): the three loose ends left by the migration + audit.
+
+**1. 2FA disable is now wired into the UI.** `POST /account/2fa/disable` was
+ported in Phase 6.5 but no React code called it — users with 2FA enabled
+could not turn it off. `web/src/routes/_app/account/2fa/setup.tsx` now renders
+a password-confirmed disable card in the `alreadyEnabled` state (destructive
+button, CSRF header, Enter-to-submit), a `justDisabled` success state with a
+“Set up again” re-arm that re-fetches the QR without a reload, and the
+password field is cleared after a successful disable. `loadSetup()` was
+factored out of the mount effect so “Set up again” can reuse it.
+
+**2. The migration chain was BROKEN for fresh installs — fixed.** The
+Phase-7 dev-seam smoke (below) boots `pnpm dev` against a temp SQLite DB, and
+`prisma migrate deploy` failed with P3018 `duplicate column name` on every
+fresh checkout: the RedefineTables in `20260809100711_new` already creates
+`totpRecoveryCodes`, `preferredNodeId`, `role`, `onboardingCompleted` and
+`onboardingSkipped`, but three later-named migrations tried to `ADD COLUMN`
+them again:
+- `20260813000000_totp_recovery_codes` → no-op (column already in 0910).
+- `20260820000000_add_preferred_node` → no-op (column already in 0910).
+- `20260820000001_roles_onboarding_images` → dropped only the three duplicate
+  Users `ADD COLUMN`s; the role/owner backfill UPDATEs and the Images/settings
+  ALTERs (unique to that migration) are kept.
+
+   Fresh `prisma migrate deploy` now applies all 26 migrations cleanly
+   (verified on a brand-new temp DB). The dev.db in this repo predates the
+   RedefineTables and carries no `_prisma_migrations` history, so it is
+   unaffected.
+
+**3. Dev seam verified end-to-end.** `web/arclight-smoke-dev-seam.mjs` boots
+the real dev stack (`node scripts/dev.mjs` → migrate → prisma generate →
+tailwind → Vite/Nitro on a free port with a temp DB) and drives it with a
+real `ws` client: `GET /login` renders the SSR shell, `/ws/realtime` closes
+4401 without a cookie, `realtime.ready` + `realtime.synced` arrive with an
+admin session cookie, and `/api/auth-config` returns the session user —
+5/5 pass. This closes the “DEV seam not verified” note from Phase 3.
+
+**4. Browser realtime transport confirmed in the built client.** The Phase
+6.5 fix (importing `reconnecting-websocket` instead of the deleted
+`window.ReconnectingWebSocket` global) is now verified in the production
+client bundle: the class is bundled into the client assets and the
+`window.ReconnectingWebSocket` lookup is gone.
+
+**Gate:** root tsc (3 configs) + web tsc, targeted web tests (2FA setup
+12/12, 2FA page 2/2, realtime 4/4) + full web suite, production build,
+phase-5 smoke, dev-seam smoke 5/5.
+
 ---
 
 ## 4. Verification gates (shared)

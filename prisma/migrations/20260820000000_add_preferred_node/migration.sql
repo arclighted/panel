@@ -1,2 +1,11 @@
--- AlterTable
-ALTER TABLE "Users" ADD COLUMN "preferredNodeId" INTEGER;
+-- No-op (see Phase 7 dev-seam smoke).
+--
+-- This migration previously ran `ALTER TABLE "Users" ADD COLUMN
+-- "preferredNodeId" INTEGER;`, but the column is ALREADY created by the
+-- RedefineTables in `20260809100711_new`. On a fresh database the redundant
+-- ADD COLUMN fails with `duplicate column name: preferredNodeId` (P3018),
+-- which aborts `prisma migrate deploy` and blocks `pnpm dev` from ever
+-- booting a clean checkout.
+--
+-- The folder is kept so databases that already recorded this migration stay
+-- consistent; it now applies as a no-op everywhere.

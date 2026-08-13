@@ -1,10 +1,11 @@
 -- Phase 9: roles, onboarding state, image approval, privileged limits
--- AlterTable
-ALTER TABLE "Users" ADD COLUMN "role" TEXT NOT NULL DEFAULT 'user';
-ALTER TABLE "Users" ADD COLUMN "onboardingCompleted" BOOLEAN NOT NULL DEFAULT false;
-ALTER TABLE "Users" ADD COLUMN "onboardingSkipped" BOOLEAN NOT NULL DEFAULT false;
-
--- Backfill existing admins as the 'admin' role; the first user becomes owner.
+--
+-- NOTE (Phase 7 dev-seam smoke): the `role`, `onboardingCompleted` and
+-- `onboardingSkipped` Users columns were ALREADY created by the RedefineTables
+-- in `20260809100711_new` — the original `ADD COLUMN` statements here failed
+-- on fresh databases with `duplicate column name` (P3018), aborting
+-- `prisma migrate deploy`. The backfill and the Images/settings ALTERs below
+-- are still required, so only the redundant Users ADD COLUMNs were dropped.
 UPDATE "Users" SET "role" = 'owner' WHERE "id" = (SELECT "id" FROM "Users" WHERE "isAdmin" = 1 ORDER BY "id" ASC LIMIT 1);
 UPDATE "Users" SET "role" = 'admin' WHERE "isAdmin" = 1 AND "role" = 'user';
 
