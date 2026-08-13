@@ -896,7 +896,7 @@ build — all green; phase-5 smoke re-run.
 
 ### Phase 7 — Loose ends: 2FA disable UI + dev-seam & realtime verification ✅
 
-**Done** (commit `…`): the three loose ends left by the migration + audit.
+**Done** (commit `ce18996e`): the three loose ends left by the migration + audit.
 
 **1. 2FA disable is now wired into the UI.** `POST /account/2fa/disable` was
 ported in Phase 6.5 but no React code called it — users with 2FA enabled
